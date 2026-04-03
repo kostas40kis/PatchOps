@@ -1,0 +1,51 @@
+{
+  "manifest_version": "1",
+  "patch_name": "patch_cp1_content_path_wrapper_root_repro_contract",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/patchops",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "tests/test_content_path_wrapper_root_current.py",
+      "content": "import json\nfrom pathlib import Path\n\nfrom patchops.workflows.apply_patch import apply_manifest\n\n\ndef test_apply_manifest_accepts_wrapper_relative_content_path_from_nested_patch_dir(tmp_path: Path) -> None:\n    wrapper_root = tmp_path / \"wrapper_project\"\n    target_root = tmp_path / \"target_repo\"\n    report_dir = tmp_path / \"reports\"\n    patch_root = (\n        wrapper_root\n        / \"data\"\n        / \"runtime\"\n        / \"manual_repairs\"\n        / \"patch_cp1_content_path_wrapper_root_repro_contract\"\n    )\n\n    wrapper_root.mkdir(parents=True, exist_ok=True)\n    target_root.mkdir(parents=True, exist_ok=True)\n    report_dir.mkdir(parents=True, exist_ok=True)\n    patch_root.mkdir(parents=True, exist_ok=True)\n\n    payload_relative = Path(\n        \"data/runtime/manual_repairs/\"\n        \"patch_cp1_content_path_wrapper_root_repro_contract/\"\n        \"content/src/external_note.txt\"\n    )\n    payload_path = wrapper_root / payload_relative\n    payload_path.parent.mkdir(parents=True, exist_ok=True)\n\n    payload = \"Wrapper-relative content_path payload.\\n\"\n    payload_path.write_text(payload, encoding=\"utf-8\")\n\n    manifest_data = {\n        \"manifest_version\": \"1\",\n        \"patch_name\": \"content_path_wrapper_root_repro\",\n        \"active_profile\": \"generic_python\",\n        \"target_project_root\": target_root.as_posix(),\n        \"backup_files\": [],\n        \"files_to_write\": [\n            {\n                \"path\": \"CONTENT_PATH_WRAPPER_ROOT_RESULT.txt\",\n                \"content\": None,\n                \"content_path\": payload_relative.as_posix(),\n                \"encoding\": \"utf-8\",\n            }\n        ],\n        \"validation_commands\": [\n            {\n                \"name\": \"python_version\",\n                \"program\": \"python\",\n                \"args\": [\"--version\"],\n                \"working_directory\": \".\",\n                \"use_profile_runtime\": False,\n                \"allowed_exit_codes\": [0],\n            }\n        ],\n        \"smoke_commands\": [],\n        \"audit_commands\": [],\n        \"cleanup_commands\": [],\n        \"archive_commands\": [],\n        \"failure_policy\": {},\n        \"report_preferences\": {\n            \"report_dir\": report_dir.as_posix(),\n            \"report_name_prefix\": \"content_path_wrapper_root_repro\",\n            \"write_to_desktop\": False,\n        },\n        \"tags\": [\"test\", \"content_path\", \"wrapper_relative\", \"current_state\"],\n        \"notes\": \"Current-state repro for wrapper-relative content_path resolution.\",\n    }\n\n    manifest_path = patch_root / \"patch_manifest.json\"\n    manifest_path.write_text(json.dumps(manifest_data, indent=2) + \"\\n\", encoding=\"utf-8\")\n\n    result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)\n\n    expected_source = wrapper_root / payload_relative\n    if result.result_label != \"PASS\":\n        failure_category = str(result.failure.category) if result.failure else \"(none)\"\n        failure_message = result.failure.message if result.failure else \"(none)\"\n        failure_details = result.failure.details if result.failure else \"(none)\"\n        report_text = result.report_path.read_text(encoding=\"utf-8\") if result.report_path.exists() else \"(report missing)\"\n        raise AssertionError(\n            \"Wrapper-relative content_path should resolve from the wrapper root and succeed. \"\n            f\"Expected source path: {expected_source}. \"\n            f\"Failure category: {failure_category}. \"\n            f\"Failure message: {failure_message}. \"\n            f\"Failure details: {failure_details}. \"\n            f\"Report text: {report_text}\"\n        )\n\n    written_file = target_root / \"CONTENT_PATH_WRAPPER_ROOT_RESULT.txt\"\n    assert written_file.exists()\n    assert written_file.read_text(encoding=\"utf-8\") == payload\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "pytest_content_path_wrapper_root_current",
+      "program": "py",
+      "args": [
+        "-3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_content_path_wrapper_root_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:/Users/kostas/Desktop",
+    "report_name_prefix": "patch_cp1_content_path_wrapper_root_repro_contract",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "content_path",
+    "wrapper_relative",
+    "audit",
+    "repro",
+    "current_state"
+  ],
+  "notes": "First repair-stream patch. This patch adds a failing current-state repro test for the documented wrapper-relative content_path contract."
+}

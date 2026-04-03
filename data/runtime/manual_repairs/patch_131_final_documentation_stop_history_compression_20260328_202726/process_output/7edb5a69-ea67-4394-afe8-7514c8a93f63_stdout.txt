@@ -1,0 +1,11 @@
+PATCHOPS RUN SUMMARY
+--------------------
+Mode               : apply
+Patch Name         : patch_131_final_documentation_stop_history_compression
+Manifest Path      : C:\dev\patchops\data\runtime\manual_repairs\patch_131_final_documentation_stop_history_compression_20260328_202726\patch_manifest.json
+Target Project Root: C:\dev\patchops
+Active Profile     : generic_python_powershell
+Runtime Path       : (none)
+Report Path        : C:\Users\kostas\Desktop\patch_131_final_documentation_stop_history_compression_patch_131_final_documentation_stop_history_compression_20260328_202727.txt
+ExitCode           : 0
+Result             : PASS

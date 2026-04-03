@@ -1,0 +1,53 @@
+{
+  "manifest_version": "1",
+  "patch_name": "p134x_report_path_test_escape_repair",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/patchops",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "tests/test_report_path_current.py",
+      "content": null,
+      "content_path": "content/tests/test_report_path_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "report_path_escape_repair_pytest",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_report_preference_apply_flow.py",
+        "tests/test_report_preference_apply_flow_current.py",
+        "tests/test_report_preference_examples.py",
+        "tests/test_apply_report_write_current.py",
+        "tests/test_report_path_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:/dev/patchops/data/runtime/manual_repairs/p134x_report_path_test_escape_repair_20260330_140137/inner_reports",
+    "report_name_prefix": "p134x",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "self_hosted",
+    "summary_integrity",
+    "report_path",
+    "authoring_repair"
+  ],
+  "notes": "Patch 134X repairs the bad backslash escape in tests/test_report_path_current.py and reruns the same report-path validation suite."
+}

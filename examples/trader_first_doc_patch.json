@@ -1,0 +1,50 @@
+{
+  "manifest_version": "1",
+  "patch_name": "trader_first_doc_patch",
+  "active_profile": "trader",
+  "target_project_root": "C:/dev/trader",
+  "backup_files": [
+    "docs/README.md"
+  ],
+  "files_to_write": [
+    {
+      "path": "docs/TRADER_PATCHOPS_FIRST_USAGE_NOTE.txt",
+      "content": "This is a low-risk trader-first PatchOps starter patch. Replace with real content before apply.\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "trader_pytest_quiet",
+      "program": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": null,
+    "report_name_prefix": "trader_first_doc_patch",
+    "write_to_desktop": true
+  },
+  "tags": [
+    "starter",
+    "trader",
+    "first_usage",
+    "doc_patch"
+  ],
+  "notes": "Low-risk trader-first apply starter for a documentation-oriented first PatchOps run. Review target paths and commands before real use."
+}

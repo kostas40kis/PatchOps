@@ -1,0 +1,35 @@
+{
+  "project_name": "Demo Roundtrip Current",
+  "project_slug": "demo_roundtrip_current",
+  "target_root": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_129_new_target_onboarding_flow_proof_20260328_183629\\demo_roundtrip_current_target",
+  "selected_profile": "generic_python",
+  "runtime_override": null,
+  "packet_path": "C:\\dev\\patchops\\docs\\projects\\demo_roundtrip_current.md",
+  "bootstrap_markdown_path": "C:\\dev\\patchops\\onboarding\\current_target_bootstrap.md",
+  "bootstrap_json_path": "C:\\dev\\patchops\\onboarding\\current_target_bootstrap.json",
+  "next_prompt_path": "C:\\dev\\patchops\\onboarding\\next_prompt.txt",
+  "starter_manifest_path": "C:\\dev\\patchops\\onboarding\\starter_manifest.json",
+  "onboarding_root": "C:\\dev\\patchops\\onboarding",
+  "current_target_bootstrap_md": "C:\\dev\\patchops\\onboarding\\current_target_bootstrap.md",
+  "current_target_bootstrap_json": "C:\\dev\\patchops\\onboarding\\current_target_bootstrap.json",
+  "starter_intent": "documentation_patch",
+  "generic_docs": [
+    "README.md",
+    "docs/overview.md",
+    "docs/llm_usage.md",
+    "docs/manifest_schema.md",
+    "docs/profile_system.md",
+    "docs/compatibility_notes.md",
+    "docs/failure_repair_guide.md",
+    "docs/examples.md",
+    "docs/project_status.md",
+    "docs/operator_quickstart.md",
+    "docs/project_packet_contract.md",
+    "docs/project_packet_workflow.md"
+  ],
+  "initial_goals": [
+    "Create the current project packet",
+    "Generate the safest starter manifest"
+  ],
+  "written": true
+}

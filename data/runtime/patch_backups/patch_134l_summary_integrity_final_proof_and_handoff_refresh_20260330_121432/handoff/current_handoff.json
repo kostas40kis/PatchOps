@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "project": "PatchOps",
+  "current_stage": "Stage 2 in progress",
+  "repo_state": {
+    "wrapper_project_root": "C:\\dev\\patchops",
+    "target_project_root": "C:\\dev\\patchops",
+    "latest_run_mode": "apply",
+    "current_status": "pass",
+    "failure_class": "none",
+    "latest_report_path": "C:\\Users\\kostas\\Desktop\\patch_127_final_contract_lock_validation_sweep_20260328_181707.txt"
+  },
+  "latest_patch": {
+    "manifest_patch_name": "patch_127_final_contract_lock_validation_sweep",
+    "latest_attempted_patch": "Patch 127",
+    "latest_passed_patch": "Patch 127"
+  },
+  "resume": {
+    "next_action": "Continue with Patch 128.",
+    "next_recommended_mode": "new_patch",
+    "do_not_redesign_note": "Keep PowerShell thin and reusable logic in Python unless the evidence forces deeper change."
+  },
+  "recommendation": {
+    "recommended_mode": "new_patch",
+    "next_action": "Continue with Patch 128.",
+    "rationale": "The latest exported report passed, so the trustworthy next step is the next planned patch.",
+    "escalation_required": false,
+    "next_recommended_patch": "Patch 128",
+    "known_blockers": []
+  },
+  "required_reading": [
+    "docs/llm_usage.md",
+    "docs/project_status.md",
+    "docs/patch_ledger.md",
+    "docs/manifest_schema.md",
+    "docs/failure_repair_guide.md"
+  ],
+  "resume_rules": [
+    "PatchOps owns patch application, validation, evidence, retry, and handoff mechanics.",
+    "Target repos own their own business logic.",
+    "Prefer narrow repair over broad rewrite.",
+    "Preserve the one-report evidence contract."
+  ]
+}

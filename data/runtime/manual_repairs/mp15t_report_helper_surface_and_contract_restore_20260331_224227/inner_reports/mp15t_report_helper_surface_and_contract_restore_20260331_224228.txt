@@ -1,0 +1,205 @@
+PATCHOPS APPLY
+Patch Name           : mp15t_report_helper_surface_and_contract_restore
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp15t_report_helper_surface_and_contract_restore_20260331_224227\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp15t_report_helper_surface_and_contract_restore_20260331_224228
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp15t_report_helper_surface_and_contract_restore_20260331_224227\inner_reports\mp15t_report_helper_surface_and_contract_restore_20260331_224228.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\command_sections.py
+C:\dev\patchops\patchops\reporting\sections.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15t_report_helper_surface_and_contract_restore_20260331_224228\patchops\reporting\command_sections.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15t_report_helper_surface_and_contract_restore_20260331_224228\patchops\reporting\sections.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\command_sections.py
+WROTE : C:\dev\patchops\patchops\reporting\sections.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : report_helper_surface_pytest
+COMMAND : python -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_reporting_output_helper_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[report_helper_surface_pytest][stdout]
+.......F...F.FFFF................                                        [100%]
+================================== FAILURES ===================================
+_____ test_build_report_command_section_preserves_current_command_values ______
+
+    def test_build_report_command_section_preserves_current_command_values():
+        result = _command_result()
+    
+        section = build_report_command_section(result, section_label="VALIDATION COMMANDS")
+    
+        assert section.section_label == "VALIDATION COMMANDS"
+        assert section.command_name == result.name
+        assert section.command_text == result.display_command
+        assert section.working_directory == result.working_directory
+>       assert section.stdout == result.stdout
+               ^^^^^^^^^^^^^^
+E       AttributeError: 'ReportCommandSection' object has no attribute 'stdout'
+
+tests\test_reporting_command_sections_current.py:45: AttributeError
+______ test_render_report_command_output_section_preserves_visible_shape ______
+
+    def test_render_report_command_output_section_preserves_visible_shape():
+        result = _command_result(stdout="captured stdout", stderr="captured stderr")
+    
+        section = build_report_command_section(result, section_label="FULL OUTPUT")
+        lines = render_report_command_output_section(section)
+    
+>       assert lines == (
+            "[reporting_contracts][stdout]",
+            "captured stdout",
+            "[reporting_contracts][stderr]",
+            "captured stderr",
+        )
+E       AssertionError: assert '[reporting_contracts][stdout]\ncaptured stdout\n[reporting_contracts][stderr]\ncaptured stderr' == ('[reporting_contracts][stdout]', 'captured stdout', '[reporting_contracts][stderr]', 'captured stderr')
+
+tests\test_reporting_command_sections_current.py:94: AssertionError
+__ test_render_report_command_output_section_keeps_labels_when_stdout_empty ___
+
+    def test_render_report_command_output_section_keeps_labels_when_stdout_empty():
+        result = _command_result(stdout="", stderr="captured stderr")
+    
+        section = build_report_command_section(result, section_label="FULL OUTPUT")
+        lines = render_report_command_output_section(section)
+    
+>       assert lines == (
+            "[reporting_contracts][stdout]",
+            "",
+            "[reporting_contracts][stderr]",
+            "captured stderr",
+        )
+E       AssertionError: assert '[reporting_contracts][stdout]\n\n[reporting_contracts][stderr]\ncaptured stderr' == ('[reporting_contracts][stdout]', '', '[reporting_contracts][stderr]', 'captured stderr')
+
+tests\test_reporting_command_sections_current.py:131: AssertionError
+__ test_render_report_command_output_section_keeps_labels_when_stderr_empty ___
+
+    def test_render_report_command_output_section_keeps_labels_when_stderr_empty():
+        result = _command_result(stdout="captured stdout", stderr="")
+    
+        section = build_report_command_section(result, section_label="FULL OUTPUT")
+        lines = render_report_command_output_section(section)
+    
+>       assert lines == (
+            "[reporting_contracts][stdout]",
+            "captured stdout",
+            "[reporting_contracts][stderr]",
+            "",
+        )
+E       AssertionError: assert '[reporting_contracts][stdout]\ncaptured stdout\n[reporting_contracts][stderr]\n' == ('[reporting_contracts][stdout]', 'captured stdout', '[reporting_contracts][stderr]', '')
+
+tests\test_reporting_command_sections_current.py:145: AssertionError
+_ test_render_report_command_output_section_keeps_labels_when_both_outputs_empty _
+
+    def test_render_report_command_output_section_keeps_labels_when_both_outputs_empty():
+        result = _command_result(stdout="", stderr="")
+    
+        section = build_report_command_section(result, section_label="FULL OUTPUT")
+        lines = render_report_command_output_section(section)
+    
+>       assert lines == (
+            "[reporting_contracts][stdout]",
+            "",
+            "[reporting_contracts][stderr]",
+            "",
+        )
+E       AssertionError: assert '[reporting_contracts][stdout]\n\n[reporting_contracts][stderr]\n' == ('[reporting_contracts][stdout]', '', '[reporting_contracts][stderr]', '')
+
+tests\test_reporting_command_sections_current.py:159: AssertionError
+__________ test_build_report_command_section_exposes_current_fields ___________
+
+    def test_build_report_command_section_exposes_current_fields() -> None:
+        section = build_report_command_section(_result())
+    
+        assert section.command_name == "alpha"
+        assert "pytest" in section.command_text
+        assert section.exit_code == 0
+>       assert str(Path.cwd()) == section.working_directory
+E       AssertionError: assert 'C:\\dev\\patchops' == WindowsPath('C:/dev/patchops')
+E        +  where 'C:\\dev\\patchops' = str(WindowsPath('C:/dev/patchops'))
+E        +    where WindowsPath('C:/dev/patchops') = cwd()
+E        +      where cwd = Path.cwd
+E        +  and   WindowsPath('C:/dev/patchops') = ReportCommandSection(section_label='COMMANDS', command_name='alpha', command_text='py -m pytest -q tests/test_reportin...irectory=WindowsPath('C:/dev/patchops'), exit_code=0, stdout_text='hello\n', stderr_text='warn\n', classification=None).working_directory
+
+tests\test_reporting_output_helper_current.py:34: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_reporting_command_sections_current.py::test_build_report_command_section_preserves_current_command_values
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_preserves_visible_shape
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_keeps_labels_when_stdout_empty
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_keeps_labels_when_stderr_empty
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_keeps_labels_when_both_outputs_empty
+FAILED tests/test_reporting_output_helper_current.py::test_build_report_command_section_exposes_current_fields
+
+[report_helper_surface_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'report_helper_surface_pytest' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

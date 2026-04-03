@@ -1,0 +1,47 @@
+{
+  "manifest_version": "1",
+  "patch_name": "patch_129k_new_target_onboarding_current_contract_repair",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/patchops",
+  "backup_files": [
+    "tests/test_new_target_onboarding_current.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "tests/test_new_target_onboarding_current.py",
+      "content": null,
+      "content_path": "content/test_new_target_onboarding_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "full_pytest",
+      "program": "py",
+      "args": [
+        "-3",
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_129k_new_target_onboarding_current_contract_repair_20260328_195939\\reports",
+    "report_name_prefix": "patch_129k_new_target_onboarding_current_contract_repair",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "self_hosted",
+    "onboarding",
+    "validation_repair",
+    "f5"
+  ],
+  "notes": "Align the F5 current-onboarding proof test with the already-shipped onboarding bootstrap contract."
+}

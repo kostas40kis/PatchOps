@@ -1,0 +1,60 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_63b_next_action_recommender_test_contract_repair",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "tests/test_handoff.py"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "tests/test_handoff.py",
+                               "content_path":  "content/tests/test_handoff.py",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "smoke_commands":  [
+
+                       ],
+    "audit_commands":  [
+
+                       ],
+    "cleanup_commands":  [
+
+                         ],
+    "archive_commands":  [
+
+                         ],
+    "failure_policy":  {
+
+                       },
+    "report_preferences":  {
+                               "report_name_prefix":  "patch_63b_next_action_recommender_test_contract_repair",
+                               "write_to_desktop":  true
+                           },
+    "tags":  [
+                 "stage2",
+                 "handoff",
+                 "repair",
+                 "test_contract",
+                 "self_hosted",
+                 "patch_63b"
+             ],
+    "notes":  "Narrow repair for Patch 63. Keep handoff code unchanged and relax one brittle markdown-spacing assertion in tests/test_handoff.py."
+}

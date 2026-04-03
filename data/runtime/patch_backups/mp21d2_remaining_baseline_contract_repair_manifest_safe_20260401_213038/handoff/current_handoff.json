@@ -1,0 +1,50 @@
+{
+  "architecture_rules": [
+    "Keep PowerShell thin and operator-facing.",
+    "Keep reusable workflow logic in Python.",
+    "Keep the wrapper project-agnostic.",
+    "Keep one canonical Desktop txt report per patch flow.",
+    "Prefer narrow validation and repair over redesign."
+  ],
+  "content_path_repair_stream": {
+    "bug_state": "repaired",
+    "example_apply_flow_proof": true,
+    "fallback_rule": "manifest_local_compatibility_fallback",
+    "next_posture": "maintenance_locked_do_not_reopen_without_new_contrary_evidence",
+    "resolution_rule": "wrapper_root_first",
+    "status": "green_through_cp5"
+  },
+  "current_stage": "maintenance_finalization",
+  "failure_class": "none",
+  "known_blockers": [],
+  "latest_attempted_patch": "p134z_final_proof_handoff_refresh",
+  "latest_passed_patch": "p134z_final_proof_handoff_refresh",
+  "latest_patch": {
+    "latest_attempted_patch": "p134z_final_proof_handoff_refresh",
+    "latest_passed_patch": "p134z_final_proof_handoff_refresh"
+  },
+  "latest_report_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\p134z_final_proof_handoff_refresh_20260330_141124\\inner_reports\\p134z_p134z_final_proof_handoff_refresh_20260330_141125.txt",
+  "latest_status": "pass",
+  "must_read_files": [
+    "handoff/current_handoff.md",
+    "handoff/current_handoff.json",
+    "handoff/latest_report_copy.txt",
+    "docs/project_status.md",
+    "docs/patch_ledger.md",
+    "docs/summary_integrity_repair_stream.md"
+  ],
+  "next_action": "Retry MP21 single-file writer helper only after the baseline stays green.",
+  "next_recommended_goal": "No further action required for the summary-integrity stream unless new evidence appears.",
+  "next_recommended_patch": null,
+  "previous_blocker_patch": "p134y_report_dir_pre_mkdir_fallback_fix",
+  "project_name": "PatchOps",
+  "repo_state": {
+    "current_status": "pass",
+    "failure_class": "none",
+    "latest_run_mode": "maintenance"
+  },
+  "resume_mode": "maintenance",
+  "updated_at": "2026-03-30T14:11:26.7297922+03:00",
+  "workspace_root": "C:\\\\dev",
+  "wrapper_repo_root": "C:\\\\dev\\\\patchops"
+}

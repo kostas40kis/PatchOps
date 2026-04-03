@@ -1,0 +1,24 @@
+{
+  "manifest_version": "1",
+  "patch_name": "trader_stage1_example_code_patch",
+  "active_profile": "trader",
+  "target_project_root": "C:/dev/trader",
+  "files_to_write": [
+    {
+      "path": "docs/patchops_example.txt",
+      "content": "This file was written by a Stage 1 PatchOps example manifest.\n"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "python_version",
+      "use_profile_runtime": true,
+      "args": ["--version"],
+      "working_directory": "."
+    }
+  ],
+  "report_preferences": {
+    "report_name_prefix": "trader_patch"
+  },
+  "tags": ["example", "trader", "code_patch"]
+}

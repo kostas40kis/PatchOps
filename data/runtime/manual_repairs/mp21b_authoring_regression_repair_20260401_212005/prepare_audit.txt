@@ -1,0 +1,9 @@
+{
+  "patch_name": "mp21b_authoring_regression_repair",
+  "writers_path": "C:\\dev\\patchops\\patchops\\files\\writers.py",
+  "apply_path": "C:\\dev\\patchops\\patchops\\workflows\\apply_patch.py",
+  "metadata_path": "C:\\dev\\patchops\\patchops\\reporting\\metadata.py",
+  "reporting_init_path": "C:\\dev\\patchops\\patchops\\reporting\\__init__.py",
+  "writers_imports_writeplan_from_models_before": true,
+  "apply_contains_wrapper_root_load_content_before": true
+}\n

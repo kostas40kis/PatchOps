@@ -1,0 +1,7 @@
+{
+  "patched_files": [
+    "patchops\\handoff.py",
+    "tests\\test_handoff_next_action_alignment_current.py"
+  ],
+  "backup_root": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp41_handoff_next_action_derivation_alignment_direct_repair_20260402_125448\\backups"
+}

@@ -1,0 +1,5 @@
+decision=mp15r_current_truth_validation
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp15r_report_helper_current_truth_validation_20260331_201438\patch_manifest.json
+copied_files=patchops/reporting/sections.py;patchops/reporting/command_sections.py;tests/test_reporting_output_helper_current.py
+validation_targets=tests/test_reporting.py;tests/test_reporting_command_sections_current.py;tests/test_reporting_output_helper_current.py;tests/test_summary_integrity_current.py;tests/test_summary_derivation_lock_current.py;tests/test_required_vs_tolerated_report_current.py;tests/test_summary_integrity_workflow_current.py
+rationale=The latest red was the wrapper's inline py -c smoke quoting, so the truthful next move is to validate the current on-disk repo state through check/inspect/plan/apply without another fragile smoke layer.

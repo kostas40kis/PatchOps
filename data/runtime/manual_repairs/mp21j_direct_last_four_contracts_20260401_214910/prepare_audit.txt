@@ -1,0 +1,13 @@
+{
+  "patch_name": "mp21j_direct_last_four_contracts",
+  "latest_index_has_next_recommended_mode": true,
+  "next_prompt_has_do_not_reopen_sentence": true,
+  "writers_has_inline_content": true,
+  "metadata_compare_false_fields": true,
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21j_direct_last_four_contracts_20260401_214910\\content\\handoff\\latest_report_index.json",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21j_direct_last_four_contracts_20260401_214910\\content\\handoff\\next_prompt.txt",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21j_direct_last_four_contracts_20260401_214910\\content\\patchops\\files\\writers.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21j_direct_last_four_contracts_20260401_214910\\content\\patchops\\reporting\\metadata.py"
+  ]
+}

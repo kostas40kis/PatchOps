@@ -1,0 +1,221 @@
+PATCHOPS APPLY
+Patch Name           : mp21d2_remaining_baseline_contract_repair_manifest_safe
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213037\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213038
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213037\inner_reports\mp21d2_mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213038.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\files\writers.py
+C:\dev\patchops\patchops\reporting\metadata.py
+C:\dev\patchops\patchops\reporting\__init__.py
+C:\dev\patchops\handoff\current_handoff.json
+C:\dev\patchops\handoff\next_prompt.txt
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\handoff\current_handoff.json -> C:\dev\patchops\data\runtime\patch_backups\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213038\handoff\current_handoff.json
+BACKUP : C:\dev\patchops\handoff\next_prompt.txt -> C:\dev\patchops\data\runtime\patch_backups\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213038\handoff\next_prompt.txt
+BACKUP : C:\dev\patchops\patchops\files\writers.py -> C:\dev\patchops\data\runtime\patch_backups\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213038\patchops\files\writers.py
+BACKUP : C:\dev\patchops\patchops\reporting\__init__.py -> C:\dev\patchops\data\runtime\patch_backups\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213038\patchops\reporting\__init__.py
+BACKUP : C:\dev\patchops\patchops\reporting\metadata.py -> C:\dev\patchops\data\runtime\patch_backups\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213038\patchops\reporting\metadata.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\files\writers.py
+WROTE : C:\dev\patchops\patchops\reporting\metadata.py
+WROTE : C:\dev\patchops\patchops\reporting\__init__.py
+WROTE : C:\dev\patchops\handoff\current_handoff.json
+WROTE : C:\dev\patchops\handoff\next_prompt.txt
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : full-pytest-quiet
+COMMAND : py -m pytest -q
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[full-pytest-quiet][stdout]
+.F.........................................................F............ [ 17%]
+........................................................................ [ 34%]
+........................................................................ [ 51%]
+........................................................................ [ 68%]
+......................F................................................. [ 85%]
+.......................................................FF......          [100%]
+================================== FAILURES ===================================
+_______________ test_current_handoff_json_keeps_resume_contract _______________
+
+    def test_current_handoff_json_keeps_resume_contract() -> None:
+        current_handoff = _read_json(PROJECT_ROOT / "handoff" / "current_handoff.json")
+        latest_index = _read_json(PROJECT_ROOT / "handoff" / "latest_report_index.json")
+    
+        assert "repo_state" in current_handoff
+        assert "resume" in current_handoff
+        assert "latest_patch" in current_handoff
+    
+        assert isinstance(current_handoff["repo_state"].get("latest_run_mode"), str)
+        assert current_handoff["repo_state"]["latest_run_mode"]
+>       assert isinstance(current_handoff["resume"].get("next_recommended_mode"), str)
+E       AssertionError: assert False
+E        +  where False = isinstance(None, str)
+E        +    where None = <built-in method get of dict object at 0x000001DE88B85000>('next_recommended_mode')
+E        +      where <built-in method get of dict object at 0x000001DE88B85000> = {'mode': 'maintenance', 'must_read_files': ['handoff/current_handoff.md', 'handoff/current_handoff.json', 'handoff/lat...tegrity_repair_stream.md'], 'next_action': 'Retry MP21 single-file writer helper only after the baseline stays green.'}.get
+
+tests\test_active_work_continuation_current.py:44: AssertionError
+____________ test_next_prompt_mentions_content_path_repair_stream _____________
+
+    def test_next_prompt_mentions_content_path_repair_stream() -> None:
+        content = (PROJECT_ROOT / "handoff" / "next_prompt.txt").read_text(encoding="utf-8")
+        assert "[content_path repair stream]" in content
+>       assert "wrapper project root first" in content
+E       AssertionError: assert 'wrapper project root first' in 'You are resuming the PatchOps project from the current maintained repo state.\n\nRead these files first:\n1. handoff/... patch\n- failure class\n- next recommended action\n\nThen produce only the next repair patch or next planned patch.\n'
+
+tests\test_content_path_handoff_current.py:32: AssertionError
+______ test_build_report_header_metadata_extracts_current_header_fields _______
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-232/test_build_report_header_metad0')
+
+    def test_build_report_header_metadata_extracts_current_header_fields(tmp_path: Path) -> None:
+        result = _build_result(tmp_path)
+    
+        metadata = build_report_header_metadata(
+            result,
+            timestamp=datetime(2026, 3, 31, 12, 30, 0),
+        )
+    
+>       assert metadata == ReportHeaderMetadata(
+            patch_name="metadata_demo",
+            timestamp="2026-03-31 12:30:00",
+            workspace_root=tmp_path.parent,
+            wrapper_project_root=tmp_path,
+            target_project_root=tmp_path / "target_project",
+            active_profile="generic_python",
+            runtime_path=tmp_path / ".venv" / "Scripts" / "python.exe",
+            report_path=tmp_path / "metadata_demo_report.txt",
+            manifest_path=tmp_path / "manifest.json",
+        )
+E       AssertionError: assert ReportHeaderM...t_version='1') == ReportHeaderM..._version=None)
+E         
+E         Omitting 9 identical items, use -vv to show
+E         Differing attributes:
+E         ['mode', 'backup_root', 'manifest_version']
+E         
+E         Drill down into differing attribute mode:
+E           mode: 'apply' != None...
+E         
+E         ...Full output truncated (6 lines hidden), use '-vv' to show
+
+tests\test_report_metadata_model.py:52: AssertionError
+_ test_build_write_plan_for_inline_content_resolves_destination_and_encoding __
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-232/test_build_write_plan_for_inli0')
+
+    def test_build_write_plan_for_inline_content_resolves_destination_and_encoding(tmp_path: Path) -> None:
+        target_root = tmp_path / "target"
+        spec = FileWriteSpec(path="docs/example.md", content="hello", content_path=None, encoding="utf-8")
+    
+        plan = build_write_plan(spec, target_root)
+    
+        assert isinstance(plan, WritePlan)
+        assert plan.destination == target_root / "docs" / "example.md"
+>       assert plan.content_source_type == "content"
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'WritePlan' object has no attribute 'content_source_type'
+
+tests\test_write_plan_current.py:18: AttributeError
+_ test_build_write_plan_for_content_path_normalizes_relative_source_against_manifest _
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-232/test_build_write_plan_for_cont0')
+
+    def test_build_write_plan_for_content_path_normalizes_relative_source_against_manifest(tmp_path: Path) -> None:
+        target_root = tmp_path / "target"
+        manifest_root = tmp_path / "patch"
+        manifest_root.mkdir(parents=True, exist_ok=True)
+        content_path = manifest_root / "content" / "docs" / "example.md"
+        content_path.parent.mkdir(parents=True, exist_ok=True)
+        content_path.write_text("hello from file", encoding="utf-8")
+        manifest_path = manifest_root / "patch_manifest.json"
+        manifest_path.write_text("{}", encoding="utf-8")
+        spec = FileWriteSpec(path="docs/out.md", content=None, content_path="content/docs/example.md", encoding="utf-8")
+    
+        plan = build_write_plan(spec, target_root, manifest_path)
+    
+        assert plan.destination == target_root / "docs" / "out.md"
+>       assert plan.content_source_type == "content_path"
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'WritePlan' object has no attribute 'content_source_type'
+
+tests\test_write_plan_current.py:40: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/test_active_work_continuation_current.py::test_current_handoff_json_keeps_resume_contract
+FAILED tests/test_content_path_handoff_current.py::test_next_prompt_mentions_content_path_repair_stream
+FAILED tests/test_report_metadata_model.py::test_build_report_header_metadata_extracts_current_header_fields
+FAILED tests/test_write_plan_current.py::test_build_write_plan_for_inline_content_resolves_destination_and_encoding
+FAILED tests/test_write_plan_current.py::test_build_write_plan_for_content_path_normalizes_relative_source_against_manifest
+
+[full-pytest-quiet][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'full-pytest-quiet' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

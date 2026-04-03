@@ -1,0 +1,150 @@
+PATCHOPS APPLY
+Patch Name           : mp27_report_header_provenance_fields
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp27_report_header_provenance_fields_20260401_221937\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp27_report_header_provenance_fields_20260401_221946
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp27_report_header_provenance_fields_20260401_221937\inner_reports\mp27_mp27_report_header_provenance_fields_20260401_221946.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\metadata.py
+C:\dev\patchops\tests\test_report_header_provenance_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\metadata.py -> C:\dev\patchops\data\runtime\patch_backups\mp27_report_header_provenance_fields_20260401_221946\patchops\reporting\metadata.py
+MISSING: C:\dev\patchops\tests\test_report_header_provenance_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\metadata.py
+WROTE : C:\dev\patchops\tests\test_report_header_provenance_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : full-pytest-quiet
+COMMAND : py -m pytest -q
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[full-pytest-quiet][stdout]
+........................................................................ [ 16%]
+........................................................................ [ 32%]
+........................................................................ [ 49%]
+........................................................................ [ 65%]
+.................................F...................................... [ 82%]
+........................................................................ [ 98%]
+.......                                                                  [100%]
+================================== FAILURES ===================================
+____________ test_canonical_report_header_shows_provenance_fields _____________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-254/test_canonical_report_header_s0')
+
+    def test_canonical_report_header_shows_provenance_fields(tmp_path: Path) -> None:
+        wrapper_root = tmp_path / "wrapper_root"
+        manifest_root = tmp_path / "manifest_root"
+        target_root = tmp_path / "target_root"
+        report_dir = tmp_path / "reports"
+    
+        wrapper_root.mkdir(parents=True, exist_ok=True)
+        manifest_root.mkdir(parents=True, exist_ok=True)
+        target_root.mkdir(parents=True, exist_ok=True)
+        report_dir.mkdir(parents=True, exist_ok=True)
+    
+        manifest_path = manifest_root / "patch_manifest.json"
+        manifest_data = {
+            "manifest_version": "1",
+            "patch_name": "mp27_header_rendered_provenance_contract",
+            "active_profile": "generic_python",
+            "target_project_root": str(target_root),
+            "backup_files": [],
+            "files_to_write": [],
+            "validation_commands": [],
+            "smoke_commands": [],
+            "audit_commands": [],
+            "cleanup_commands": [],
+            "archive_commands": [],
+            "failure_policy": {},
+            "report_preferences": {
+                "report_dir": str(report_dir),
+                "report_name_prefix": "mp27_header_rendered_provenance_contract",
+                "write_to_desktop": False,
+            },
+        }
+        manifest_path.write_text(json.dumps(manifest_data, indent=2) + "\n", encoding="utf-8")
+    
+        result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
+        report_text = result.report_path.read_text(encoding="utf-8")
+    
+>       assert "Wrapper Mode Used    : apply" in report_text
+E       AssertionError: assert 'Wrapper Mode Used    : apply' in 'PATCHOPS APPLY\nPatch Name           : mp27_header_rendered_provenance_contract\nManifest Path        : C:\\Users\\ko...-------------\n(none)\n\n\nFAILURE DETAILS\n---------------\n(none)\n\nSUMMARY\n-------\nExitCode : 0\nResult   : PASS'
+
+tests\test_report_header_provenance_current.py:98: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_report_header_provenance_current.py::test_canonical_report_header_shows_provenance_fields
+
+[full-pytest-quiet][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'full-pytest-quiet' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

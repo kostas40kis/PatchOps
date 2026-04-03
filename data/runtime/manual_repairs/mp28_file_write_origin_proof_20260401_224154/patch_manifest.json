@@ -1,0 +1,57 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp28_file_write_origin_proof",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "patchops/reporting/metadata.py",
+    "tests/test_file_write_origin_proof_current.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "patchops/reporting/metadata.py",
+      "content": null,
+      "content_path": "content/patchops/reporting/metadata.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_file_write_origin_proof_current.py",
+      "content": null,
+      "content_path": "content/tests/test_file_write_origin_proof_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "full-pytest-quiet",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp28_file_write_origin_proof_20260401_224154\\inner_reports",
+    "report_name_prefix": "mp28",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "pythonization",
+    "mp28",
+    "proof",
+    "self_hosted"
+  ],
+  "notes": "Prove that the canonical report makes wrapper-engine file writes explicit through the provenance header path."
+}

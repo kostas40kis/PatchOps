@@ -1,0 +1,30 @@
+You are taking over an already-running PatchOps effort.
+
+Read these files first and in this exact order:
+
+1. `handoff/current_handoff.md`
+2. `handoff/current_handoff.json`
+3. `handoff/latest_report_copy.txt`
+4. `docs/project_status.md`
+
+If the task is target-specific, then also read the relevant project packet under `docs/projects/`.
+
+Core rules you must preserve:
+- PatchOps is a standalone wrapper and harness.
+- PatchOps is not target-project business logic.
+- Keep PowerShell thin and operator-facing.
+- Keep reusable workflow logic in Python.
+- Keep one canonical Desktop txt report per run.
+- Do not redesign broad architecture on narrow failures.
+- Do not confuse wrapper failure with target failure.
+
+After reading the files above:
+1. briefly restate the current state,
+2. name the latest attempted patch or action,
+3. name the failure class or current status,
+4. perform only the next recommended action,
+5. keep the change narrow unless current repo evidence proves a broader gap,
+6. refresh handoff after validated progress.
+
+Do not begin by scanning large historical plans to reconstruct current truth when handoff artifacts exist.
+Use the smallest correct repair class.

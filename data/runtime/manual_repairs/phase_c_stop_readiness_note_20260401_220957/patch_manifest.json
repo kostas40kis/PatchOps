@@ -1,0 +1,57 @@
+{
+  "manifest_version": "1",
+  "patch_name": "phase_c_stop_readiness_note",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "docs/phase_c_backup_write_readiness.md",
+    "tests/test_phase_c_backup_write_readiness_current.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "docs/phase_c_backup_write_readiness.md",
+      "content": null,
+      "content_path": "content/docs/phase_c_backup_write_readiness.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_phase_c_backup_write_readiness_current.py",
+      "content": null,
+      "content_path": "content/tests/test_phase_c_backup_write_readiness_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "full-pytest-quiet",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\phase_c_stop_readiness_note_20260401_220957\\inner_reports",
+    "report_name_prefix": "phase_c_stop",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "pythonization",
+    "phase_c_stop",
+    "docs",
+    "self_hosted"
+  ],
+  "notes": "Record the Phase C stop truth and point continuation at Phase D wrapper-exercised proof without widening product claims."
+}

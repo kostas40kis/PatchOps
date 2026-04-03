@@ -1,0 +1,53 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp37_verify_only_decision_helper",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "patchops/rerun_decisions.py",
+      "content_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp37_verify_only_decision_helper_20260402_113308\\content\\patchops\\rerun_decisions.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_verify_only_decision_helper_current.py",
+      "content_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp37_verify_only_decision_helper_20260402_113308\\content\\tests\\test_verify_only_decision_helper_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "mp37 verify-only decision helper tests",
+      "program": "py",
+      "args": [
+        "-3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_verify_only_decision_helper_current.py",
+        "tests/test_failure_classification_rules_current.py",
+        "tests/test_failure_category_model_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp37_verify_only_decision_helper_20260402_113308\\inner_reports",
+    "report_name_prefix": "mp37",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "maintenance",
+    "pythonization",
+    "phase_f",
+    "mp37",
+    "self_hosted"
+  ],
+  "notes": "MP37 verify-only decision helper after confirmed MP36 completion."
+}

@@ -1,0 +1,1 @@
+AST_OK: C:\dev\trader\src\trader\execution\attached_exit_template_v2.py

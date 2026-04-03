@@ -1,0 +1,9 @@
+decision=mp15d_report_helper_dual_signature_shape_repair
+sections_path=C:\dev\patchops\patchops\reporting\sections.py
+command_sections_path=C:\dev\patchops\patchops\reporting\command_sections.py
+class_already_present=false
+class_added=true
+helper_already_present=true
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp15d_report_helper_dual_signature_shape_repair_20260331_155443\patch_manifest.json
+validation_targets=tests/test_reporting.py;tests/test_reporting_command_sections_current.py;tests/test_reporting_output_helper_current.py;tests/test_summary_integrity_current.py;tests/test_summary_derivation_lock_current.py;tests/test_required_vs_tolerated_report_current.py;tests/test_summary_integrity_workflow_current.py
+rationale=Repair MP15 by giving the helper a dual-call shape and restoring the single-section monkeypatch contract in reporting.sections.

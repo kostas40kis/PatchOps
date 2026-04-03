@@ -1,0 +1,101 @@
+PATCHOPS APPLY
+Patch Name           : mp50_pythonization_self_hosted_proof
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp50_pythonization_self_hosted_proof_patch_20260402_181136\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp50_pythonization_self_hosted_proof_20260402_181146
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp50_pythonization_self_hosted_proof_patch_20260402_181136\inner_reports\mp50_mp50_pythonization_self_hosted_proof_20260402_181146.txt
+Manifest Version     : 1
+Wrapper Mode Used    : apply
+Manifest Path Used   : C:\dev\patchops\data\runtime\manual_repairs\mp50_pythonization_self_hosted_proof_patch_20260402_181136\patch_manifest.json
+Profile Resolved     : generic_python
+Runtime Resolved     : (none)
+File Write Origin    : wrapper_owned_write_engine
+
+
+TARGET FILES
+------------
+C:\dev\patchops\data\runtime\self_hosted_proof\mp50_existing_marker.txt
+C:\dev\patchops\tests\test_pythonization_self_hosted_proof_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\data\runtime\self_hosted_proof\mp50_existing_marker.txt -> C:\dev\patchops\data\runtime\patch_backups\mp50_pythonization_self_hosted_proof_20260402_181146\data\runtime\self_hosted_proof\mp50_existing_marker.txt
+BACKUP : C:\dev\patchops\tests\test_pythonization_self_hosted_proof_current.py -> C:\dev\patchops\data\runtime\patch_backups\mp50_pythonization_self_hosted_proof_20260402_181146\tests\test_pythonization_self_hosted_proof_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\data\runtime\self_hosted_proof\mp50_existing_marker.txt
+WROTE : C:\dev\patchops\tests\test_pythonization_self_hosted_proof_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : mp50 self-hosted proof tests
+COMMAND : py -m pytest -q tests/test_suspicious_run_rule_set_current.py tests/test_suspicious_run_detector_current.py tests/test_suspicious_bug_artifact_model_current.py tests/test_suspicious_artifact_emission_current.py tests/test_suspicious_artifact_report_mention_current.py tests/test_suspicious_run_docs_current.py tests/test_pythonization_docs_stop_current.py tests/test_pythonization_examples_stop_current.py tests/test_pythonization_self_hosted_proof_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[mp50 self-hosted proof tests][stdout]
+...............................                                          [100%]
+
+[mp50 self-hosted proof tests][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

@@ -1,0 +1,96 @@
+PATCHOPS APPLY
+Patch Name           : mp20_write_plan_object
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp20_write_plan_object_20260401_200904\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp20_write_plan_object_20260401_200905
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp20_write_plan_object_20260401_200904\inner_reports\mp20_write_plan_object_20260401_200905.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\files\writers.py
+C:\dev\patchops\tests\test_write_plan_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\files\writers.py -> C:\dev\patchops\data\runtime\patch_backups\mp20_write_plan_object_20260401_200905\patchops\files\writers.py
+MISSING: C:\dev\patchops\tests\test_write_plan_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\files\writers.py
+WROTE : C:\dev\patchops\tests\test_write_plan_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : write_plan_contracts
+COMMAND : py -m pytest -q tests/test_write_plan_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[write_plan_contracts][stdout]
+.....                                                                    [100%]
+
+[write_plan_contracts][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

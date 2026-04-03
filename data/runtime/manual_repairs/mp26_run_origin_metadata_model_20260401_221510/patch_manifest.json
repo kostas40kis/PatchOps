@@ -1,0 +1,63 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp26_run_origin_metadata_model",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "patchops/reporting/metadata.py",
+    "patchops/reporting/__init__.py",
+    "tests/test_run_origin_metadata_current.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "patchops/reporting/metadata.py",
+      "content": null,
+      "content_path": "content/patchops/reporting/metadata.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/reporting/__init__.py",
+      "content": null,
+      "content_path": "content/patchops/reporting/__init__.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_run_origin_metadata_current.py",
+      "content": null,
+      "content_path": "content/tests/test_run_origin_metadata_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "full-pytest-quiet",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp26_run_origin_metadata_model_20260401_221510\\inner_reports",
+    "report_name_prefix": "mp26",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "pythonization",
+    "mp26",
+    "self_hosted"
+  ],
+  "notes": "Introduce a small wrapper-run provenance model so explicit run-origin metadata can be carried through the workflow before report rendering starts using it."
+}

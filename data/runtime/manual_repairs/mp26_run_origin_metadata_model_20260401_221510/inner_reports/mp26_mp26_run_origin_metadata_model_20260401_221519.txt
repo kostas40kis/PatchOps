@@ -1,0 +1,105 @@
+PATCHOPS APPLY
+Patch Name           : mp26_run_origin_metadata_model
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp26_run_origin_metadata_model_20260401_221510\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp26_run_origin_metadata_model_20260401_221519
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp26_run_origin_metadata_model_20260401_221510\inner_reports\mp26_mp26_run_origin_metadata_model_20260401_221519.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\metadata.py
+C:\dev\patchops\patchops\reporting\__init__.py
+C:\dev\patchops\tests\test_run_origin_metadata_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\__init__.py -> C:\dev\patchops\data\runtime\patch_backups\mp26_run_origin_metadata_model_20260401_221519\patchops\reporting\__init__.py
+BACKUP : C:\dev\patchops\patchops\reporting\metadata.py -> C:\dev\patchops\data\runtime\patch_backups\mp26_run_origin_metadata_model_20260401_221519\patchops\reporting\metadata.py
+MISSING: C:\dev\patchops\tests\test_run_origin_metadata_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\metadata.py
+WROTE : C:\dev\patchops\patchops\reporting\__init__.py
+WROTE : C:\dev\patchops\tests\test_run_origin_metadata_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : full-pytest-quiet
+COMMAND : py -m pytest -q
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[full-pytest-quiet][stdout]
+........................................................................ [ 16%]
+........................................................................ [ 32%]
+........................................................................ [ 49%]
+........................................................................ [ 65%]
+........................................................................ [ 82%]
+........................................................................ [ 98%]
+.....                                                                    [100%]
+
+[full-pytest-quiet][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

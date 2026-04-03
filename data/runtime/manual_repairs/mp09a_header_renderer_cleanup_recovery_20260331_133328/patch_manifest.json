@@ -1,0 +1,56 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp09a_header_renderer_cleanup_recovery",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "patchops/reporting/metadata.py",
+    "patchops/reporting/sections.py",
+    "tests/test_reporting.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "patchops/reporting/metadata.py",
+      "content_path": "content/patchops/reporting/metadata.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/reporting/sections.py",
+      "content_path": "content/patchops/reporting/sections.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_reporting.py",
+      "content_path": "content/tests/test_reporting.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "reporting_contracts",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_reporting.py",
+        "tests/test_summary_integrity_current.py",
+        "tests/test_summary_integrity_workflow_current.py"
+      ],
+      "working_directory": "."
+    }
+  ],
+  "report_preferences": {
+    "report_name_prefix": "mp09a",
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp09a_header_renderer_cleanup_recovery_20260331_133328\\inner_reports"
+  },
+  "tags": [
+    "self_hosted",
+    "pythonization",
+    "mp09",
+    "mp09a",
+    "header_renderer_cleanup",
+    "recovery"
+  ],
+  "notes": "MP09 recovery: centralize header rendering behind one metadata helper without widening the rest of report rendering."
+}

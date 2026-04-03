@@ -1,0 +1,6 @@
+decision=mp15p_report_helper_contract_completion_repair
+command_sections_path=C:\dev\patchops\patchops\reporting\command_sections.py
+sections_path=C:\dev\patchops\patchops\reporting\sections.py
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp15p_report_helper_contract_completion_repair_20260331_195359\patch_manifest.json
+rationale=Complete the remaining MP15 contracts: command section fields, output helper string rendering, and wrapper-only retry compatibility.
+validation_targets=tests/test_reporting.py;tests/test_reporting_command_sections_current.py;tests/test_reporting_output_helper_current.py;tests/test_summary_integrity_current.py;tests/test_summary_derivation_lock_current.py;tests/test_required_vs_tolerated_report_current.py;tests/test_summary_integrity_workflow_current.py

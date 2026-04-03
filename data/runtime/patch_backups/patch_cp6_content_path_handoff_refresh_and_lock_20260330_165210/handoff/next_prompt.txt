@@ -1,0 +1,19 @@
+You are resuming the PatchOps project from a maintenance-grade green frontier.
+
+Read these files first:
+1. handoff/current_handoff.md
+2. handoff/current_handoff.json
+3. handoff/latest_report_copy.txt
+4. docs/project_status.md
+5. docs/patch_ledger.md
+6. docs/summary_integrity_repair_stream.md
+
+Current truth:
+- The summary-integrity repair stream is complete through p134z_final_proof_handoff_refresh.
+- The original summary-integrity contradiction is fixed.
+- The Windows-hostile custom report_dir fallback repair is green.
+- No further patch is required for this stream unless new evidence appears.
+
+Default next action:
+- Do not reopen this stream without new contrary evidence.
+- Continue only with other narrow maintenance/finalization work.

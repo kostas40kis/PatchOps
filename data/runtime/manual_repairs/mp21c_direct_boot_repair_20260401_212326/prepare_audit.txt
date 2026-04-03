@@ -1,0 +1,17 @@
+{
+  "patch_name": "mp21c_direct_boot_repair",
+  "writers_path": "C:\\dev\\patchops\\patchops\\files\\writers.py",
+  "apply_path": "C:\\dev\\patchops\\patchops\\workflows\\apply_patch.py",
+  "metadata_path": "C:\\dev\\patchops\\patchops\\reporting\\metadata.py",
+  "reporting_init_path": "C:\\dev\\patchops\\patchops\\reporting\\__init__.py",
+  "broken_writeplan_import_before": true,
+  "wrapper_root_apply_fix_present_before": true,
+  "metadata_has_render_report_header_before": false,
+  "reporting_init_exports_render_report_header_before": true,
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21c_direct_boot_repair_20260401_212326\\content\\patchops\\files\\writers.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21c_direct_boot_repair_20260401_212326\\content\\patchops\\workflows\\apply_patch.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21c_direct_boot_repair_20260401_212326\\content\\patchops\\reporting\\metadata.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21c_direct_boot_repair_20260401_212326\\content\\patchops\\reporting\\__init__.py"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "patch_name": "mp23_content_path_contract_proof",
+  "writers_path": "C:\\dev\\patchops\\patchops\\files\\writers.py",
+  "apply_path": "C:\\dev\\patchops\\patchops\\workflows\\apply_patch.py",
+  "proof_test_path": "C:\\dev\\patchops\\tests\\test_content_path_contract_proof_current.py",
+  "write_files_exists_before": true,
+  "apply_uses_write_files_before": true,
+  "proof_test_exists_before": false,
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp23_content_path_contract_proof_20260401_220019\\patch_manifest.json",
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp23_content_path_contract_proof_20260401_220019\\content\\tests\\test_content_path_contract_proof_current.py"
+  ]
+}

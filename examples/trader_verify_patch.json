@@ -1,0 +1,21 @@
+{
+  "manifest_version": "1",
+  "patch_name": "trader_stage1_example_verify_patch",
+  "active_profile": "trader",
+  "target_project_root": "C:/dev/trader",
+  "files_to_write": [
+    {
+      "path": "docs/patchops_example.txt",
+      "content": "verify-only expects this file to already exist\n"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "python_version",
+      "use_profile_runtime": true,
+      "args": ["--version"],
+      "working_directory": "."
+    }
+  ],
+  "tags": ["example", "trader", "verify_only"]
+}

@@ -1,0 +1,67 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_56_release_readiness_launcher",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "powershell/Invoke-PatchReadiness.ps1",
+                         "tests/test_powershell_launchers.py",
+                         "tests/test_powershell_readiness_launcher.py",
+                         "docs/project_status.md",
+                         "docs/patch_ledger.md"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "powershell/Invoke-PatchReadiness.ps1",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_56_release_readiness_launcher/content/powershell/Invoke-PatchReadiness.ps1",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_powershell_launchers.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_56_release_readiness_launcher/content/tests/test_powershell_launchers.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_powershell_readiness_launcher.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_56_release_readiness_launcher/content/tests/test_powershell_readiness_launcher.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/project_status.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_56_release_readiness_launcher/content/docs/project_status.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/patch_ledger.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_56_release_readiness_launcher/content/docs/patch_ledger.md",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest_full",
+                                    "program":  "C:\\Users\\kostas\\AppData\\Local\\Programs\\Python\\Launcher\\py.exe",
+                                    "args":  [
+                                                 "-3",
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "report_preferences":  {
+                               "report_name_prefix":  "patchops_patch"
+                           },
+    "tags":  [
+                 "stage2",
+                 "patch_56",
+                 "release_readiness",
+                 "powershell_launcher",
+                 "self_hosted"
+             ],
+    "notes":  "Patch 56 adds a thin PowerShell launcher for the release-readiness command surface."
+}

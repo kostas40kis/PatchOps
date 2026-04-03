@@ -1,0 +1,6 @@
+decision=mp15i_report_helper_export_restore
+sections_path=C:\dev\patchops\patchops\reporting\sections.py
+command_sections_path=C:\dev\patchops\patchops\reporting\command_sections.py
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp15i_report_helper_export_restore_20260331_163613\patch_manifest.json
+rationale=Restore command_group_section and build_report_command_section exports while keeping full_output_section monkeypatchable and the shared helper dual-signature compatible.
+validation_targets=tests/test_reporting.py;tests/test_reporting_command_sections_current.py;tests/test_reporting_output_helper_current.py;tests/test_summary_integrity_current.py;tests/test_summary_derivation_lock_current.py;tests/test_required_vs_tolerated_report_current.py;tests/test_summary_integrity_workflow_current.py

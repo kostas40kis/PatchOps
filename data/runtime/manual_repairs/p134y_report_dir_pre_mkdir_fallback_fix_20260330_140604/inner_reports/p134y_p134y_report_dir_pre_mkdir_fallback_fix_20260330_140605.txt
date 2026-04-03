@@ -1,0 +1,93 @@
+PATCHOPS APPLY
+Patch Name           : p134y_report_dir_pre_mkdir_fallback_fix
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\p134y_report_dir_pre_mkdir_fallback_fix_20260330_140604\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\p134y_report_dir_pre_mkdir_fallback_fix_20260330_140605
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\p134y_report_dir_pre_mkdir_fallback_fix_20260330_140604\inner_reports\p134y_p134y_report_dir_pre_mkdir_fallback_fix_20260330_140605.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\workflows\common.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\workflows\common.py -> C:\dev\patchops\data\runtime\patch_backups\p134y_report_dir_pre_mkdir_fallback_fix_20260330_140605\patchops\workflows\common.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\workflows\common.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : report_path_pre_mkdir_fallback_pytest
+COMMAND : py -m pytest -q tests/test_report_preference_apply_flow.py tests/test_report_preference_apply_flow_current.py tests/test_report_preference_examples.py tests/test_apply_report_write_current.py tests/test_report_path_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[report_path_pre_mkdir_fallback_pytest][stdout]
+.........                                                                [100%]
+
+[report_path_pre_mkdir_fallback_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

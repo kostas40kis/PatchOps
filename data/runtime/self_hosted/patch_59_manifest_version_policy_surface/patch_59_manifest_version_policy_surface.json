@@ -1,0 +1,73 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_59_manifest_version_policy_surface",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "patchops/manifest_validator.py",
+                         "patchops/manifest_reference.py",
+                         "docs/manifest_schema.md",
+                         "tests/test_manifest_version_policy.py",
+                         "docs/project_status.md",
+                         "docs/patch_ledger.md"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "patchops/manifest_validator.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_59_manifest_version_policy_surface/content/patchops/manifest_validator.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "patchops/manifest_reference.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_59_manifest_version_policy_surface/content/patchops/manifest_reference.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/manifest_schema.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_59_manifest_version_policy_surface/content/docs/manifest_schema.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_manifest_version_policy.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_59_manifest_version_policy_surface/content/tests/test_manifest_version_policy.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/project_status.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_59_manifest_version_policy_surface/content/docs/project_status.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/patch_ledger.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_59_manifest_version_policy_surface/content/docs/patch_ledger.md",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest_full",
+                                    "program":  "C:\\Users\\kostas\\AppData\\Local\\Programs\\Python\\Launcher\\py.exe",
+                                    "args":  [
+                                                 "-3",
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "report_preferences":  {
+                               "report_name_prefix":  "patchops_patch"
+                           },
+    "tags":  [
+                 "stage2",
+                 "patch_59",
+                 "manifest_version",
+                 "schema",
+                 "self_hosted"
+             ],
+    "notes":  "Patch 59 adds an explicit manifest version policy surface in code, docs, and tests."
+}

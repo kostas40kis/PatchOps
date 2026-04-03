@@ -1,0 +1,154 @@
+PATCHOPS APPLY
+Patch Name           : mp15v_report_helper_contract_restore
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp15v_report_helper_contract_restore_20260331_234140\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp15v_report_helper_contract_restore_20260331_234141
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp15v_report_helper_contract_restore_20260331_234140\inner_reports\mp15v_report_helper_contract_restore_20260331_234141.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\command_sections.py
+C:\dev\patchops\patchops\reporting\sections.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15v_report_helper_contract_restore_20260331_234141\patchops\reporting\command_sections.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15v_report_helper_contract_restore_20260331_234141\patchops\reporting\sections.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\command_sections.py
+WROTE : C:\dev\patchops\patchops\reporting\sections.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : targeted_reporting_contracts
+COMMAND : py -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_reporting_output_helper_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[targeted_reporting_contracts][stdout]
+.......FF........FF..............                                        [100%]
+================================== FAILURES ===================================
+_____ test_build_report_command_section_preserves_current_command_values ______
+
+    def test_build_report_command_section_preserves_current_command_values():
+        result = _command_result()
+    
+        section = build_report_command_section(result, section_label="VALIDATION COMMANDS")
+    
+        assert section.section_label == "VALIDATION COMMANDS"
+        assert section.command_name == result.name
+        assert section.command_text == result.display_command
+>       assert section.working_directory == result.working_directory
+E       AssertionError: assert 'C:\\dev\\patchops' == WindowsPath('C:/dev/patchops')
+E        +  where 'C:\\dev\\patchops' = ReportCommandSection(section_label='VALIDATION COMMANDS', command_name='reporting_contracts', command_text='py -m pyte...ng.py', working_directory='C:\\dev\\patchops', exit_code=0, stdout='ok stdout', stderr='ok stderr', phase='validation').working_directory
+E        +  and   WindowsPath('C:/dev/patchops') = CommandResult(name='reporting_contracts', program='py', args=['-m', 'pytest', '-q', 'tests/test_reporting.py'], workin... stdout='ok stdout', stderr='ok stderr', display_command='py -m pytest -q tests/test_reporting.py', phase='validation').working_directory
+
+tests\test_reporting_command_sections_current.py:44: AssertionError
+___ test_build_report_command_sections_supports_optional_classification_map ___
+
+    def test_build_report_command_sections_supports_optional_classification_map():
+        required_result = _command_result(name="required_check", exit_code=1)
+        tolerated_result = _command_result(name="tolerated_check", exit_code=5)
+    
+>       sections = build_report_command_sections(
+            [required_result, tolerated_result],
+            section_label="VALIDATION COMMANDS",
+            classifications={"required_check": "required", "tolerated_check": "tolerated"},
+        )
+E       TypeError: build_report_command_sections() got an unexpected keyword argument 'classifications'
+
+tests\test_reporting_command_sections_current.py:56: TypeError
+_____________ test_report_output_helper_alias_matches_base_helper _____________
+
+    def test_report_output_helper_alias_matches_base_helper() -> None:
+        result = _result("alpha", "hello\n", "warn\n")
+        rule = lambda title: f"\n{title}\n{'-' * len(title)}"
+    
+>       base = render_command_output_section("FULL OUTPUT", [result], rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_command_output_section() takes 1 positional argument but 3 were given
+
+tests\test_reporting_output_helper_current.py:41: TypeError
+___________ test_report_output_helper_accepts_single_section_object ___________
+
+    def test_report_output_helper_accepts_single_section_object() -> None:
+        result = _result("alpha", "hello\n", "warn\n")
+        rule = lambda title: f"\n{title}\n{'-' * len(title)}"
+>       section = ReportCommandOutputSection(title="FULL OUTPUT", results=[result], rule=rule)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ReportCommandOutputSection.__init__() got an unexpected keyword argument 'title'
+
+tests\test_reporting_output_helper_current.py:50: TypeError
+=========================== short test summary info ===========================
+FAILED tests/test_reporting_command_sections_current.py::test_build_report_command_section_preserves_current_command_values
+FAILED tests/test_reporting_command_sections_current.py::test_build_report_command_sections_supports_optional_classification_map
+FAILED tests/test_reporting_output_helper_current.py::test_report_output_helper_alias_matches_base_helper
+FAILED tests/test_reporting_output_helper_current.py::test_report_output_helper_accepts_single_section_object
+
+[targeted_reporting_contracts][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'targeted_reporting_contracts' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

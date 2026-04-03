@@ -1,0 +1,64 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_146_multi_chain_provider_health_snapshot",
+    "active_profile":  "trader",
+    "target_project_root":  "C:\\dev\\trader",
+    "backup_files":  [
+                         "src/trader/execution/multi_chain_provider_health_snapshot.py",
+                         "tests/test_multi_chain_provider_health_snapshot.py",
+                         "docs/architecture/multi_chain_provider_health_snapshot.md",
+                         "scripts/run_patch_146_multi_chain_provider_health_snapshot_tests.ps1"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "src/trader/execution/multi_chain_provider_health_snapshot.py",
+                               "content_path":  "data/runtime/manual_patches/patch_146_multi_chain_provider_health_snapshot_20260330_172613/content/src/trader/execution/multi_chain_provider_health_snapshot.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_multi_chain_provider_health_snapshot.py",
+                               "content_path":  "data/runtime/manual_patches/patch_146_multi_chain_provider_health_snapshot_20260330_172613/content/tests/test_multi_chain_provider_health_snapshot.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/architecture/multi_chain_provider_health_snapshot.md",
+                               "content_path":  "data/runtime/manual_patches/patch_146_multi_chain_provider_health_snapshot_20260330_172613/content/docs/architecture/multi_chain_provider_health_snapshot.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "scripts/run_patch_146_multi_chain_provider_health_snapshot_tests.ps1",
+                               "content_path":  "data/runtime/manual_patches/patch_146_multi_chain_provider_health_snapshot_20260330_172613/content/scripts/run_patch_146_multi_chain_provider_health_snapshot_tests.ps1",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "patch_146_tests",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q",
+                                                 "tests/test_multi_chain_provider_health_snapshot.py",
+                                                 "tests/test_chain_aware_mode_policy.py"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  true,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "report_preferences":  {
+                               "write_to_desktop":  true,
+                               "report_name_prefix":  "trader_patch"
+                           },
+    "tags":  [
+                 "trader",
+                 "phase1",
+                 "cross_chain",
+                 "patch146",
+                 "patchops_native"
+             ],
+    "notes":  "Patch 146 applied through PatchOps-native manifest flow after successful Patch 145 content_path proof."
+}

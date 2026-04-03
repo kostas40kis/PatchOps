@@ -1,0 +1,12 @@
+﻿{
+  "target_root": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_129_new_target_onboarding_flow_proof_20260328_183629\\demo_roundtrip_current_target",
+  "wrapper_project_root": null,
+  "recommended_profile": "generic_python",
+  "rationale": "No target-specific profile signal was detected, so generic_python is the smallest conservative default.",
+  "expected_runtime_path": null,
+  "starter_examples": [
+    "examples/generic_python_verify_patch.json",
+    "examples/generic_python_doc_patch.json"
+  ]
+}
+

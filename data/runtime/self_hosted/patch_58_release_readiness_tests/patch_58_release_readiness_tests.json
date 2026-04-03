@@ -1,0 +1,79 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_58_release_readiness_tests",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "patchops/readiness.py",
+                         "tests/test_release_readiness_command.py",
+                         "tests/test_powershell_readiness_launcher.py",
+                         "docs/release_checklist.md",
+                         "docs/stage1_freeze_checklist.md",
+                         "docs/project_status.md",
+                         "docs/patch_ledger.md"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "patchops/readiness.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_58_release_readiness_tests/content/patchops/readiness.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_release_readiness_command.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_58_release_readiness_tests/content/tests/test_release_readiness_command.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_powershell_readiness_launcher.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_58_release_readiness_tests/content/tests/test_powershell_readiness_launcher.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/release_checklist.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_58_release_readiness_tests/content/docs/release_checklist.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/stage1_freeze_checklist.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_58_release_readiness_tests/content/docs/stage1_freeze_checklist.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/project_status.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_58_release_readiness_tests/content/docs/project_status.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/patch_ledger.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_58_release_readiness_tests/content/docs/patch_ledger.md",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest_full",
+                                    "program":  "C:\\Users\\kostas\\AppData\\Local\\Programs\\Python\\Launcher\\py.exe",
+                                    "args":  [
+                                                 "-3",
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "report_preferences":  {
+                               "report_name_prefix":  "patchops_patch"
+                           },
+    "tags":  [
+                 "stage2",
+                 "patch_58",
+                 "release_readiness",
+                 "tests",
+                 "self_hosted"
+             ],
+    "notes":  "Patch 58 protects the release-readiness surface from drift by checking required release test files and expanding tests/docs."
+}

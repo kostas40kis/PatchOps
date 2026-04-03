@@ -1,0 +1,102 @@
+PATCHOPS APPLY
+Patch Name           : phase_c_stop_readiness_note
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\phase_c_stop_readiness_note_20260401_220957\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\phase_c_stop_readiness_note_20260401_221006
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\phase_c_stop_readiness_note_20260401_220957\inner_reports\phase_c_stop_phase_c_stop_readiness_note_20260401_221006.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\docs\phase_c_backup_write_readiness.md
+C:\dev\patchops\tests\test_phase_c_backup_write_readiness_current.py
+
+
+BACKUP
+------
+MISSING: C:\dev\patchops\docs\phase_c_backup_write_readiness.md
+MISSING: C:\dev\patchops\tests\test_phase_c_backup_write_readiness_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\docs\phase_c_backup_write_readiness.md
+WROTE : C:\dev\patchops\tests\test_phase_c_backup_write_readiness_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : full-pytest-quiet
+COMMAND : py -m pytest -q
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[full-pytest-quiet][stdout]
+........................................................................ [ 16%]
+........................................................................ [ 33%]
+........................................................................ [ 49%]
+........................................................................ [ 66%]
+........................................................................ [ 82%]
+........................................................................ [ 99%]
+...                                                                      [100%]
+
+[full-pytest-quiet][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

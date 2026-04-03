@@ -1,0 +1,96 @@
+PATCHOPS APPLY
+Patch Name           : mp15y_report_output_section_single_object_restore
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp15y_report_output_section_single_object_restore_20260401_000047\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp15y_report_output_section_single_object_restore_20260401_000048
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp15y_report_output_section_single_object_restore_20260401_000047\inner_reports\mp15y_report_output_section_single_object_restore_20260401_000048.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\command_sections.py
+C:\dev\patchops\patchops\reporting\sections.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15y_report_output_section_single_object_restore_20260401_000048\patchops\reporting\command_sections.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15y_report_output_section_single_object_restore_20260401_000048\patchops\reporting\sections.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\command_sections.py
+WROTE : C:\dev\patchops\patchops\reporting\sections.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : targeted_reporting_contracts
+COMMAND : py -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_reporting_output_helper_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[targeted_reporting_contracts][stdout]
+.................................                                        [100%]
+
+[targeted_reporting_contracts][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

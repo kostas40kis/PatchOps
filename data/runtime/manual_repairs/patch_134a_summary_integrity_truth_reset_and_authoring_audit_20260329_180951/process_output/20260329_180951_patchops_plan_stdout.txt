@@ -1,0 +1,50 @@
+{
+  "mode": "apply",
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_134a_summary_integrity_truth_reset_and_authoring_audit_20260329_180951\\patch_manifest.json",
+  "manifest_version": "1",
+  "patch_name": "patch_134a_summary_integrity_truth_reset_and_authoring_audit",
+  "active_profile": "generic_python",
+  "workspace_root": "C:\\dev",
+  "wrapper_project_root": "C:\\dev\\patchops",
+  "target_project_root": "C:\\dev\\patchops",
+  "runtime_path": null,
+  "report_dir": "C:\\Users\\kostas\\Desktop",
+  "report_path_pattern": "C:\\Users\\kostas\\Desktop\\generic_python_patch_patch_134a_summary_integrity_truth_reset_and_authoring_audit_<timestamp>.txt",
+  "backup_root_pattern": "C:\\dev\\patchops\\data\\runtime\\patch_backups\\patch_134a_summary_integrity_truth_reset_and_authoring_audit_<timestamp>",
+  "backup_files": [
+    "docs/project_status.md",
+    "docs/patch_ledger.md",
+    "docs/summary_integrity_repair_stream.md"
+  ],
+  "target_files": [
+    "C:\\dev\\patchops\\docs\\project_status.md",
+    "C:\\dev\\patchops\\docs\\patch_ledger.md",
+    "C:\\dev\\patchops\\docs\\summary_integrity_repair_stream.md"
+  ],
+  "validation_commands": [
+    {
+      "name": "patch_134a_truth_reset_note_validation",
+      "program": "py",
+      "args": [
+        "validate_patch_134a.py",
+        "C:\\dev\\patchops"
+      ],
+      "working_directory": "C:\\dev\\patchops\\data\\\\runtime\\\\manual_repairs\\\\patch_134a_summary_integrity_truth_reset_and_authoring_audit_20260329_180951",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "tags": [
+    "summary_integrity",
+    "maintenance",
+    "self_hosted",
+    "truth_reset"
+  ],
+  "notes": "Patch 1 of the six-patch summary-integrity continuation circle. Documentation-first truth reset and authoring audit."
+}

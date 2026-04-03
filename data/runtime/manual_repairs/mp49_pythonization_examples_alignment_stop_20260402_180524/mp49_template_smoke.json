@@ -1,0 +1,49 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp49_example_alignment_smoke",
+  "active_profile": "generic_python",
+  "target_project_root": null,
+  "backup_files": [
+    "relative/path/to/file.ext"
+  ],
+  "files_to_write": [
+    {
+      "path": "relative/path/to/file.ext",
+      "content": "REPLACE_ME\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "validation_command",
+      "program": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": null,
+    "report_name_prefix": null,
+    "write_to_desktop": true
+  },
+  "tags": [
+    "template",
+    "generic_python",
+    "apply"
+  ],
+  "notes": "Replace placeholder paths, content, and commands before using this manifest for real work."
+}

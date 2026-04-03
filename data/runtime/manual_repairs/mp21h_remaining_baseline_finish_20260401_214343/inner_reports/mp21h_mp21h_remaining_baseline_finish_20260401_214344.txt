@@ -1,0 +1,218 @@
+PATCHOPS APPLY
+Patch Name           : mp21h_remaining_baseline_finish
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp21h_remaining_baseline_finish_20260401_214343\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp21h_remaining_baseline_finish_20260401_214344
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp21h_remaining_baseline_finish_20260401_214343\inner_reports\mp21h_mp21h_remaining_baseline_finish_20260401_214344.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\handoff\latest_report_index.json
+C:\dev\patchops\handoff\next_prompt.txt
+C:\dev\patchops\patchops\files\writers.py
+C:\dev\patchops\patchops\reporting\metadata.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\handoff\latest_report_index.json -> C:\dev\patchops\data\runtime\patch_backups\mp21h_remaining_baseline_finish_20260401_214344\handoff\latest_report_index.json
+BACKUP : C:\dev\patchops\handoff\next_prompt.txt -> C:\dev\patchops\data\runtime\patch_backups\mp21h_remaining_baseline_finish_20260401_214344\handoff\next_prompt.txt
+BACKUP : C:\dev\patchops\patchops\files\writers.py -> C:\dev\patchops\data\runtime\patch_backups\mp21h_remaining_baseline_finish_20260401_214344\patchops\files\writers.py
+BACKUP : C:\dev\patchops\patchops\reporting\metadata.py -> C:\dev\patchops\data\runtime\patch_backups\mp21h_remaining_baseline_finish_20260401_214344\patchops\reporting\metadata.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\handoff\latest_report_index.json
+WROTE : C:\dev\patchops\handoff\next_prompt.txt
+WROTE : C:\dev\patchops\patchops\files\writers.py
+WROTE : C:\dev\patchops\patchops\reporting\metadata.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : full-pytest-quiet
+COMMAND : py -m pytest -q
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[full-pytest-quiet][stdout]
+.F.........................................................F............ [ 17%]
+........................................................................ [ 34%]
+........................................................................ [ 51%]
+........................................................................ [ 68%]
+.....................................F.................................. [ 85%]
+.......................................................FF......          [100%]
+================================== FAILURES ===================================
+_______________ test_current_handoff_json_keeps_resume_contract _______________
+
+    def test_current_handoff_json_keeps_resume_contract() -> None:
+        current_handoff = _read_json(PROJECT_ROOT / "handoff" / "current_handoff.json")
+        latest_index = _read_json(PROJECT_ROOT / "handoff" / "latest_report_index.json")
+    
+        assert "repo_state" in current_handoff
+        assert "resume" in current_handoff
+        assert "latest_patch" in current_handoff
+    
+        assert isinstance(current_handoff["repo_state"].get("latest_run_mode"), str)
+        assert current_handoff["repo_state"]["latest_run_mode"]
+        assert isinstance(current_handoff["resume"].get("next_recommended_mode"), str)
+        assert current_handoff["resume"]["next_recommended_mode"]
+    
+        assert isinstance(latest_index.get("latest_attempted_patch"), str)
+        assert latest_index["latest_attempted_patch"]
+>       assert isinstance(latest_index.get("next_recommended_mode"), str)
+E       AssertionError: assert False
+E        +  where False = isinstance(None, str)
+E        +    where None = <built-in method get of dict object at 0x0000021A0CDB5340>('next_recommended_mode')
+E        +      where <built-in method get of dict object at 0x0000021A0CDB5340> = {'copied_at': '2026-03-30T14:11:26.7297922+03:00', 'copied_to': 'C:\\dev\\patchops\\handoff\\latest_report_copy.txt', ...attempted_patch': 'p134z_final_proof_handoff_refresh', 'latest_passed_patch': 'p134z_final_proof_handoff_refresh', ...}.get
+
+tests\test_active_work_continuation_current.py:49: AssertionError
+____________ test_next_prompt_mentions_content_path_repair_stream _____________
+
+    def test_next_prompt_mentions_content_path_repair_stream() -> None:
+        content = (PROJECT_ROOT / "handoff" / "next_prompt.txt").read_text(encoding="utf-8")
+        assert "[content_path repair stream]" in content
+        assert "wrapper project root first" in content
+        assert "compatibility fallback rather than the primary contract" in content
+>       assert "Do not reopen this area unless new contrary repo evidence appears." in content
+E       AssertionError: assert 'Do not reopen this area unless new contrary repo evidence appears.' in 'You are resuming the PatchOps project from the current maintained repo state.\n\nRead these files first:\n1. handoff/... patch\n- failure class\n- next recommended action\n\nThen produce only the next repair patch or next planned patch.\n'
+
+tests\test_content_path_handoff_current.py:34: AssertionError
+______________ test_header_helper_preserves_current_header_shape ______________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-236/test_header_helper_preserves_c0')
+
+    def test_header_helper_preserves_current_header_shape(tmp_path: Path):
+        result = _build_result(tmp_path, "apply")
+        metadata = build_report_header_metadata(result)
+        text = render_report_header(metadata)
+    
+        assert text.startswith("PATCHOPS APPLY")
+        assert f"Patch Name           : {result.manifest.patch_name}" in text
+        assert f"Manifest Path        : {display_path(result.manifest_path)}" in text
+        assert f"Workspace Root       : {display_path(result.workspace_root)}" in text
+        assert f"Wrapper Project Root : {display_path(result.wrapper_project_root)}" in text
+        assert f"Target Project Root  : {display_path(result.target_project_root)}" in text
+        assert f"Active Profile       : {result.resolved_profile.name}" in text
+        assert f"Runtime Path         : {display_path(result.runtime_path)}" in text
+        assert f"Backup Root          : {display_path(result.backup_root)}" in text
+        assert f"Report Path          : {display_path(result.report_path)}" in text
+>       assert f"Manifest Version     : {result.manifest.manifest_version}" in text
+E       AssertionError: assert 'Manifest Version     : 1' in 'PATCHOPS APPLY\nPatch Name           : apply_demo\nManifest Path        : C:\\Users\\kostas\\AppData\\Local\\Temp\\py...\\Temp\\pytest-of-kostas\\pytest-236\\test_header_helper_preserves_c0\\apply_report.txt\nManifest Version     : (none)'
+
+tests\test_reporting.py:128: AssertionError
+_ test_build_write_plan_for_inline_content_resolves_destination_and_encoding __
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-236/test_build_write_plan_for_inli0')
+
+    def test_build_write_plan_for_inline_content_resolves_destination_and_encoding(tmp_path: Path) -> None:
+        target_root = tmp_path / "target"
+        spec = FileWriteSpec(path="docs/example.md", content="hello", content_path=None, encoding="utf-8")
+    
+        plan = build_write_plan(spec, target_root)
+    
+        assert isinstance(plan, WritePlan)
+        assert plan.destination == target_root / "docs" / "example.md"
+        assert plan.content_source_type == "content"
+        assert plan.encoding == "utf-8"
+        assert plan.normalized_content_source is None
+>       assert plan.inline_content == "hello"
+               ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'WritePlan' object has no attribute 'inline_content'
+
+tests\test_write_plan_current.py:21: AttributeError
+_ test_build_write_plan_for_content_path_normalizes_relative_source_against_manifest _
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-236/test_build_write_plan_for_cont0')
+
+    def test_build_write_plan_for_content_path_normalizes_relative_source_against_manifest(tmp_path: Path) -> None:
+        target_root = tmp_path / "target"
+        manifest_root = tmp_path / "patch"
+        manifest_root.mkdir(parents=True, exist_ok=True)
+        content_path = manifest_root / "content" / "docs" / "example.md"
+        content_path.parent.mkdir(parents=True, exist_ok=True)
+        content_path.write_text("hello from file", encoding="utf-8")
+        manifest_path = manifest_root / "patch_manifest.json"
+        manifest_path.write_text("{}", encoding="utf-8")
+        spec = FileWriteSpec(path="docs/out.md", content=None, content_path="content/docs/example.md", encoding="utf-8")
+    
+        plan = build_write_plan(spec, target_root, manifest_path)
+    
+        assert plan.destination == target_root / "docs" / "out.md"
+        assert plan.content_source_type == "content_path"
+        assert plan.normalized_content_source == content_path
+>       assert plan.inline_content is None
+               ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'WritePlan' object has no attribute 'inline_content'
+
+tests\test_write_plan_current.py:42: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/test_active_work_continuation_current.py::test_current_handoff_json_keeps_resume_contract
+FAILED tests/test_content_path_handoff_current.py::test_next_prompt_mentions_content_path_repair_stream
+FAILED tests/test_reporting.py::test_header_helper_preserves_current_header_shape
+FAILED tests/test_write_plan_current.py::test_build_write_plan_for_inline_content_resolves_destination_and_encoding
+FAILED tests/test_write_plan_current.py::test_build_write_plan_for_content_path_normalizes_relative_source_against_manifest
+
+[full-pytest-quiet][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'full-pytest-quiet' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

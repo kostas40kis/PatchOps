@@ -1,0 +1,135 @@
+PATCHOPS APPLY
+Patch Name           : patch_134d_summary_integrity_workflow_hardening
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_134d_summary_integrity_workflow_hardening_20260329_183517\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\patch_134d_summary_integrity_workflow_hardening_20260329_183517
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\patch_134d_summary_integrity_workflow_hardening_20260329_183517\inner_reports\patch_134d_summary_integrity_workflow_hardening_patch_134d_summary_integrity_workflow_hardening_20260329_183517.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\docs\summary_integrity_workflow_hardening.md
+C:\dev\patchops\patchops\result_integrity.py
+C:\dev\patchops\patchops\reporting\renderer.py
+C:\dev\patchops\patchops\cli.py
+C:\dev\patchops\patchops\handoff.py
+C:\dev\patchops\tests\test_summary_integrity_workflow_current.py
+
+
+BACKUP
+------
+MISSING: C:\dev\patchops\docs\summary_integrity_workflow_hardening.md
+BACKUP : C:\dev\patchops\patchops\cli.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134d_summary_integrity_workflow_hardening_20260329_183517\patchops\cli.py
+BACKUP : C:\dev\patchops\patchops\handoff.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134d_summary_integrity_workflow_hardening_20260329_183517\patchops\handoff.py
+BACKUP : C:\dev\patchops\patchops\reporting\renderer.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134d_summary_integrity_workflow_hardening_20260329_183517\patchops\reporting\renderer.py
+MISSING: C:\dev\patchops\patchops\result_integrity.py
+MISSING: C:\dev\patchops\tests\test_summary_integrity_workflow_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\docs\summary_integrity_workflow_hardening.md
+WROTE : C:\dev\patchops\patchops\result_integrity.py
+WROTE : C:\dev\patchops\patchops\reporting\renderer.py
+WROTE : C:\dev\patchops\patchops\cli.py
+WROTE : C:\dev\patchops\patchops\handoff.py
+WROTE : C:\dev\patchops\tests\test_summary_integrity_workflow_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : summary_integrity_workflow_current
+COMMAND : py -m pytest -q tests/test_summary_integrity_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[summary_integrity_workflow_current][stdout]
+.......F                                                                 [100%]
+================================== FAILURES ===================================
+___ test_handoff_surfaces_fail_closed_when_required_command_evidence_failed ___
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-175/test_handoff_surfaces_fail_clo0')
+
+    def test_handoff_surfaces_fail_closed_when_required_command_evidence_failed(tmp_path: Path) -> None:
+        result = _result(
+            tmp_path,
+            validation_results=[_command("required_validation", 4, "validation")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+        recommendation = build_next_action_recommendation(result)
+        current_payload = build_current_handoff_payload(result)
+        latest_index = build_latest_report_index_payload(result)
+    
+        assert recommendation["recommended_mode"] == "repair_patch"
+>       assert "required validation or smoke evidence failed" in recommendation["rationale"].lower()
+E       AssertionError: assert 'required validation or smoke evidence failed' in 'patchops executed and surfaced a real target-project failure, so the next step is a narrow content repair.'
+E        +  where 'patchops executed and surfaced a real target-project failure, so the next step is a narrow content repair.' = <built-in method lower of str object at 0x000001BB0C82B370>()
+E        +    where <built-in method lower of str object at 0x000001BB0C82B370> = 'PatchOps executed and surfaced a real target-project failure, so the next step is a narrow content repair.'.lower
+
+tests\test_summary_integrity_workflow_current.py:153: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_summary_integrity_workflow_current.py::test_handoff_surfaces_fail_closed_when_required_command_evidence_failed
+
+[summary_integrity_workflow_current][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'summary_integrity_workflow_current' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

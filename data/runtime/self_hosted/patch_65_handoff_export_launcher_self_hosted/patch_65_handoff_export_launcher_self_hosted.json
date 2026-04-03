@@ -1,0 +1,72 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_65_handoff_export_launcher_self_hosted",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "powershell/Invoke-PatchHandoff.ps1",
+                         "tests/test_handoff_launcher.py",
+                         "docs/handoff_surface.md"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "powershell/Invoke-PatchHandoff.ps1",
+                               "content_path":  "content/powershell/Invoke-PatchHandoff.ps1",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_handoff_launcher.py",
+                               "content_path":  "content/tests/test_handoff_launcher.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/handoff_surface.md",
+                               "content_path":  "content/docs/handoff_surface.md",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "smoke_commands":  [
+
+                       ],
+    "audit_commands":  [
+
+                       ],
+    "cleanup_commands":  [
+
+                         ],
+    "archive_commands":  [
+
+                         ],
+    "failure_policy":  {
+
+                       },
+    "report_preferences":  {
+                               "report_name_prefix":  "patch_65_handoff_export_launcher_self_hosted",
+                               "write_to_desktop":  true
+                           },
+    "tags":  [
+                 "stage2",
+                 "handoff",
+                 "powershell",
+                 "launcher",
+                 "self_hosted",
+                 "patch_65"
+             ],
+    "notes":  "Patch 65 adds the thin PowerShell handoff-export launcher and keeps real handoff logic in the existing Python export surface."
+}

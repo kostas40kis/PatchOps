@@ -1,0 +1,96 @@
+PATCHOPS APPLY
+Patch Name           : patch_134o_exact_current_repair_manifest_authoring_fix
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_134o_exact_current_repair_manifest_authoring_fix_20260330_123514\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\patch_134o_exact_current_repair_manifest_authoring_fix_20260330_123515
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\patch_134o_exact_current_repair_manifest_authoring_fix_20260330_123514\inner_reports\patch_134o_exact_current_repair_manifest_authoring_fix_patch_134o_exact_current_repair_manifest_authoring_fix_20260330_123515.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\workflows\apply_patch.py
+C:\dev\patchops\tests\test_apply_report_write_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\workflows\apply_patch.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134o_exact_current_repair_manifest_authoring_fix_20260330_123515\patchops\workflows\apply_patch.py
+MISSING: C:\dev\patchops\tests\test_apply_report_write_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\workflows\apply_patch.py
+WROTE : C:\dev\patchops\tests\test_apply_report_write_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : apply_report_write_hardening_pytest
+COMMAND : py -m pytest -q tests/test_report_preference_apply_flow.py tests/test_report_preference_apply_flow_current.py tests/test_report_preference_examples.py tests/test_apply_report_write_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[apply_report_write_hardening_pytest][stdout]
+.....                                                                    [100%]
+
+[apply_report_write_hardening_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

@@ -1,0 +1,73 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_69c_handoff_docs_phrase_contract_repair",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "README.md",
+                         "docs/project_status.md",
+                         "docs/llm_usage.md"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "README.md",
+                               "content_path":  "content/README.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/project_status.md",
+                               "content_path":  "content/docs/project_status.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/llm_usage.md",
+                               "content_path":  "content/docs/llm_usage.md",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "smoke_commands":  [
+
+                       ],
+    "audit_commands":  [
+
+                       ],
+    "cleanup_commands":  [
+
+                         ],
+    "archive_commands":  [
+
+                         ],
+    "failure_policy":  {
+
+                       },
+    "report_preferences":  {
+                               "report_name_prefix":  "patch_69c_handoff_docs_phrase_contract_repair",
+                               "write_to_desktop":  true
+                           },
+    "tags":  [
+                 "stage2",
+                 "handoff",
+                 "docs",
+                 "repair",
+                 "phrase_contract",
+                 "self_hosted",
+                 "patch_69c"
+             ],
+    "notes":  "Narrow Patch 69 follow-up repair. Add the four exact legacy doc phrases still required by validation while preserving the new handoff-first wording."
+}

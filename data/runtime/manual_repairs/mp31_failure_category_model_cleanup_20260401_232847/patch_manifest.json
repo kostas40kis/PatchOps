@@ -1,0 +1,56 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp31_failure_category_model_cleanup",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "patchops/failure_categories.py",
+      "content_path": "data\\runtime\\manual_repairs\\mp31_failure_category_model_cleanup_20260401_232847\\content\\patchops\\failure_categories.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_failure_category_model_current.py",
+      "content_path": "data\\runtime\\manual_repairs\\mp31_failure_category_model_cleanup_20260401_232847\\content\\tests\\test_failure_category_model_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "mp31 failure category model tests",
+      "program": "py",
+      "args": [
+        "-3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_failure_category_model_current.py",
+        "tests/test_failure_classifier.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp31_failure_category_model_cleanup_20260401_232847\\inner_reports",
+    "report_name_prefix": "mp31",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "maintenance",
+    "pythonization",
+    "phase_e",
+    "mp31",
+    "self_hosted"
+  ],
+  "notes": "MP31 failure category model cleanup after confirmed MP30 completion."
+}

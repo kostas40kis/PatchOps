@@ -1,0 +1,115 @@
+PATCHOPS APPLY
+Patch Name           : mp35_handoff_failure_class_propagation
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp35_handoff_failure_class_propagation_20260402_111153\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp35_handoff_failure_class_propagation_20260402_111208
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp35_handoff_failure_class_propagation_20260402_111153\inner_reports\mp35_mp35_handoff_failure_class_propagation_20260402_111208.txt
+Manifest Version     : 1
+Wrapper Mode Used    : apply
+Manifest Path Used   : C:\dev\patchops\data\runtime\manual_repairs\mp35_handoff_failure_class_propagation_20260402_111153\patch_manifest.json
+Profile Resolved     : generic_python
+Runtime Resolved     : (none)
+File Write Origin    : wrapper_owned_write_engine
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_handoff_failure_class_current.py
+
+
+BACKUP
+------
+MISSING: C:\dev\patchops\tests\test_handoff_failure_class_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\tests\test_handoff_failure_class_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : mp35 handoff failure-class propagation tests
+COMMAND : py -3 -m pytest -q tests/test_handoff_failure_class_current.py tests/test_handoff.py tests/test_report_failure_section_current.py tests/test_failure_category_model_current.py
+CWD     : C:\dev\patchops
+EXIT    : 2
+
+
+FULL OUTPUT
+-----------
+[mp35 handoff failure-class propagation tests][stdout]
+
+=================================== ERRORS ====================================
+________ ERROR collecting tests/test_handoff_failure_class_current.py _________
+ImportError while importing test module 'C:\dev\patchops\tests\test_handoff_failure_class_current.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_handoff_failure_class_current.py:7: in <module>
+    from tests.test_handoff import _read_json, _write_apply_report
+E   ImportError: cannot import name '_read_json' from 'tests.test_handoff' (C:\dev\patchops\tests\test_handoff.py)
+=========================== short test summary info ===========================
+ERROR tests/test_handoff_failure_class_current.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+
+[mp35 handoff failure-class propagation tests][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Failure Class : target_project_failure
+Failure Reason: Command 'mp35 handoff failure-class propagation tests' failed during validation with exit code 2.
+Category : target_project_failure
+Message  : Command 'mp35 handoff failure-class propagation tests' failed during validation with exit code 2.
+
+SUMMARY
+-------
+ExitCode : 2
+Result   : FAIL

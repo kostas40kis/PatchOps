@@ -1,0 +1,9 @@
+{
+  "patch_name": "mp27c_sections_import_syntax_and_header_bridge_repair",
+  "sections_path": "C:\\dev\\patchops\\patchops\\reporting\\sections.py",
+  "test_path": "C:\\dev\\patchops\\tests\\test_header_section_bridge_current.py",
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp27c_sections_import_syntax_and_header_bridge_repair_20260401_223330\\content\\patchops\\reporting\\sections.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp27c_sections_import_syntax_and_header_bridge_repair_20260401_223330\\content\\tests\\test_header_section_bridge_current.py"
+  ]
+}\n

@@ -1,0 +1,11 @@
+PATCHOPS RUN SUMMARY
+--------------------
+Mode               : apply
+Patch Name         : patch_134h_apply_report_dir_creation_repair
+Manifest Path      : C:\dev\patchops\data\runtime\manual_repairs\patch_134h_apply_report_dir_creation_repair_20260330_003801\patch_manifest.json
+Target Project Root: C:\dev\patchops
+Active Profile     : generic_python
+Runtime Path       : (none)
+Report Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_134h_apply_report_dir_creation_repair_20260330_003801\inner_reports\patch_134h_apply_report_dir_creation_repair_patch_134h_apply_report_dir_creation_repair_20260330_003802.txt
+ExitCode           : 2
+Result             : FAIL

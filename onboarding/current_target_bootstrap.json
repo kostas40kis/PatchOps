@@ -1,0 +1,28 @@
+{
+  "project_name": "Demo Roundtrip Current",
+  "target_root": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_129_new_target_onboarding_flow_proof_20260328_183629\\demo_roundtrip_current_target",
+  "profile_name": "generic_python",
+  "wrapper_project_root": "C:\\dev\\patchops",
+  "runtime_path": null,
+  "project_packet_path": "C:\\dev\\patchops\\docs\\projects\\demo_roundtrip_current.md",
+  "current_stage": "Initial onboarding",
+  "initial_goals": [
+    "Create the current project packet",
+    "Generate the safest starter manifest"
+  ],
+  "recommended_commands": [
+    "check",
+    "inspect",
+    "plan",
+    "apply_or_verify_only"
+  ],
+  "starter_manifest_path": "C:\\dev\\patchops\\onboarding\\starter_manifest.json",
+  "bootstrap_markdown_path": "C:\\dev\\patchops\\onboarding\\current_target_bootstrap.md",
+  "next_prompt_path": "C:\\dev\\patchops\\onboarding\\next_prompt.txt",
+  "content_path_onboarding_rule": {
+    "authoring_rule": "wrapper_relative_from_wrapper_project_root",
+    "fallback_rule": "manifest_local_compatibility_fallback",
+    "preferred_example_manifest": "examples/generic_content_path_patch.json",
+    "status": "maintenance_locked"
+  }
+}

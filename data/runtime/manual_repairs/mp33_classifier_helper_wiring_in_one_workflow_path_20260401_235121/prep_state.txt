@@ -1,0 +1,14 @@
+decision=stop_unexpected_apply_shape
+decision_reason=apply_patch.py no longer contains the expected apply_patch function or failure assignment anchor.
+apply_path_exists=yes
+categories_exists=yes
+rules_test_exists=yes
+legacy_test_exists=yes
+current_test_exists=no
+helper_import_present=no
+helper_def_present=no
+helper_call_present=no
+apply_def_present=no
+failure_assignment_present=yes
+inner_report_root=C:\dev\patchops\data\runtime\manual_repairs\mp33_classifier_helper_wiring_in_one_workflow_path_20260401_235121\inner_reports
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp33_classifier_helper_wiring_in_one_workflow_path_20260401_235121\patch_manifest.json

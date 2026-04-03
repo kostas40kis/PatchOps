@@ -1,0 +1,90 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_69_handoff_first_documentation_stop_self_hosted",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "README.md",
+                         "docs/project_status.md",
+                         "docs/examples.md",
+                         "docs/handoff_surface.md",
+                         "docs/llm_usage.md",
+                         "tests/test_handoff_docs_refresh.py"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "README.md",
+                               "content_path":  "content/README.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/project_status.md",
+                               "content_path":  "content/docs/project_status.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/examples.md",
+                               "content_path":  "content/docs/examples.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/handoff_surface.md",
+                               "content_path":  "content/docs/handoff_surface.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/llm_usage.md",
+                               "content_path":  "content/docs/llm_usage.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_handoff_docs_refresh.py",
+                               "content_path":  "content/tests/test_handoff_docs_refresh.py",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "smoke_commands":  [
+
+                       ],
+    "audit_commands":  [
+
+                       ],
+    "cleanup_commands":  [
+
+                         ],
+    "archive_commands":  [
+
+                         ],
+    "failure_policy":  {
+
+                       },
+    "report_preferences":  {
+                               "report_name_prefix":  "patch_69_handoff_first_documentation_stop_self_hosted",
+                               "write_to_desktop":  true
+                           },
+    "tags":  [
+                 "stage2",
+                 "handoff",
+                 "docs",
+                 "documentation_stop",
+                 "self_hosted",
+                 "patch_69"
+             ],
+    "notes":  "Patch 69 is the handoff-first documentation stop. Refresh the main docs so onboarding starts from the handoff artifact instead of scattered docs."
+}

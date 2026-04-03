@@ -1,0 +1,15 @@
+{
+  "patch_name": "mp22_batch_write_orchestration",
+  "writers_path": "C:\\dev\\patchops\\patchops\\files\\writers.py",
+  "apply_path": "C:\\dev\\patchops\\patchops\\workflows\\apply_patch.py",
+  "batch_test_path": "C:\\dev\\patchops\\tests\\test_batch_write_orchestration_current.py",
+  "write_files_exists_before": false,
+  "apply_uses_write_files_before": false,
+  "batch_test_exists_before": false,
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp22_batch_write_orchestration_20260401_215636\\patch_manifest.json",
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp22_batch_write_orchestration_20260401_215636\\content\\patchops\\files\\writers.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp22_batch_write_orchestration_20260401_215636\\content\\patchops\\workflows\\apply_patch.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp22_batch_write_orchestration_20260401_215636\\content\\tests\\test_batch_write_orchestration_current.py"
+  ]
+}

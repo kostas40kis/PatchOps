@@ -1,0 +1,108 @@
+PATCHOPS APPLY
+Patch Name           : patch_134f_summary_integrity_docs_refresh
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_134f_summary_integrity_docs_refresh_20260330_002733\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\patch_134f_summary_integrity_docs_refresh_20260330_002733
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\patch_134f_summary_integrity_docs_refresh_20260330_002733\inner_reports\patch_134f_summary_integrity_docs_refresh_patch_134f_summary_integrity_docs_refresh_20260330_002733.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\README.md
+C:\dev\patchops\docs\llm_usage.md
+C:\dev\patchops\docs\operator_quickstart.md
+C:\dev\patchops\docs\project_status.md
+C:\dev\patchops\docs\patch_ledger.md
+C:\dev\patchops\docs\summary_integrity_repair_stream.md
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\README.md -> C:\dev\patchops\data\runtime\patch_backups\patch_134f_summary_integrity_docs_refresh_20260330_002733\README.md
+BACKUP : C:\dev\patchops\docs\llm_usage.md -> C:\dev\patchops\data\runtime\patch_backups\patch_134f_summary_integrity_docs_refresh_20260330_002733\docs\llm_usage.md
+BACKUP : C:\dev\patchops\docs\operator_quickstart.md -> C:\dev\patchops\data\runtime\patch_backups\patch_134f_summary_integrity_docs_refresh_20260330_002733\docs\operator_quickstart.md
+BACKUP : C:\dev\patchops\docs\patch_ledger.md -> C:\dev\patchops\data\runtime\patch_backups\patch_134f_summary_integrity_docs_refresh_20260330_002733\docs\patch_ledger.md
+BACKUP : C:\dev\patchops\docs\project_status.md -> C:\dev\patchops\data\runtime\patch_backups\patch_134f_summary_integrity_docs_refresh_20260330_002733\docs\project_status.md
+BACKUP : C:\dev\patchops\docs\summary_integrity_repair_stream.md -> C:\dev\patchops\data\runtime\patch_backups\patch_134f_summary_integrity_docs_refresh_20260330_002733\docs\summary_integrity_repair_stream.md
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\README.md
+WROTE : C:\dev\patchops\docs\llm_usage.md
+WROTE : C:\dev\patchops\docs\operator_quickstart.md
+WROTE : C:\dev\patchops\docs\project_status.md
+WROTE : C:\dev\patchops\docs\patch_ledger.md
+WROTE : C:\dev\patchops\docs\summary_integrity_repair_stream.md
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : patch_134f_docs_refresh_validation
+COMMAND : py validate_patch_134f.py 'C:\dev\patchops'
+CWD     : C:\dev\patchops\data\runtime\manual_repairs\patch_134f_summary_integrity_docs_refresh_20260330_002733
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[patch_134f_docs_refresh_validation][stdout]
+patch_134f validation passed
+
+[patch_134f_docs_refresh_validation][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

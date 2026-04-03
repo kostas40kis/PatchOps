@@ -1,0 +1,73 @@
+{
+  "manifest_version": "1",
+  "patch_name": "generic_smoke_audit_example",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/some_other_project",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "SMOKE_AUDIT_EXAMPLE.txt",
+      "content": "PatchOps smoke/audit example.\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "python_version",
+      "program": "python",
+      "args": [
+        "--version"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [
+    {
+      "name": "smoke_marker",
+      "program": "python",
+      "args": [
+        "-c",
+        "print('smoke ok')"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "audit_commands": [
+    {
+      "name": "audit_marker",
+      "program": "python",
+      "args": [
+        "-c",
+        "print('audit ok')"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": null,
+    "report_name_prefix": "generic_smoke_audit_demo",
+    "write_to_desktop": true
+  },
+  "tags": [
+    "example",
+    "generic_python",
+    "command_groups"
+  ],
+  "notes": "Demonstrates how smoke and audit commands appear alongside the primary validation command."
+}

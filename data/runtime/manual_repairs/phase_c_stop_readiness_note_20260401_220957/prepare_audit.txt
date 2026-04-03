@@ -1,0 +1,12 @@
+{
+  "patch_name": "phase_c_stop_readiness_note",
+  "doc_path": "C:\\dev\\patchops\\docs\\phase_c_backup_write_readiness.md",
+  "test_path": "C:\\dev\\patchops\\tests\\test_phase_c_backup_write_readiness_current.py",
+  "doc_exists_before": false,
+  "test_exists_before": false,
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\phase_c_stop_readiness_note_20260401_220957\\patch_manifest.json",
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\phase_c_stop_readiness_note_20260401_220957\\content\\docs\\phase_c_backup_write_readiness.md",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\phase_c_stop_readiness_note_20260401_220957\\content\\tests\\test_phase_c_backup_write_readiness_current.py"
+  ]
+}

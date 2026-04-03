@@ -1,0 +1,88 @@
+PATCHOPS APPLY
+Patch Name           : patch_129k_new_target_onboarding_current_contract_repair
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_129k_new_target_onboarding_current_contract_repair_20260328_195803\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\patch_129k_new_target_onboarding_current_contract_repair_20260328_195806
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\patch_129k_new_target_onboarding_current_contract_repair_20260328_195803\reports\patch_129k_new_target_onboarding_current_contract_repair_patch_129k_new_target_onboarding_current_contract_repair_20260328_195806.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_new_target_onboarding_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\tests\test_new_target_onboarding_current.py -> C:\dev\patchops\data\runtime\patch_backups\patch_129k_new_target_onboarding_current_contract_repair_20260328_195806\tests\test_new_target_onboarding_current.py
+
+
+WRITING FILES
+-------------
+(none)
+
+
+VALIDATION COMMANDS
+-------------------
+(none)
+
+
+FULL OUTPUT
+-----------
+(none)
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : wrapper_failure
+Message  : [Errno 2] No such file or directory: 'C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_129k_new_target_onboarding_current_contract_repair_20260328_195803\\data\\runtime\\manual_repairs\\patch_129k_new_target_onboarding_current_contract_repair_20260328_195803\\content\\test_new_target_onboarding_current.py'
+Details  : FileNotFoundError
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

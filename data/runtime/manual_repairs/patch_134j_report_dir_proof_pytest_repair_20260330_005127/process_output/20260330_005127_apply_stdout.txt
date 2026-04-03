@@ -1,0 +1,11 @@
+PATCHOPS RUN SUMMARY
+--------------------
+Mode               : apply
+Patch Name         : patch_134j_report_dir_proof_pytest_repair
+Manifest Path      : C:\dev\patchops\data\runtime\manual_repairs\patch_134j_report_dir_proof_pytest_repair_20260330_005127\patch_manifest.json
+Target Project Root: C:\dev\patchops
+Active Profile     : generic_python
+Runtime Path       : (none)
+Report Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_134j_report_dir_proof_pytest_repair_20260330_005127\inner_reports\patch_134j_report_dir_proof_pytest_repair_patch_134j_report_dir_proof_pytest_repair_20260330_005127.txt
+ExitCode           : 2
+Result             : FAIL

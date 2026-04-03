@@ -1,0 +1,131 @@
+PATCHOPS APPLY
+Patch Name           : mp15a_report_helper_additional_workflow_path_repair
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp15a_report_helper_additional_workflow_path_repair_20260331_153806\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp15a_report_helper_additional_workflow_path_repair_20260331_153806
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp15a_report_helper_additional_workflow_path_repair_20260331_153806\inner_reports\mp15a_report_helper_additional_workflow_path_repair_20260331_153806.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\sections.py
+C:\dev\patchops\patchops\reporting\command_sections.py
+C:\dev\patchops\tests\test_reporting_output_helper_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15a_report_helper_additional_workflow_path_repair_20260331_153806\patchops\reporting\command_sections.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15a_report_helper_additional_workflow_path_repair_20260331_153806\patchops\reporting\sections.py
+MISSING: C:\dev\patchops\tests\test_reporting_output_helper_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\sections.py
+WROTE : C:\dev\patchops\patchops\reporting\command_sections.py
+WROTE : C:\dev\patchops\tests\test_reporting_output_helper_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : report_helper_pytest
+COMMAND : python -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_reporting_output_helper_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[report_helper_pytest][stdout]
+............F.....................                                       [100%]
+================================== FAILURES ===================================
+____________ test_full_output_section_uses_shared_output_renderer _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020ED84097F0>
+
+    def test_full_output_section_uses_shared_output_renderer(monkeypatch):
+        result = _command_result(stdout="captured stdout", stderr="captured stderr")
+        seen: list[str] = []
+    
+        def fake_renderer(section):
+            seen.append(section.command_name)
+            return (
+                "[patched][stdout]",
+                "patched stdout",
+                "[patched][stderr]",
+                "patched stderr",
+            )
+    
+        monkeypatch.setattr(reporting_sections, "render_report_command_output_section", fake_renderer)
+    
+        text = reporting_sections.full_output_section([result], "FULL OUTPUT")
+    
+>       assert seen == ["reporting_contracts"]
+E       AssertionError: assert [] == ['reporting_contracts']
+E         
+E         Right contains one more item: 'reporting_contracts'
+E         Use -v to get more diff
+
+tests\test_reporting_command_sections_current.py:119: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_reporting_command_sections_current.py::test_full_output_section_uses_shared_output_renderer
+
+[report_helper_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'report_helper_pytest' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

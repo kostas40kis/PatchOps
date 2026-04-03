@@ -1,0 +1,55 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp40_report_recommendation_note",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "files_to_write": [
+    {
+      "path": "patchops/reporting/sections.py",
+      "content_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp40_report_recommendation_note_20260402_115238\\content\\patchops\\reporting\\sections.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_report_recommendation_note_current.py",
+      "content_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp40_report_recommendation_note_20260402_115238\\content\\tests\\test_report_recommendation_note_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "mp40 report recommendation note tests",
+      "program": "py",
+      "args": [
+        "-3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_report_recommendation_note_current.py",
+        "tests/test_rerun_decision_matrix_current.py",
+        "tests/test_wrapper_retry_decision_helper_current.py",
+        "tests/test_verify_only_decision_helper_current.py",
+        "tests/test_failure_classification_rules_current.py",
+        "tests/test_failure_category_model_current.py",
+        "tests/test_report_failure_section_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp40_report_recommendation_note_20260402_115238\\inner_reports",
+    "report_name_prefix": "mp40",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "maintenance",
+    "pythonization",
+    "phase_f",
+    "mp40",
+    "self_hosted"
+  ],
+  "notes": "MP40 report recommendation note after confirmed MP39 completion."
+}

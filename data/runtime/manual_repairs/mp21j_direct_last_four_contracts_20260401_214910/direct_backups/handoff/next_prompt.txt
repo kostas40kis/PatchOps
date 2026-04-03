@@ -1,0 +1,28 @@
+You are resuming the PatchOps project from the current maintained repo state.
+
+Read these files first:
+1. handoff/current_handoff.md
+2. handoff/current_handoff.json
+3. handoff/latest_report_copy.txt
+
+[content_path repair stream]
+Keep the content_path repair stream treated as repaired and maintenance-locked unless new contrary repo evidence appears.
+The maintained rule is wrapper project root first.
+Manifest-local resolution remains a compatibility fallback rather than the primary contract.
+
+Next recommended action: Retry MP21 single-file writer helper only after the baseline stays green.
+
+Rules:
+- keep PowerShell thin
+- keep reusable logic in Python
+- preserve the one-report evidence contract
+- do not move target-repo business logic into PatchOps
+- do not redesign the architecture unless the handoff explicitly shows a deeper repo-truth problem
+
+After reading the handoff, briefly restate:
+- current state
+- latest attempted patch
+- failure class
+- next recommended action
+
+Then produce only the next repair patch or next planned patch.

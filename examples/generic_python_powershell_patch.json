@@ -1,0 +1,62 @@
+{
+  "manifest_version": "1",
+  "patch_name": "generic_python_powershell_example_patch",
+  "active_profile": "generic_python_powershell",
+  "target_project_root": "C:/dev/some_other_project",
+  "backup_files": [
+    "README_generated_by_patchops.txt"
+  ],
+  "files_to_write": [
+    {
+      "path": "README_generated_by_patchops_powershell_profile.txt",
+      "content": "Generic Python + PowerShell profile example patch manifest.\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "python_version",
+      "program": "python",
+      "args": [
+        "--version"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [
+    {
+      "name": "powershell_echo",
+      "program": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "Write-Output 'patchops generic_python_powershell example'"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": null,
+    "report_name_prefix": null,
+    "write_to_desktop": true
+  },
+  "tags": [
+    "example",
+    "generic_python_powershell",
+    "apply"
+  ],
+  "notes": "Use this example when the target repo needs Python-driven patching plus occasional PowerShell smoke steps."
+}

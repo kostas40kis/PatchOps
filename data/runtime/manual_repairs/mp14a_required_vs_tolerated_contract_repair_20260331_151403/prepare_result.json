@@ -1,0 +1,25 @@
+{
+  "decision": "mp14a_test_contract_repair",
+  "rationale": [
+    "defaulting to narrow contract repair because it does not over-assert later command rendering"
+  ],
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp14a_required_vs_tolerated_contract_repair_20260331_151403\\patch_manifest.json",
+  "target_test_path": "C:\\dev\\patchops\\tests\\test_required_vs_tolerated_report_current.py",
+  "validation_targets": [
+    "tests\\test_reporting.py",
+    "tests\\test_reporting_command_sections_current.py",
+    "tests\\test_summary_integrity_current.py",
+    "tests\\test_summary_derivation_lock_current.py",
+    "tests\\test_required_vs_tolerated_report_current.py",
+    "tests\\test_summary_integrity_workflow_current.py"
+  ],
+  "failed_report_exists": true,
+  "failed_report_path": "C:\\Users\\kostas\\Desktop\\mp14_required_vs_tolerated_report_proof_20260331_143712.txt",
+  "failed_report_shows_required": true,
+  "failed_report_hides_later_success": false,
+  "mp15_probe": {
+    "command_sections_exists": true,
+    "sections_mentions_name_lines": true,
+    "short_circuit_evidence": false
+  }
+}\n

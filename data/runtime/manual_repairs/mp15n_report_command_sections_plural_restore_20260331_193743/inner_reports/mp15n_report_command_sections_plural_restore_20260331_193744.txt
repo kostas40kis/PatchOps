@@ -1,0 +1,723 @@
+PATCHOPS APPLY
+Patch Name           : mp15n_report_command_sections_plural_restore
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp15n_report_command_sections_plural_restore_20260331_193743\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp15n_report_command_sections_plural_restore_20260331_193744
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp15n_report_command_sections_plural_restore_20260331_193743\inner_reports\mp15n_report_command_sections_plural_restore_20260331_193744.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\command_sections.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15n_report_command_sections_plural_restore_20260331_193744\patchops\reporting\command_sections.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\command_sections.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : report_command_sections_pytest
+COMMAND : python -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_reporting_output_helper_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+
+FULL OUTPUT
+-----------
+[report_command_sections_pytest][stdout]
+.......FFFFFFFFFF.FFFFFFFFFFF....                                        [100%]
+================================== FAILURES ===================================
+_____ test_build_report_command_section_preserves_current_command_values ______
+
+    def test_build_report_command_section_preserves_current_command_values():
+        result = _command_result()
+    
+>       section = build_report_command_section(result, section_label="VALIDATION COMMANDS")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: build_report_command_section() got an unexpected keyword argument 'section_label'
+
+tests\test_reporting_command_sections_current.py:39: TypeError
+___ test_build_report_command_sections_supports_optional_classification_map ___
+
+    def test_build_report_command_sections_supports_optional_classification_map():
+        required_result = _command_result(name="required_check", exit_code=1)
+        tolerated_result = _command_result(name="tolerated_check", exit_code=5)
+    
+>       sections = build_report_command_sections(
+            [required_result, tolerated_result],
+            section_label="VALIDATION COMMANDS",
+            classifications={"required_check": "required", "tolerated_check": "tolerated"},
+        )
+E       TypeError: build_report_command_sections() got an unexpected keyword argument 'section_label'
+
+tests\test_reporting_command_sections_current.py:56: TypeError
+_ test_command_group_section_preserves_visible_shape_after_model_introduction _
+
+    def test_command_group_section_preserves_visible_shape_after_model_introduction():
+        result = _command_result()
+    
+>       text = command_group_section("VALIDATION COMMANDS", [result])
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting_command_sections_current.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'VALIDATION COMMANDS'
+results = [CommandResult(name='reporting_contracts', program='py', args=['-m', 'pytest', '-q', 'tests/test_reporting.py'], worki...stdout='ok stdout', stderr='ok stderr', display_command='py -m pytest -q tests/test_reporting.py', phase='validation')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+_ test_full_output_section_preserves_stdout_and_stderr_labels_after_model_introduction _
+
+    def test_full_output_section_preserves_stdout_and_stderr_labels_after_model_introduction():
+        result = _command_result(stdout="captured stdout", stderr="captured stderr")
+    
+>       text = full_output_section([result], "FULL OUTPUT")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting_command_sections_current.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='reporting_contracts', program='py', args=['-m', 'pytest', '-q', 'tests/test_reporting.py'], worki...ured stdout', stderr='captured stderr', display_command='py -m pytest -q tests/test_reporting.py', phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+>       section = ReportCommandOutputSection(title=title, results=results, rule=_rule)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ReportCommandOutputSection.__init__() got an unexpected keyword argument 'title'
+
+patchops\reporting\sections.py:114: TypeError
+______ test_render_report_command_output_section_preserves_visible_shape ______
+
+    def test_render_report_command_output_section_preserves_visible_shape():
+        result = _command_result(stdout="captured stdout", stderr="captured stderr")
+    
+>       section = build_report_command_section(result, section_label="FULL OUTPUT")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: build_report_command_section() got an unexpected keyword argument 'section_label'
+
+tests\test_reporting_command_sections_current.py:91: TypeError
+____________ test_full_output_section_uses_shared_output_renderer _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025D4D8269C0>
+
+    def test_full_output_section_uses_shared_output_renderer(monkeypatch):
+        result = _command_result(stdout="captured stdout", stderr="captured stderr")
+        seen: list[str] = []
+    
+        def fake_renderer(section):
+            seen.append(section.command_name)
+            return (
+                "[patched][stdout]",
+                "patched stdout",
+                "[patched][stderr]",
+                "patched stderr",
+            )
+    
+        monkeypatch.setattr(reporting_sections, "render_report_command_output_section", fake_renderer)
+    
+>       text = reporting_sections.full_output_section([result], "FULL OUTPUT")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting_command_sections_current.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='reporting_contracts', program='py', args=['-m', 'pytest', '-q', 'tests/test_reporting.py'], worki...ured stdout', stderr='captured stderr', display_command='py -m pytest -q tests/test_reporting.py', phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+>       section = ReportCommandOutputSection(title=title, results=results, rule=_rule)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ReportCommandOutputSection.__init__() got an unexpected keyword argument 'title'
+
+patchops\reporting\sections.py:114: TypeError
+__ test_render_report_command_output_section_keeps_labels_when_stdout_empty ___
+
+    def test_render_report_command_output_section_keeps_labels_when_stdout_empty():
+        result = _command_result(stdout="", stderr="captured stderr")
+    
+>       section = build_report_command_section(result, section_label="FULL OUTPUT")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: build_report_command_section() got an unexpected keyword argument 'section_label'
+
+tests\test_reporting_command_sections_current.py:128: TypeError
+__ test_render_report_command_output_section_keeps_labels_when_stderr_empty ___
+
+    def test_render_report_command_output_section_keeps_labels_when_stderr_empty():
+        result = _command_result(stdout="captured stdout", stderr="")
+    
+>       section = build_report_command_section(result, section_label="FULL OUTPUT")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: build_report_command_section() got an unexpected keyword argument 'section_label'
+
+tests\test_reporting_command_sections_current.py:142: TypeError
+_ test_render_report_command_output_section_keeps_labels_when_both_outputs_empty _
+
+    def test_render_report_command_output_section_keeps_labels_when_both_outputs_empty():
+        result = _command_result(stdout="", stderr="")
+    
+>       section = build_report_command_section(result, section_label="FULL OUTPUT")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: build_report_command_section() got an unexpected keyword argument 'section_label'
+
+tests\test_reporting_command_sections_current.py:156: TypeError
+__________ test_build_report_command_section_exposes_current_fields ___________
+
+    def test_build_report_command_section_exposes_current_fields() -> None:
+        section = build_report_command_section(_result())
+    
+        assert section.command_name == "alpha"
+>       assert "pytest" in section.command_text
+                           ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+tests\test_reporting_output_helper_current.py:32: AttributeError
+___________ test_report_output_helper_accepts_single_section_object ___________
+
+    def test_report_output_helper_accepts_single_section_object() -> None:
+        result = _result("alpha", "hello\n", "warn\n")
+        rule = lambda title: f"\n{title}\n{'-' * len(title)}"
+>       section = ReportCommandOutputSection(title="FULL OUTPUT", results=[result], rule=rule)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ReportCommandOutputSection.__init__() got an unexpected keyword argument 'title'
+
+tests\test_reporting_output_helper_current.py:50: TypeError
+_______ test_summary_cannot_claim_pass_when_required_validation_failed ________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-219/test_summary_cannot_claim_pass0')
+
+    def test_summary_cannot_claim_pass_when_required_validation_failed(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            validation_specs=[_command_spec("required_validation", [0])],
+            validation_results=[_command_result("required_validation", 4, "validation")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_integrity_current.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:30: in render_workflow_report
+    command_group_section("VALIDATION COMMANDS", result.validation_results),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'VALIDATION COMMANDS'
+results = [CommandResult(name='required_validation', program='py', args=['-c', "print('summary integrity test')"], working_direc...ut='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='validation')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+___ test_summary_keeps_earlier_required_failure_sticky_after_later_success ____
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-219/test_summary_keeps_earlier_req0')
+
+    def test_summary_keeps_earlier_required_failure_sticky_after_later_success(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            validation_specs=[_command_spec("required_validation", [0])],
+            validation_results=[_command_result("required_validation", 4, "validation")],
+            smoke_specs=[_command_spec("later_smoke", [0])],
+            smoke_results=[_command_result("later_smoke", 0, "smoke")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_integrity_current.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:30: in render_workflow_report
+    command_group_section("VALIDATION COMMANDS", result.validation_results),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'VALIDATION COMMANDS'
+results = [CommandResult(name='required_validation', program='py', args=['-c', "print('summary integrity test')"], working_direc...ut='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='validation')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+________ test_summary_keeps_explicitly_tolerated_non_zero_exit_as_pass ________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-219/test_summary_keeps_explicitly_0')
+
+    def test_summary_keeps_explicitly_tolerated_non_zero_exit_as_pass(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            validation_specs=[_command_spec("tolerated_validation", [0, 3])],
+            validation_results=[_command_result("tolerated_validation", 3, "validation")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_integrity_current.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:30: in render_workflow_report
+    command_group_section("VALIDATION COMMANDS", result.validation_results),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'VALIDATION COMMANDS'
+results = [CommandResult(name='tolerated_validation', program='py', args=['-c', "print('summary integrity test')"], working_dire...ut='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='validation')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+__ test_summary_preserves_existing_success_when_required_commands_are_clean ___
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-219/test_summary_preserves_existin0')
+
+    def test_summary_preserves_existing_success_when_required_commands_are_clean(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            validation_specs=[_command_spec("validation_ok", [0])],
+            validation_results=[_command_result("validation_ok", 0, "validation")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_integrity_current.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:30: in render_workflow_report
+    command_group_section("VALIDATION COMMANDS", result.validation_results),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'VALIDATION COMMANDS'
+results = [CommandResult(name='validation_ok', program='py', args=['-c', "print('summary integrity test')"], working_directory=W...ut='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='validation')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+_ test_summary_lock_rejects_required_smoke_failure_even_when_result_label_claims_pass _
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-219/test_summary_lock_rejects_requ0')
+
+    def test_summary_lock_rejects_required_smoke_failure_even_when_result_label_claims_pass(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            smoke_specs=[_command_spec("required_smoke", [0])],
+            smoke_results=[_command_result("required_smoke", 7, "smoke")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_derivation_lock_current.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:32: in render_workflow_report
+    command_group_section("SMOKE COMMANDS", result.smoke_results),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'SMOKE COMMANDS'
+results = [CommandResult(name='required_smoke', program='py', args=['-c', "print('summary integrity test')"], working_directory=... stdout='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='smoke')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+_ test_summary_lock_keeps_required_failure_sticky_even_when_later_non_zero_is_tolerated _
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-219/test_summary_lock_keeps_requir0')
+
+    def test_summary_lock_keeps_required_failure_sticky_even_when_later_non_zero_is_tolerated(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            validation_specs=[_command_spec("required_validation", [0])],
+            validation_results=[_command_result("required_validation", 4, "validation")],
+            smoke_specs=[_command_spec("tolerated_smoke", [0, 3])],
+            smoke_results=[_command_result("tolerated_smoke", 3, "smoke")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_derivation_lock_current.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:30: in render_workflow_report
+    command_group_section("VALIDATION COMMANDS", result.validation_results),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'VALIDATION COMMANDS'
+results = [CommandResult(name='required_validation', program='py', args=['-c', "print('summary integrity test')"], working_direc...ut='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='validation')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+_ test_summary_lock_preserves_pass_when_only_explicitly_tolerated_non_zero_exists _
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-219/test_summary_lock_preserves_pa0')
+
+    def test_summary_lock_preserves_pass_when_only_explicitly_tolerated_non_zero_exists(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            smoke_specs=[_command_spec("tolerated_smoke", [0, 5])],
+            smoke_results=[_command_result("tolerated_smoke", 5, "smoke")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_derivation_lock_current.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:32: in render_workflow_report
+    command_group_section("SMOKE COMMANDS", result.smoke_results),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'SMOKE COMMANDS'
+results = [CommandResult(name='tolerated_smoke', program='py', args=['-c', "print('summary integrity test')"], working_directory... stdout='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='smoke')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+____ test_required_command_failure_outside_allowed_exit_codes_renders_fail ____
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-219/test_required_command_failure_0')
+
+    def test_required_command_failure_outside_allowed_exit_codes_renders_fail(tmp_path: Path) -> None:
+        wrapper_root = PROJECT_ROOT
+        manifest_data = _base_manifest(tmp_path, "required_failure_report_proof")
+        manifest_data["validation_commands"] = [
+            {
+                "name": "required_fail",
+                "program": "python",
+                "args": ["-c", "import sys; print('required fail'); sys.exit(1)"],
+                "working_directory": ".",
+                "use_profile_runtime": False,
+                "allowed_exit_codes": [0],
+            }
+        ]
+    
+        manifest_path = _write_manifest(tmp_path / "required_failure_report_proof.json", manifest_data)
+>       result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_required_vs_tolerated_report_current.py:61: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\workflows\apply_patch.py:124: in apply_manifest
+    report_text = render_workflow_report(workflow_result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+patchops\reporting\renderer.py:30: in render_workflow_report
+    command_group_section("VALIDATION COMMANDS", result.validation_results),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'VALIDATION COMMANDS'
+results = [CommandResult(name='required_fail', program='python', args=['-c', "import sys; print('required fail'); sys.exit(1)"],...'', display_command='python -c \'import sys; print(\'"\'"\'required fail\'"\'"\'); sys.exit(1)\'', phase='validation')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+_______________ test_tolerated_non_zero_exit_still_renders_pass _______________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-219/test_tolerated_non_zero_exit_s0')
+
+    def test_tolerated_non_zero_exit_still_renders_pass(tmp_path: Path) -> None:
+        wrapper_root = PROJECT_ROOT
+        manifest_data = _base_manifest(tmp_path, "tolerated_failure_report_proof")
+        manifest_data["validation_commands"] = [
+            {
+                "name": "tolerated_non_zero",
+                "program": "python",
+                "args": ["-c", "import sys; print('tolerated non-zero'); sys.exit(3)"],
+                "working_directory": ".",
+                "use_profile_runtime": False,
+                "allowed_exit_codes": [0, 3],
+            }
+        ]
+    
+        manifest_path = _write_manifest(tmp_path / "tolerated_failure_report_proof.json", manifest_data)
+>       result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_required_vs_tolerated_report_current.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\workflows\apply_patch.py:124: in apply_manifest
+    report_text = render_workflow_report(workflow_result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+patchops\reporting\renderer.py:30: in render_workflow_report
+    command_group_section("VALIDATION COMMANDS", result.validation_results),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'VALIDATION COMMANDS'
+results = [CommandResult(name='tolerated_non_zero', program='python', args=['-c', "import sys; print('tolerated non-zero'); sys....isplay_command='python -c \'import sys; print(\'"\'"\'tolerated non-zero\'"\'"\'); sys.exit(3)\'', phase='validation')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+_ test_earlier_required_failure_stays_sticky_without_assuming_later_command_rendering _
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-219/test_earlier_required_failure_0')
+
+    def test_earlier_required_failure_stays_sticky_without_assuming_later_command_rendering(tmp_path: Path) -> None:
+        wrapper_root = PROJECT_ROOT
+        manifest_data = _base_manifest(tmp_path, "sticky_required_failure_report_proof")
+        manifest_data["validation_commands"] = [
+            {
+                "name": "required_fail",
+                "program": "python",
+                "args": ["-c", "import sys; print('required fail'); sys.exit(1)"],
+                "working_directory": ".",
+                "use_profile_runtime": False,
+                "allowed_exit_codes": [0],
+            },
+            {
+                "name": "later_success",
+                "program": "python",
+                "args": ["-c", "print('later success')"],
+                "working_directory": ".",
+                "use_profile_runtime": False,
+                "allowed_exit_codes": [0],
+            },
+        ]
+    
+        manifest_path = _write_manifest(tmp_path / "sticky_required_failure_report_proof.json", manifest_data)
+>       result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_required_vs_tolerated_report_current.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\workflows\apply_patch.py:124: in apply_manifest
+    report_text = render_workflow_report(workflow_result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+patchops\reporting\renderer.py:30: in render_workflow_report
+    command_group_section("VALIDATION COMMANDS", result.validation_results),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+title = 'VALIDATION COMMANDS'
+results = [CommandResult(name='required_fail', program='python', args=['-c', "import sys; print('required fail'); sys.exit(1)"],...'', display_command='python -c \'import sys; print(\'"\'"\'required fail\'"\'"\'); sys.exit(1)\'', phase='validation')]
+
+    def command_group_section(title: str, results: list[CommandResult]) -> str:
+        lines = [_rule(title)]
+        if not results:
+            lines.append("(none)")
+            return "\n".join(lines)
+        for result in results:
+            section = build_report_command_section(result)
+            lines.append(f"NAME    : {section.command_name}")
+>           lines.append(f"COMMAND : {section.command_text}")
+                                      ^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'ReportCommandOutputSection' object has no attribute 'command_text'. Did you mean: 'command_name'?
+
+patchops\reporting\sections.py:103: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/test_reporting_command_sections_current.py::test_build_report_command_section_preserves_current_command_values
+FAILED tests/test_reporting_command_sections_current.py::test_build_report_command_sections_supports_optional_classification_map
+FAILED tests/test_reporting_command_sections_current.py::test_command_group_section_preserves_visible_shape_after_model_introduction
+FAILED tests/test_reporting_command_sections_current.py::test_full_output_section_preserves_stdout_and_stderr_labels_after_model_introduction
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_preserves_visible_shape
+FAILED tests/test_reporting_command_sections_current.py::test_full_output_section_uses_shared_output_renderer
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_keeps_labels_when_stdout_empty
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_keeps_labels_when_stderr_empty
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_keeps_labels_when_both_outputs_empty
+FAILED tests/test_reporting_output_helper_current.py::test_build_report_command_section_exposes_current_fields
+FAILED tests/test_reporting_output_helper_current.py::test_report_output_helper_accepts_single_section_object
+FAILED tests/test_summary_integrity_current.py::test_summary_cannot_claim_pass_when_required_validation_failed
+FAILED tests/test_summary_integrity_current.py::test_summary_keeps_earlier_required_failure_sticky_after_later_success
+FAILED tests/test_summary_integrity_current.py::test_summary_keeps_explicitly_tolerated_non_zero_exit_as_pass
+FAILED tests/test_summary_integrity_current.py::test_summary_preserves_existing_success_when_required_commands_are_clean
+FAILED tests/test_summary_derivation_lock_current.py::test_summary_lock_rejects_required_smoke_failure_even_when_result_label_claims_pass
+FAILED tests/test_summary_derivation_lock_current.py::test_summary_lock_keeps_required_failure_sticky_even_when_later_non_zero_is_tolerated
+FAILED tests/test_summary_derivation_lock_current.py::test_summary_lock_preserves_pass_when_only_explicitly_tolerated_non_zero_exists
+FAILED tests/test_required_vs_tolerated_report_current.py::test_required_command_failure_outside_allowed_exit_codes_renders_fail
+FAILED tests/test_required_vs_tolerated_report_current.py::test_tolerated_non_zero_exit_still_renders_pass
+FAILED tests/test_required_vs_tolerated_report_current.py::test_earlier_required_failure_stays_sticky_without_assuming_later_command_rendering
+
+[report_command_sections_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'report_command_sections_pytest' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

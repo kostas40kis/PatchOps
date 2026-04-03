@@ -1,0 +1,45 @@
+{
+  "manifest_version": "1",
+  "patch_name": "generic_report_dir_example",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/some_other_project",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "REPORT_DIR_EXAMPLE.txt",
+      "content": "PatchOps report dir example.\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "python_version",
+      "program": "python",
+      "args": [
+        "--version"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": ".\\data\\runtime\\reports",
+    "report_name_prefix": "generic_dir_demo",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "example",
+    "generic_python",
+    "report_preferences"
+  ],
+  "notes": "Demonstrates deterministic report directory placement without a Desktop copy."
+}

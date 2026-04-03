@@ -1,0 +1,12 @@
+﻿{
+  "written": true,
+  "project_name": "Demo Roundtrip Current",
+  "wrapper_project_root": "C:\\dev\\patchops",
+  "project_packet_path": "C:\\dev\\patchops\\docs\\projects\\demo_roundtrip_current.md",
+  "bootstrap_markdown_path": "C:\\dev\\patchops\\onboarding\\current_target_bootstrap.md",
+  "bootstrap_json_path": "C:\\dev\\patchops\\onboarding\\current_target_bootstrap.json",
+  "next_prompt_path": "C:\\dev\\patchops\\onboarding\\next_prompt.txt",
+  "starter_manifest_path": "C:\\dev\\patchops\\onboarding\\starter_manifest.json",
+  "current_stage": "Initial onboarding"
+}
+

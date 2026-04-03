@@ -1,0 +1,121 @@
+{
+    "manifest_version":  1,
+    "patch_name":  "patch_49_documentation_stop_h",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:\\dev\\patchops",
+    "report_dir":  "C:\\Users\\kostas\\Desktop",
+    "backup_files":  [
+                         "README.md",
+                         "docs\\project_status.md",
+                         "docs\\llm_usage.md",
+                         "docs\\examples.md",
+                         "docs\\patch_ledger.md"
+                     ],
+    "target_files":  [
+                         {
+                             "path":  "README.md",
+                             "content_path":  "C:\\dev\\patchops\\data\\runtime\\self_hosted\\patch_49_documentation_stop_h\\content\\README.md"
+                         },
+                         {
+                             "path":  "docs\\project_status.md",
+                             "content_path":  "C:\\dev\\patchops\\data\\runtime\\self_hosted\\patch_49_documentation_stop_h\\content\\docs\\project_status.md"
+                         },
+                         {
+                             "path":  "docs\\llm_usage.md",
+                             "content_path":  "C:\\dev\\patchops\\data\\runtime\\self_hosted\\patch_49_documentation_stop_h\\content\\docs\\llm_usage.md"
+                         },
+                         {
+                             "path":  "docs\\examples.md",
+                             "content_path":  "C:\\dev\\patchops\\data\\runtime\\self_hosted\\patch_49_documentation_stop_h\\content\\docs\\examples.md"
+                         },
+                         {
+                             "path":  "docs\\patch_ledger.md",
+                             "content_path":  "C:\\dev\\patchops\\data\\runtime\\self_hosted\\patch_49_documentation_stop_h\\content\\docs\\patch_ledger.md"
+                         }
+                     ],
+    "validation_commands":  [
+                                {
+                                    "name":  "patchops_pytest_quiet",
+                                    "program":  "C:\\dev\\trader\\.venv\\Scripts\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                },
+                                {
+                                    "name":  "patchops_profiles",
+                                    "program":  "C:\\dev\\trader\\.venv\\Scripts\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "patchops.cli",
+                                                 "profiles"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                },
+                                {
+                                    "name":  "patchops_examples",
+                                    "program":  "C:\\dev\\trader\\.venv\\Scripts\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "patchops.cli",
+                                                 "examples"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                },
+                                {
+                                    "name":  "patchops_doctor_trader",
+                                    "program":  "C:\\dev\\trader\\.venv\\Scripts\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "patchops.cli",
+                                                 "doctor",
+                                                 "--profile",
+                                                 "trader"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                },
+                                {
+                                    "name":  "patchops_plan_trader_first_verify",
+                                    "program":  "C:\\dev\\trader\\.venv\\Scripts\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "patchops.cli",
+                                                 "plan",
+                                                 ".\\examples\\trader_first_verify_patch.json",
+                                                 "--mode",
+                                                 "verify"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "tags":  [
+                 "patchops",
+                 "self_hosted",
+                 "docs",
+                 "stop_h",
+                 "maintenance_mode"
+             ],
+    "notes":  "Self-hosted PatchOps Documentation Stop H patch. Refreshes core handoff/status docs to reflect maintenance-mode reality."
+}

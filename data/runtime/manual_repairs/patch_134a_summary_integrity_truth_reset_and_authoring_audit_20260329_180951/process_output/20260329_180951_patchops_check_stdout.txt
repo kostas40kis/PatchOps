@@ -1,0 +1,8 @@
+{
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_134a_summary_integrity_truth_reset_and_authoring_audit_20260329_180951\\patch_manifest.json",
+  "patch_name": "patch_134a_summary_integrity_truth_reset_and_authoring_audit",
+  "active_profile": "generic_python",
+  "ok": true,
+  "issue_count": 0,
+  "issues": []
+}

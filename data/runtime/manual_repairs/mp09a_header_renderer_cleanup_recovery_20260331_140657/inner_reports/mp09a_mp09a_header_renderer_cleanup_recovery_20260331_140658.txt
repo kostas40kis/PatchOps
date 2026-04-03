@@ -1,0 +1,99 @@
+PATCHOPS APPLY
+Patch Name           : mp09a_header_renderer_cleanup_recovery
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp09a_header_renderer_cleanup_recovery_20260331_140657\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp09a_header_renderer_cleanup_recovery_20260331_140658
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp09a_header_renderer_cleanup_recovery_20260331_140657\inner_reports\mp09a_mp09a_header_renderer_cleanup_recovery_20260331_140658.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\metadata.py
+C:\dev\patchops\patchops\reporting\sections.py
+C:\dev\patchops\tests\test_reporting.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\metadata.py -> C:\dev\patchops\data\runtime\patch_backups\mp09a_header_renderer_cleanup_recovery_20260331_140658\patchops\reporting\metadata.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp09a_header_renderer_cleanup_recovery_20260331_140658\patchops\reporting\sections.py
+BACKUP : C:\dev\patchops\tests\test_reporting.py -> C:\dev\patchops\data\runtime\patch_backups\mp09a_header_renderer_cleanup_recovery_20260331_140658\tests\test_reporting.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\metadata.py
+WROTE : C:\dev\patchops\patchops\reporting\sections.py
+WROTE : C:\dev\patchops\tests\test_reporting.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : reporting_contracts
+COMMAND : py -m pytest -q tests/test_reporting.py tests/test_summary_integrity_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[reporting_contracts][stdout]
+...............                                                          [100%]
+
+[reporting_contracts][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

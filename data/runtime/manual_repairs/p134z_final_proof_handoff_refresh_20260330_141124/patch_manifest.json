@@ -1,0 +1,76 @@
+{
+  "manifest_version": "1",
+  "patch_name": "p134z_final_proof_handoff_refresh",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/patchops",
+  "backup_files": [
+    "docs/project_status.md",
+    "docs/patch_ledger.md",
+    "docs/summary_integrity_repair_stream.md",
+    "handoff/current_handoff.md",
+    "handoff/current_handoff.json",
+    "handoff/latest_report_copy.txt",
+    "handoff/latest_report_index.json",
+    "handoff/next_prompt.txt"
+  ],
+  "files_to_write": [
+    {
+      "path": "docs/project_status.md",
+      "content": null,
+      "content_path": "content/docs/project_status.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs/patch_ledger.md",
+      "content": null,
+      "content_path": "content/docs/patch_ledger.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs/summary_integrity_repair_stream.md",
+      "content": null,
+      "content_path": "content/docs/summary_integrity_repair_stream.md",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "summary_integrity_final_proof_pytest",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_summary_integrity_current.py",
+        "tests/test_summary_integrity_workflow_current.py",
+        "tests/test_report_preference_apply_flow.py",
+        "tests/test_report_preference_apply_flow_current.py",
+        "tests/test_report_preference_examples.py",
+        "tests/test_apply_report_write_current.py",
+        "tests/test_report_path_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:/dev/patchops/data/runtime/manual_repairs/p134z_final_proof_handoff_refresh_20260330_141124/inner_reports",
+    "report_name_prefix": "p134z",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "self_hosted",
+    "summary_integrity",
+    "final_proof",
+    "handoff_refresh"
+  ],
+  "notes": "Patch 134Z reruns the maintained summary-integrity proof layer after 134Y and refreshes handoff from the new green current report."
+}

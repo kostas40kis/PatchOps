@@ -1,0 +1,69 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_54_wrapper_only_retry_tests",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "tests/test_plan_command.py",
+                         "tests/test_powershell_launchers.py",
+                         "tests/test_wrapper_retry.py",
+                         "tests/test_powershell_wrapper_retry_launcher.py",
+                         "docs/project_status.md",
+                         "docs/patch_ledger.md"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "tests/test_plan_command.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_54_wrapper_only_retry_tests/content/tests/test_plan_command.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_powershell_launchers.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_54_wrapper_only_retry_tests/content/tests/test_powershell_launchers.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_wrapper_retry.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_54_wrapper_only_retry_tests/content/tests/test_wrapper_retry.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_powershell_wrapper_retry_launcher.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_54_wrapper_only_retry_tests/content/tests/test_powershell_wrapper_retry_launcher.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/project_status.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_54_wrapper_only_retry_tests/content/docs/project_status.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/patch_ledger.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_54_wrapper_only_retry_tests/content/docs/patch_ledger.md",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest_full",
+                                    "program":  "C:\\Users\\kostas\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  "."
+                                }
+                            ],
+    "report_preferences":  {
+                               "report_name_prefix":  "patchops_patch"
+                           },
+    "tags":  [
+                 "stage2",
+                 "patch_54",
+                 "wrapper_retry",
+                 "tests",
+                 "self_hosted"
+             ],
+    "notes":  "Patch 54 deepens wrapper-only retry tests across helper, plan, and launcher surfaces."
+}

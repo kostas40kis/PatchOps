@@ -1,0 +1,43 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp17_backup_plan_object",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\\\dev\\\\patchops",
+  "backup_files": [
+    "patchops/files/backups.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "patchops/files/backups.py",
+      "content_path": "content/patchops/files/backups.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_backup_plan_current.py",
+      "content_path": "content/tests/test_backup_plan_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "backup_plan_contracts",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_backup_plan_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [0]
+    }
+  ],
+  "report_preferences": {
+    "report_dir": "C:\\\\dev\\\\patchops\\\\data\\\\runtime\\\\manual_repairs\\\\mp17_backup_plan_object_20260401_195904\\\\inner_reports",
+    "report_name_prefix": "mp17_backup_plan_object",
+    "write_to_desktop": false
+  },
+  "tags": ["maintenance", "self_hosted", "mp17", "backup"],
+  "notes": "Self-hosted maintenance patch generated after MP16 green."
+}

@@ -1,0 +1,101 @@
+PATCHOPS APPLY
+Patch Name           : mp30_handoff_linkage_note_for_wrapper_proof
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp30_handoff_linkage_note_for_wrapper_proof_20260401_232417\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp30_handoff_linkage_note_for_wrapper_proof_20260401_232426
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp30_handoff_linkage_note_for_wrapper_proof_20260401_232417\inner_reports\mp30_mp30_handoff_linkage_note_for_wrapper_proof_20260401_232426.txt
+Manifest Version     : 1
+Wrapper Mode Used    : apply
+Manifest Path Used   : C:\dev\patchops\data\runtime\manual_repairs\mp30_handoff_linkage_note_for_wrapper_proof_20260401_232417\patch_manifest.json
+Profile Resolved     : generic_python
+Runtime Resolved     : (none)
+File Write Origin    : wrapper_owned_write_engine
+
+
+TARGET FILES
+------------
+C:\dev\patchops\docs\handoff_surface.md
+C:\dev\patchops\tests\test_wrapper_proof_handoff_linkage_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\docs\handoff_surface.md -> C:\dev\patchops\data\runtime\patch_backups\mp30_handoff_linkage_note_for_wrapper_proof_20260401_232426\docs\handoff_surface.md
+MISSING: C:\dev\patchops\tests\test_wrapper_proof_handoff_linkage_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\docs\handoff_surface.md
+WROTE : C:\dev\patchops\tests\test_wrapper_proof_handoff_linkage_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : mp30 wrapper-proof handoff linkage tests
+COMMAND : py -3 -m pytest -q tests/test_wrapper_proof_handoff_linkage_current.py tests/test_launcher_to_core_provenance_current.py tests/test_run_origin_metadata_current.py tests/test_report_header_provenance_current.py tests/test_file_write_origin_proof_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[mp30 wrapper-proof handoff linkage tests][stdout]
+........                                                                 [100%]
+
+[mp30 wrapper-proof handoff linkage tests][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

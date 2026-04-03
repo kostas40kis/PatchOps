@@ -1,0 +1,63 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp15i_report_helper_export_restore",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "patchops\\reporting\\sections.py",
+    "patchops\\reporting\\command_sections.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "patchops\\reporting\\sections.py",
+      "content_path": "content/patchops/reporting/sections.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops\\reporting\\command_sections.py",
+      "content_path": "content/patchops/reporting/command_sections.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "report_helper_restore_pytest",
+      "program": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_reporting.py",
+        "tests/test_reporting_command_sections_current.py",
+        "tests/test_reporting_output_helper_current.py",
+        "tests/test_summary_integrity_current.py",
+        "tests/test_summary_derivation_lock_current.py",
+        "tests/test_required_vs_tolerated_report_current.py",
+        "tests/test_summary_integrity_workflow_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp15i_report_helper_export_restore_20260331_163613\\inner_reports",
+    "report_name_prefix": "mp15i_report_helper_export_restore",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "maintenance",
+    "pythonization",
+    "mp15",
+    "report_helper",
+    "export_restore"
+  ],
+  "notes": "Narrow MP15 repair. Restore the reporting module exports and keep the shared output helper compatible with both the legacy three-argument call and the reporting.sections monkeypatch contract."
+}

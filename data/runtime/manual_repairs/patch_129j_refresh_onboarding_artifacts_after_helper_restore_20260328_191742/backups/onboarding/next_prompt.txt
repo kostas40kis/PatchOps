@@ -1,0 +1,22 @@
+Brand-new target project bootstrap for: Demo Roundtrip Current
+
+Read these docs first:
+1. README.md
+2. docs/overview.md
+3. docs/llm_usage.md
+4. docs/manifest_schema.md
+5. docs/profile_system.md
+6. docs/compatibility_notes.md
+7. docs/failure_repair_guide.md
+8. docs/examples.md
+9. docs/project_status.md
+10. docs/operator_quickstart.md
+11. docs/project_packet_contract.md
+12. docs/project_packet_workflow.md
+
+Then read the project packet: C:\dev\patchops\docs\projects\demo_roundtrip_current.md
+Starter manifest artifact: C:\dev\patchops\onboarding\starter_manifest.json
+
+Then produce only the next safe target-specific patch or the narrowest verify-only starter step.
+Then create or adapt the first manifest conservatively.
+Do not replace profiles, manifests, reports, or handoff with the onboarding bundle.

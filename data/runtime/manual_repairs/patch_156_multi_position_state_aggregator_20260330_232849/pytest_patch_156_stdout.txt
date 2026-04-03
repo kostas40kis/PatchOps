@@ -1,0 +1,799 @@
+FF.FFFF...................                                               [100%]
+================================== FAILURES ===================================
+_ TestMultiPositionStateAggregator.test_aggregates_exposure_by_chain_and_strategy _
+
+    def aggregate_multi_position_state(
+        *,
+        managed_positions: Iterable[Any],
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> MultiPositionStateAggregate:
+        seen_ids = set()
+    
+        pending_position_ids: list[str] = []
+        active_position_ids: list[str] = []
+        closed_position_ids: list[str] = []
+        blocked_position_ids: list[str] = []
+        error_position_ids: list[str] = []
+    
+        chain_accumulator: Dict[str, Dict[str, Any]] = {}
+        strategy_accumulator: Dict[str, Dict[str, Any]] = {}
+    
+        pending_gross_exposure_usd = 0.0
+        active_gross_exposure_usd = 0.0
+        active_net_exposure_usd = 0.0
+        total_positions = 0
+    
+        for item in managed_positions:
+            try:
+>               position = normalize_managed_position_v2(item)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src\trader\execution\multi_position_state_aggregator.py:267: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+src\trader\execution\managed_position_v2.py:287: in normalize_managed_position_v2
+    return ManagedPositionV2.from_dict(payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\trader\execution\managed_position_v2.py:280: in from_dict
+    return cls(**filtered)
+           ^^^^^^^^^^^^^^^
+src\trader\execution\managed_position_v2.py:201: in __post_init__
+    normalized_net_exposure = _normalize_non_negative_float("net_exposure_usd", self.net_exposure_usd)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+name = 'net_exposure_usd', value = -200.0
+
+    def _normalize_non_negative_float(name: str, value: Any, *, allow_none: bool = True) -> Optional[float]:
+        if value is None:
+            if allow_none:
+                return None
+            raise ManagedPositionV2Error(f"{name} is required")
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ManagedPositionV2Error(f"{name} must be numeric")
+        normalized = float(value)
+        if normalized < 0:
+>           raise ManagedPositionV2Error(f"{name} must be non-negative")
+E           src.trader.execution.managed_position_v2.ManagedPositionV2Error: net_exposure_usd must be non-negative
+
+src\trader\execution\managed_position_v2.py:67: ManagedPositionV2Error
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_multi_position_state_aggregator.TestMultiPositionStateAggregator testMethod=test_aggregates_exposure_by_chain_and_strategy>
+
+    def test_aggregates_exposure_by_chain_and_strategy(self) -> None:
+>       aggregate = aggregate_multi_position_state(
+            managed_positions=[
+                self.make_position(
+                    managed_position_id="managed_position_v2_a",
+                    chain="solana",
+                    strategy_id="strategy_alpha",
+                    status="open",
+                    gross_exposure_usd=100.0,
+                    net_exposure_usd=100.0,
+                ),
+                self.make_position(
+                    managed_position_id="managed_position_v2_b",
+                    chain="solana",
+                    strategy_id="strategy_alpha",
+                    status="pending_entry",
+                    gross_exposure_usd=40.0,
+                    net_exposure_usd=40.0,
+                ),
+                self.make_position(
+                    managed_position_id="managed_position_v2_c",
+                    chain="ethereum",
+                    venue="binance",
+                    strategy_id="strategy_beta",
+                    status="open",
+                    gross_exposure_usd=200.0,
+                    net_exposure_usd=-200.0,
+                    direction="short",
+                    symbol="ETH/USDC",
+                ),
+            ]
+        )
+
+tests\test_multi_position_state_aggregator.py:148: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def aggregate_multi_position_state(
+        *,
+        managed_positions: Iterable[Any],
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> MultiPositionStateAggregate:
+        seen_ids = set()
+    
+        pending_position_ids: list[str] = []
+        active_position_ids: list[str] = []
+        closed_position_ids: list[str] = []
+        blocked_position_ids: list[str] = []
+        error_position_ids: list[str] = []
+    
+        chain_accumulator: Dict[str, Dict[str, Any]] = {}
+        strategy_accumulator: Dict[str, Dict[str, Any]] = {}
+    
+        pending_gross_exposure_usd = 0.0
+        active_gross_exposure_usd = 0.0
+        active_net_exposure_usd = 0.0
+        total_positions = 0
+    
+        for item in managed_positions:
+            try:
+                position = normalize_managed_position_v2(item)
+            except ManagedPositionV2Error as exc:
+>               raise MultiPositionStateAggregatorError(str(exc)) from exc
+E               src.trader.execution.multi_position_state_aggregator.MultiPositionStateAggregatorError: net_exposure_usd must be non-negative
+
+src\trader\execution\multi_position_state_aggregator.py:269: MultiPositionStateAggregatorError
+_______ TestMultiPositionStateAggregator.test_deterministic_id_sorting ________
+
+self = <tests.test_multi_position_state_aggregator.TestMultiPositionStateAggregator testMethod=test_deterministic_id_sorting>
+
+    def test_deterministic_id_sorting(self) -> None:
+>       aggregate = aggregate_multi_position_state(
+            managed_positions=[
+                self.make_position(managed_position_id="managed_position_v2_003", status="open"),
+                self.make_position(managed_position_id="managed_position_v2_001", status="open"),
+                self.make_position(managed_position_id="managed_position_v2_002", status="open"),
+            ]
+        )
+
+tests\test_multi_position_state_aggregator.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def aggregate_multi_position_state(
+        *,
+        managed_positions: Iterable[Any],
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> MultiPositionStateAggregate:
+        seen_ids = set()
+    
+        pending_position_ids: list[str] = []
+        active_position_ids: list[str] = []
+        closed_position_ids: list[str] = []
+        blocked_position_ids: list[str] = []
+        error_position_ids: list[str] = []
+    
+        chain_accumulator: Dict[str, Dict[str, Any]] = {}
+        strategy_accumulator: Dict[str, Dict[str, Any]] = {}
+    
+        pending_gross_exposure_usd = 0.0
+        active_gross_exposure_usd = 0.0
+        active_net_exposure_usd = 0.0
+        total_positions = 0
+    
+        for item in managed_positions:
+            try:
+                position = normalize_managed_position_v2(item)
+            except ManagedPositionV2Error as exc:
+                raise MultiPositionStateAggregatorError(str(exc)) from exc
+    
+            total_positions += 1
+    
+            if position.managed_position_id in seen_ids:
+                raise MultiPositionStateAggregatorError(
+                    f"duplicate managed_position_id detected: {position.managed_position_id}"
+                )
+            seen_ids.add(position.managed_position_id)
+    
+            bucket = _status_bucket_for_position(position.status)
+            exposure_basis = _position_exposure_basis(position)
+            net_exposure = _position_net_exposure(position)
+    
+            if bucket == "pending":
+                pending_position_ids.append(position.managed_position_id)
+                pending_gross_exposure_usd += exposure_basis
+            elif bucket == "active":
+                active_position_ids.append(position.managed_position_id)
+                active_gross_exposure_usd += exposure_basis
+                active_net_exposure_usd += net_exposure
+            elif bucket == "closed":
+                closed_position_ids.append(position.managed_position_id)
+            elif bucket == "blocked":
+                blocked_position_ids.append(position.managed_position_id)
+            elif bucket == "error":
+                error_position_ids.append(position.managed_position_id)
+    
+            chain_state = chain_accumulator.setdefault(
+                position.chain,
+                {
+                    "chain": position.chain,
+                    "total_positions": 0,
+                    "pending_positions": 0,
+                    "active_positions": 0,
+                    "closed_positions": 0,
+                    "blocked_positions": 0,
+                    "error_positions": 0,
+                    "pending_gross_exposure_usd": 0.0,
+                    "active_gross_exposure_usd": 0.0,
+                    "active_net_exposure_usd": 0.0,
+                    "metadata": {},
+                },
+            )
+            chain_state["total_positions"] += 1
+            chain_state[f"{bucket}_positions"] += 1
+            if bucket == "pending":
+                chain_state["pending_gross_exposure_usd"] += exposure_basis
+            elif bucket == "active":
+                chain_state["active_gross_exposure_usd"] += exposure_basis
+                chain_state["active_net_exposure_usd"] += net_exposure
+    
+            strategy_key = _normalize_optional_string("strategy_id", position.strategy_id)
+            if strategy_key is not None:
+                strategy_state = strategy_accumulator.setdefault(
+                    strategy_key,
+                    {
+                        "strategy_id": strategy_key,
+                        "total_positions": 0,
+                        "pending_positions": 0,
+                        "active_positions": 0,
+                        "closed_positions": 0,
+                        "blocked_positions": 0,
+                        "error_positions": 0,
+                        "pending_gross_exposure_usd": 0.0,
+                        "active_gross_exposure_usd": 0.0,
+                        "active_net_exposure_usd": 0.0,
+                        "metadata": {},
+                    },
+                )
+                strategy_state["total_positions"] += 1
+                strategy_state[f"{bucket}_positions"] += 1
+                if bucket == "pending":
+                    strategy_state["pending_gross_exposure_usd"] += exposure_basis
+                elif bucket == "active":
+                    strategy_state["active_gross_exposure_usd"] += exposure_basis
+                    strategy_state["active_net_exposure_usd"] += net_exposure
+    
+        chain_summaries = [
+>           MultiPositionChainSummary(**item).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            for item in chain_accumulator.values()
+        ]
+E       AttributeError: 'MultiPositionChainSummary' object has no attribute 'to_dict'
+
+src\trader\execution\multi_position_state_aggregator.py:348: AttributeError
+_ TestMultiPositionStateAggregator.test_mapping_like_input_normalizes_cleanly _
+
+self = <tests.test_multi_position_state_aggregator.TestMultiPositionStateAggregator testMethod=test_mapping_like_input_normalizes_cleanly>
+
+    def test_mapping_like_input_normalizes_cleanly(self) -> None:
+>       aggregate = aggregate_multi_position_state(
+            managed_positions=[
+                PositionInput(
+                    chain="ethereum",
+                    venue="binance",
+                    environment="paper",
+                    symbol="ETH/USDC",
+                    opened_at="2026-03-30T23:31:00+03:00",
+                    quantity_decimal=1.0,
+                    status="open",
+                    strategy_id="strategy_beta",
+                    managed_position_id="managed_position_v2_010",
+                    gross_exposure_usd=300.0,
+                    net_exposure_usd=300.0,
+                    entry_intent_id="entry_intent_010",
+                )
+            ]
+        )
+
+tests\test_multi_position_state_aggregator.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def aggregate_multi_position_state(
+        *,
+        managed_positions: Iterable[Any],
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> MultiPositionStateAggregate:
+        seen_ids = set()
+    
+        pending_position_ids: list[str] = []
+        active_position_ids: list[str] = []
+        closed_position_ids: list[str] = []
+        blocked_position_ids: list[str] = []
+        error_position_ids: list[str] = []
+    
+        chain_accumulator: Dict[str, Dict[str, Any]] = {}
+        strategy_accumulator: Dict[str, Dict[str, Any]] = {}
+    
+        pending_gross_exposure_usd = 0.0
+        active_gross_exposure_usd = 0.0
+        active_net_exposure_usd = 0.0
+        total_positions = 0
+    
+        for item in managed_positions:
+            try:
+                position = normalize_managed_position_v2(item)
+            except ManagedPositionV2Error as exc:
+                raise MultiPositionStateAggregatorError(str(exc)) from exc
+    
+            total_positions += 1
+    
+            if position.managed_position_id in seen_ids:
+                raise MultiPositionStateAggregatorError(
+                    f"duplicate managed_position_id detected: {position.managed_position_id}"
+                )
+            seen_ids.add(position.managed_position_id)
+    
+            bucket = _status_bucket_for_position(position.status)
+            exposure_basis = _position_exposure_basis(position)
+            net_exposure = _position_net_exposure(position)
+    
+            if bucket == "pending":
+                pending_position_ids.append(position.managed_position_id)
+                pending_gross_exposure_usd += exposure_basis
+            elif bucket == "active":
+                active_position_ids.append(position.managed_position_id)
+                active_gross_exposure_usd += exposure_basis
+                active_net_exposure_usd += net_exposure
+            elif bucket == "closed":
+                closed_position_ids.append(position.managed_position_id)
+            elif bucket == "blocked":
+                blocked_position_ids.append(position.managed_position_id)
+            elif bucket == "error":
+                error_position_ids.append(position.managed_position_id)
+    
+            chain_state = chain_accumulator.setdefault(
+                position.chain,
+                {
+                    "chain": position.chain,
+                    "total_positions": 0,
+                    "pending_positions": 0,
+                    "active_positions": 0,
+                    "closed_positions": 0,
+                    "blocked_positions": 0,
+                    "error_positions": 0,
+                    "pending_gross_exposure_usd": 0.0,
+                    "active_gross_exposure_usd": 0.0,
+                    "active_net_exposure_usd": 0.0,
+                    "metadata": {},
+                },
+            )
+            chain_state["total_positions"] += 1
+            chain_state[f"{bucket}_positions"] += 1
+            if bucket == "pending":
+                chain_state["pending_gross_exposure_usd"] += exposure_basis
+            elif bucket == "active":
+                chain_state["active_gross_exposure_usd"] += exposure_basis
+                chain_state["active_net_exposure_usd"] += net_exposure
+    
+            strategy_key = _normalize_optional_string("strategy_id", position.strategy_id)
+            if strategy_key is not None:
+                strategy_state = strategy_accumulator.setdefault(
+                    strategy_key,
+                    {
+                        "strategy_id": strategy_key,
+                        "total_positions": 0,
+                        "pending_positions": 0,
+                        "active_positions": 0,
+                        "closed_positions": 0,
+                        "blocked_positions": 0,
+                        "error_positions": 0,
+                        "pending_gross_exposure_usd": 0.0,
+                        "active_gross_exposure_usd": 0.0,
+                        "active_net_exposure_usd": 0.0,
+                        "metadata": {},
+                    },
+                )
+                strategy_state["total_positions"] += 1
+                strategy_state[f"{bucket}_positions"] += 1
+                if bucket == "pending":
+                    strategy_state["pending_gross_exposure_usd"] += exposure_basis
+                elif bucket == "active":
+                    strategy_state["active_gross_exposure_usd"] += exposure_basis
+                    strategy_state["active_net_exposure_usd"] += net_exposure
+    
+        chain_summaries = [
+>           MultiPositionChainSummary(**item).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            for item in chain_accumulator.values()
+        ]
+E       AttributeError: 'MultiPositionChainSummary' object has no attribute 'to_dict'
+
+src\trader\execution\multi_position_state_aggregator.py:348: AttributeError
+___ TestMultiPositionStateAggregator.test_renderer_contains_expected_lines ____
+
+self = <tests.test_multi_position_state_aggregator.TestMultiPositionStateAggregator testMethod=test_renderer_contains_expected_lines>
+
+    def test_renderer_contains_expected_lines(self) -> None:
+>       aggregate = aggregate_multi_position_state(
+            managed_positions=[
+                self.make_position(managed_position_id="managed_position_v2_001", status="open"),
+                self.make_position(managed_position_id="managed_position_v2_002", status="pending_entry", gross_exposure_usd=50.0, net_exposure_usd=50.0),
+            ]
+        )
+
+tests\test_multi_position_state_aggregator.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def aggregate_multi_position_state(
+        *,
+        managed_positions: Iterable[Any],
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> MultiPositionStateAggregate:
+        seen_ids = set()
+    
+        pending_position_ids: list[str] = []
+        active_position_ids: list[str] = []
+        closed_position_ids: list[str] = []
+        blocked_position_ids: list[str] = []
+        error_position_ids: list[str] = []
+    
+        chain_accumulator: Dict[str, Dict[str, Any]] = {}
+        strategy_accumulator: Dict[str, Dict[str, Any]] = {}
+    
+        pending_gross_exposure_usd = 0.0
+        active_gross_exposure_usd = 0.0
+        active_net_exposure_usd = 0.0
+        total_positions = 0
+    
+        for item in managed_positions:
+            try:
+                position = normalize_managed_position_v2(item)
+            except ManagedPositionV2Error as exc:
+                raise MultiPositionStateAggregatorError(str(exc)) from exc
+    
+            total_positions += 1
+    
+            if position.managed_position_id in seen_ids:
+                raise MultiPositionStateAggregatorError(
+                    f"duplicate managed_position_id detected: {position.managed_position_id}"
+                )
+            seen_ids.add(position.managed_position_id)
+    
+            bucket = _status_bucket_for_position(position.status)
+            exposure_basis = _position_exposure_basis(position)
+            net_exposure = _position_net_exposure(position)
+    
+            if bucket == "pending":
+                pending_position_ids.append(position.managed_position_id)
+                pending_gross_exposure_usd += exposure_basis
+            elif bucket == "active":
+                active_position_ids.append(position.managed_position_id)
+                active_gross_exposure_usd += exposure_basis
+                active_net_exposure_usd += net_exposure
+            elif bucket == "closed":
+                closed_position_ids.append(position.managed_position_id)
+            elif bucket == "blocked":
+                blocked_position_ids.append(position.managed_position_id)
+            elif bucket == "error":
+                error_position_ids.append(position.managed_position_id)
+    
+            chain_state = chain_accumulator.setdefault(
+                position.chain,
+                {
+                    "chain": position.chain,
+                    "total_positions": 0,
+                    "pending_positions": 0,
+                    "active_positions": 0,
+                    "closed_positions": 0,
+                    "blocked_positions": 0,
+                    "error_positions": 0,
+                    "pending_gross_exposure_usd": 0.0,
+                    "active_gross_exposure_usd": 0.0,
+                    "active_net_exposure_usd": 0.0,
+                    "metadata": {},
+                },
+            )
+            chain_state["total_positions"] += 1
+            chain_state[f"{bucket}_positions"] += 1
+            if bucket == "pending":
+                chain_state["pending_gross_exposure_usd"] += exposure_basis
+            elif bucket == "active":
+                chain_state["active_gross_exposure_usd"] += exposure_basis
+                chain_state["active_net_exposure_usd"] += net_exposure
+    
+            strategy_key = _normalize_optional_string("strategy_id", position.strategy_id)
+            if strategy_key is not None:
+                strategy_state = strategy_accumulator.setdefault(
+                    strategy_key,
+                    {
+                        "strategy_id": strategy_key,
+                        "total_positions": 0,
+                        "pending_positions": 0,
+                        "active_positions": 0,
+                        "closed_positions": 0,
+                        "blocked_positions": 0,
+                        "error_positions": 0,
+                        "pending_gross_exposure_usd": 0.0,
+                        "active_gross_exposure_usd": 0.0,
+                        "active_net_exposure_usd": 0.0,
+                        "metadata": {},
+                    },
+                )
+                strategy_state["total_positions"] += 1
+                strategy_state[f"{bucket}_positions"] += 1
+                if bucket == "pending":
+                    strategy_state["pending_gross_exposure_usd"] += exposure_basis
+                elif bucket == "active":
+                    strategy_state["active_gross_exposure_usd"] += exposure_basis
+                    strategy_state["active_net_exposure_usd"] += net_exposure
+    
+        chain_summaries = [
+>           MultiPositionChainSummary(**item).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            for item in chain_accumulator.values()
+        ]
+E       AttributeError: 'MultiPositionChainSummary' object has no attribute 'to_dict'
+
+src\trader\execution\multi_position_state_aggregator.py:348: AttributeError
+_____ TestMultiPositionStateAggregator.test_round_trip_preserves_identity _____
+
+self = <tests.test_multi_position_state_aggregator.TestMultiPositionStateAggregator testMethod=test_round_trip_preserves_identity>
+
+    def test_round_trip_preserves_identity(self) -> None:
+>       aggregate = aggregate_multi_position_state(
+            managed_positions=[
+                self.make_position(
+                    managed_position_id="managed_position_v2_001",
+                    status="pending_entry",
+                    gross_exposure_usd=100.0,
+                    net_exposure_usd=100.0,
+                ),
+                self.make_position(
+                    managed_position_id="managed_position_v2_002",
+                    status="open",
+                    gross_exposure_usd=200.0,
+                    net_exposure_usd=200.0,
+                ),
+                self.make_position(
+                    managed_position_id="managed_position_v2_003",
+                    status="closed",
+                    gross_exposure_usd=150.0,
+                    net_exposure_usd=150.0,
+                ),
+            ],
+            metadata={"patch": 156},
+        )
+
+tests\test_multi_position_state_aggregator.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def aggregate_multi_position_state(
+        *,
+        managed_positions: Iterable[Any],
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> MultiPositionStateAggregate:
+        seen_ids = set()
+    
+        pending_position_ids: list[str] = []
+        active_position_ids: list[str] = []
+        closed_position_ids: list[str] = []
+        blocked_position_ids: list[str] = []
+        error_position_ids: list[str] = []
+    
+        chain_accumulator: Dict[str, Dict[str, Any]] = {}
+        strategy_accumulator: Dict[str, Dict[str, Any]] = {}
+    
+        pending_gross_exposure_usd = 0.0
+        active_gross_exposure_usd = 0.0
+        active_net_exposure_usd = 0.0
+        total_positions = 0
+    
+        for item in managed_positions:
+            try:
+                position = normalize_managed_position_v2(item)
+            except ManagedPositionV2Error as exc:
+                raise MultiPositionStateAggregatorError(str(exc)) from exc
+    
+            total_positions += 1
+    
+            if position.managed_position_id in seen_ids:
+                raise MultiPositionStateAggregatorError(
+                    f"duplicate managed_position_id detected: {position.managed_position_id}"
+                )
+            seen_ids.add(position.managed_position_id)
+    
+            bucket = _status_bucket_for_position(position.status)
+            exposure_basis = _position_exposure_basis(position)
+            net_exposure = _position_net_exposure(position)
+    
+            if bucket == "pending":
+                pending_position_ids.append(position.managed_position_id)
+                pending_gross_exposure_usd += exposure_basis
+            elif bucket == "active":
+                active_position_ids.append(position.managed_position_id)
+                active_gross_exposure_usd += exposure_basis
+                active_net_exposure_usd += net_exposure
+            elif bucket == "closed":
+                closed_position_ids.append(position.managed_position_id)
+            elif bucket == "blocked":
+                blocked_position_ids.append(position.managed_position_id)
+            elif bucket == "error":
+                error_position_ids.append(position.managed_position_id)
+    
+            chain_state = chain_accumulator.setdefault(
+                position.chain,
+                {
+                    "chain": position.chain,
+                    "total_positions": 0,
+                    "pending_positions": 0,
+                    "active_positions": 0,
+                    "closed_positions": 0,
+                    "blocked_positions": 0,
+                    "error_positions": 0,
+                    "pending_gross_exposure_usd": 0.0,
+                    "active_gross_exposure_usd": 0.0,
+                    "active_net_exposure_usd": 0.0,
+                    "metadata": {},
+                },
+            )
+            chain_state["total_positions"] += 1
+            chain_state[f"{bucket}_positions"] += 1
+            if bucket == "pending":
+                chain_state["pending_gross_exposure_usd"] += exposure_basis
+            elif bucket == "active":
+                chain_state["active_gross_exposure_usd"] += exposure_basis
+                chain_state["active_net_exposure_usd"] += net_exposure
+    
+            strategy_key = _normalize_optional_string("strategy_id", position.strategy_id)
+            if strategy_key is not None:
+                strategy_state = strategy_accumulator.setdefault(
+                    strategy_key,
+                    {
+                        "strategy_id": strategy_key,
+                        "total_positions": 0,
+                        "pending_positions": 0,
+                        "active_positions": 0,
+                        "closed_positions": 0,
+                        "blocked_positions": 0,
+                        "error_positions": 0,
+                        "pending_gross_exposure_usd": 0.0,
+                        "active_gross_exposure_usd": 0.0,
+                        "active_net_exposure_usd": 0.0,
+                        "metadata": {},
+                    },
+                )
+                strategy_state["total_positions"] += 1
+                strategy_state[f"{bucket}_positions"] += 1
+                if bucket == "pending":
+                    strategy_state["pending_gross_exposure_usd"] += exposure_basis
+                elif bucket == "active":
+                    strategy_state["active_gross_exposure_usd"] += exposure_basis
+                    strategy_state["active_net_exposure_usd"] += net_exposure
+    
+        chain_summaries = [
+>           MultiPositionChainSummary(**item).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            for item in chain_accumulator.values()
+        ]
+E       AttributeError: 'MultiPositionChainSummary' object has no attribute 'to_dict'
+
+src\trader\execution\multi_position_state_aggregator.py:348: AttributeError
+_ TestMultiPositionStateAggregator.test_separates_active_pending_and_closed_clearly _
+
+self = <tests.test_multi_position_state_aggregator.TestMultiPositionStateAggregator testMethod=test_separates_active_pending_and_closed_clearly>
+
+    def test_separates_active_pending_and_closed_clearly(self) -> None:
+>       aggregate = aggregate_multi_position_state(
+            managed_positions=[
+                self.make_position(managed_position_id="managed_position_v2_pending", status="pending_entry", gross_exposure_usd=50.0, net_exposure_usd=50.0),
+                self.make_position(managed_position_id="managed_position_v2_active", status="reducing", gross_exposure_usd=120.0, net_exposure_usd=60.0),
+                self.make_position(managed_position_id="managed_position_v2_closed", status="closed"),
+                self.make_position(managed_position_id="managed_position_v2_blocked", status="blocked"),
+                self.make_position(managed_position_id="managed_position_v2_error", status="error"),
+            ]
+        )
+
+tests\test_multi_position_state_aggregator.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+    def aggregate_multi_position_state(
+        *,
+        managed_positions: Iterable[Any],
+        metadata: Optional[Mapping[str, Any]] = None,
+    ) -> MultiPositionStateAggregate:
+        seen_ids = set()
+    
+        pending_position_ids: list[str] = []
+        active_position_ids: list[str] = []
+        closed_position_ids: list[str] = []
+        blocked_position_ids: list[str] = []
+        error_position_ids: list[str] = []
+    
+        chain_accumulator: Dict[str, Dict[str, Any]] = {}
+        strategy_accumulator: Dict[str, Dict[str, Any]] = {}
+    
+        pending_gross_exposure_usd = 0.0
+        active_gross_exposure_usd = 0.0
+        active_net_exposure_usd = 0.0
+        total_positions = 0
+    
+        for item in managed_positions:
+            try:
+                position = normalize_managed_position_v2(item)
+            except ManagedPositionV2Error as exc:
+                raise MultiPositionStateAggregatorError(str(exc)) from exc
+    
+            total_positions += 1
+    
+            if position.managed_position_id in seen_ids:
+                raise MultiPositionStateAggregatorError(
+                    f"duplicate managed_position_id detected: {position.managed_position_id}"
+                )
+            seen_ids.add(position.managed_position_id)
+    
+            bucket = _status_bucket_for_position(position.status)
+            exposure_basis = _position_exposure_basis(position)
+            net_exposure = _position_net_exposure(position)
+    
+            if bucket == "pending":
+                pending_position_ids.append(position.managed_position_id)
+                pending_gross_exposure_usd += exposure_basis
+            elif bucket == "active":
+                active_position_ids.append(position.managed_position_id)
+                active_gross_exposure_usd += exposure_basis
+                active_net_exposure_usd += net_exposure
+            elif bucket == "closed":
+                closed_position_ids.append(position.managed_position_id)
+            elif bucket == "blocked":
+                blocked_position_ids.append(position.managed_position_id)
+            elif bucket == "error":
+                error_position_ids.append(position.managed_position_id)
+    
+            chain_state = chain_accumulator.setdefault(
+                position.chain,
+                {
+                    "chain": position.chain,
+                    "total_positions": 0,
+                    "pending_positions": 0,
+                    "active_positions": 0,
+                    "closed_positions": 0,
+                    "blocked_positions": 0,
+                    "error_positions": 0,
+                    "pending_gross_exposure_usd": 0.0,
+                    "active_gross_exposure_usd": 0.0,
+                    "active_net_exposure_usd": 0.0,
+                    "metadata": {},
+                },
+            )
+            chain_state["total_positions"] += 1
+            chain_state[f"{bucket}_positions"] += 1
+            if bucket == "pending":
+                chain_state["pending_gross_exposure_usd"] += exposure_basis
+            elif bucket == "active":
+                chain_state["active_gross_exposure_usd"] += exposure_basis
+                chain_state["active_net_exposure_usd"] += net_exposure
+    
+            strategy_key = _normalize_optional_string("strategy_id", position.strategy_id)
+            if strategy_key is not None:
+                strategy_state = strategy_accumulator.setdefault(
+                    strategy_key,
+                    {
+                        "strategy_id": strategy_key,
+                        "total_positions": 0,
+                        "pending_positions": 0,
+                        "active_positions": 0,
+                        "closed_positions": 0,
+                        "blocked_positions": 0,
+                        "error_positions": 0,
+                        "pending_gross_exposure_usd": 0.0,
+                        "active_gross_exposure_usd": 0.0,
+                        "active_net_exposure_usd": 0.0,
+                        "metadata": {},
+                    },
+                )
+                strategy_state["total_positions"] += 1
+                strategy_state[f"{bucket}_positions"] += 1
+                if bucket == "pending":
+                    strategy_state["pending_gross_exposure_usd"] += exposure_basis
+                elif bucket == "active":
+                    strategy_state["active_gross_exposure_usd"] += exposure_basis
+                    strategy_state["active_net_exposure_usd"] += net_exposure
+    
+        chain_summaries = [
+>           MultiPositionChainSummary(**item).to_dict()
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            for item in chain_accumulator.values()
+        ]
+E       AttributeError: 'MultiPositionChainSummary' object has no attribute 'to_dict'
+
+src\trader\execution\multi_position_state_aggregator.py:348: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/test_multi_position_state_aggregator.py::TestMultiPositionStateAggregator::test_aggregates_exposure_by_chain_and_strategy
+FAILED tests/test_multi_position_state_aggregator.py::TestMultiPositionStateAggregator::test_deterministic_id_sorting
+FAILED tests/test_multi_position_state_aggregator.py::TestMultiPositionStateAggregator::test_mapping_like_input_normalizes_cleanly
+FAILED tests/test_multi_position_state_aggregator.py::TestMultiPositionStateAggregator::test_renderer_contains_expected_lines
+FAILED tests/test_multi_position_state_aggregator.py::TestMultiPositionStateAggregator::test_round_trip_preserves_identity
+FAILED tests/test_multi_position_state_aggregator.py::TestMultiPositionStateAggregator::test_separates_active_pending_and_closed_clearly
+6 failed, 20 passed in 0.40s

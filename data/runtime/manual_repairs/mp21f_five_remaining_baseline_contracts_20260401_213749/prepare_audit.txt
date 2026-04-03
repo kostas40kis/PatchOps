@@ -1,0 +1,16 @@
+{
+  "patch_name": "mp21f_five_remaining_baseline_contracts",
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21f_five_remaining_baseline_contracts_20260401_213749\\patch_manifest.json",
+  "manifest_valid_json": true,
+  "resume_has_next_recommended_mode_after": true,
+  "next_prompt_mentions_wrapper_project_root_first_after": true,
+  "write_plan_has_content_source_type_after": true,
+  "metadata_build_leaves_optional_defaults_after": true,
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21f_five_remaining_baseline_contracts_20260401_213749\\content\\patchops\\files\\writers.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21f_five_remaining_baseline_contracts_20260401_213749\\content\\patchops\\reporting\\metadata.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21f_five_remaining_baseline_contracts_20260401_213749\\content\\patchops\\reporting\\__init__.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21f_five_remaining_baseline_contracts_20260401_213749\\content\\handoff\\current_handoff.json",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21f_five_remaining_baseline_contracts_20260401_213749\\content\\handoff\\next_prompt.txt"
+  ]
+}

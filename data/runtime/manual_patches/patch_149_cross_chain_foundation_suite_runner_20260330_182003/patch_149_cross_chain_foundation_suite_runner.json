@@ -1,0 +1,73 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_149_cross_chain_foundation_suite_runner",
+    "active_profile":  "trader",
+    "target_project_root":  "C:\\dev\\trader",
+    "backup_files":  [
+                         "src/trader/execution/cross_chain_foundation_suite_runner.py",
+                         "tests/test_cross_chain_foundation_suite_runner.py",
+                         "docs/architecture/cross_chain_foundation_suite_runner.md",
+                         "scripts/run_patch_149_cross_chain_foundation_suite_runner_tests.ps1"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "src/trader/execution/cross_chain_foundation_suite_runner.py",
+                               "content_path":  "data/runtime/manual_patches/patch_149_cross_chain_foundation_suite_runner_20260330_182003/content/src/trader/execution/cross_chain_foundation_suite_runner.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_cross_chain_foundation_suite_runner.py",
+                               "content_path":  "data/runtime/manual_patches/patch_149_cross_chain_foundation_suite_runner_20260330_182003/content/tests/test_cross_chain_foundation_suite_runner.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/architecture/cross_chain_foundation_suite_runner.md",
+                               "content_path":  "data/runtime/manual_patches/patch_149_cross_chain_foundation_suite_runner_20260330_182003/content/docs/architecture/cross_chain_foundation_suite_runner.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "scripts/run_patch_149_cross_chain_foundation_suite_runner_tests.ps1",
+                               "content_path":  "data/runtime/manual_patches/patch_149_cross_chain_foundation_suite_runner_20260330_182003/content/scripts/run_patch_149_cross_chain_foundation_suite_runner_tests.ps1",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "patch_149_foundation_suite_tests",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q",
+                                                 "tests/test_cross_chain_foundation_suite_runner.py",
+                                                 "tests/test_chain_execution_context.py",
+                                                 "tests/test_connector_capability_profile.py",
+                                                 "tests/test_order_style_capability_matrix.py",
+                                                 "tests/test_chain_reserve_policy_registry.py",
+                                                 "tests/test_chain_aware_route_score_inputs.py",
+                                                 "tests/test_chain_aware_mode_policy.py",
+                                                 "tests/test_multi_chain_provider_health_snapshot.py",
+                                                 "tests/test_connector_selection_policy.py",
+                                                 "tests/test_chain_support_validation.py"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  true,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "report_preferences":  {
+                               "write_to_desktop":  true,
+                               "report_name_prefix":  "trader_patch"
+                           },
+    "tags":  [
+                 "trader",
+                 "phase1",
+                 "cross_chain",
+                 "patch149",
+                 "patchops_native",
+                 "suite_runner"
+             ],
+    "notes":  "Patch 149 applied through PatchOps-native manifest flow to create the named Phase-1 cross-chain foundation suite."
+}

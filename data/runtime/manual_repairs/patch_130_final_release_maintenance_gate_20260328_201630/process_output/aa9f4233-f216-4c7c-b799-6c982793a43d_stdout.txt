@@ -1,0 +1,11 @@
+PATCHOPS RUN SUMMARY
+--------------------
+Mode               : apply
+Patch Name         : patch_130_final_release_maintenance_gate
+Manifest Path      : C:\dev\patchops\data\runtime\manual_repairs\patch_130_final_release_maintenance_gate_20260328_201630\patch_manifest.json
+Target Project Root: C:\dev\patchops
+Active Profile     : generic_python_powershell
+Runtime Path       : (none)
+Report Path        : C:\Users\kostas\Desktop\patch_130_final_release_maintenance_gate_patch_130_final_release_maintenance_gate_20260328_201632.txt
+ExitCode           : 1
+Result             : FAIL

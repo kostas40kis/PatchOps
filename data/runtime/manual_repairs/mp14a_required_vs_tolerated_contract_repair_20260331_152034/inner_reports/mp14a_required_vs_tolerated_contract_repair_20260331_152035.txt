@@ -1,0 +1,126 @@
+PATCHOPS APPLY
+Patch Name           : mp14a_required_vs_tolerated_contract_repair
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp14a_required_vs_tolerated_contract_repair_20260331_152034\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp14a_required_vs_tolerated_contract_repair_20260331_152035
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp14a_required_vs_tolerated_contract_repair_20260331_152034\inner_reports\mp14a_required_vs_tolerated_contract_repair_20260331_152035.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py -> C:\dev\patchops\data\runtime\patch_backups\mp14a_required_vs_tolerated_contract_repair_20260331_152035\tests\test_required_vs_tolerated_report_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : reporting_stream_pytest
+COMMAND : python -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 2
+
+
+FULL OUTPUT
+-----------
+[reporting_stream_pytest][stdout]
+
+=================================== ERRORS ====================================
+_____ ERROR collecting tests/test_required_vs_tolerated_report_current.py _____
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\python.py:507: in importtestmodule
+    mod = import_path(
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:188: in exec_module
+    source_stat, co = _rewrite_test(fn, self.config)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:357: in _rewrite_test
+    tree = ast.parse(source, filename=strfn)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\ast.py:52: in parse
+    return compile(source, filename, mode, flags,
+E     File "C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py", line 28
+E       "target_project_root": str(target_root).replace(\"\\\", "/"),
+E                                                        ^
+E   SyntaxError: unexpected character after line continuation character
+=========================== short test summary info ===========================
+ERROR tests/test_required_vs_tolerated_report_current.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+
+[reporting_stream_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'reporting_stream_pytest' failed during validation with exit code 2.
+
+SUMMARY
+-------
+ExitCode : 2
+Result   : FAIL

@@ -1,0 +1,15 @@
+{
+  "patch_name": "mp21h_remaining_baseline_finish",
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21h_remaining_baseline_finish_20260401_214343\\patch_manifest.json",
+  "manifest_valid_json": true,
+  "latest_index_has_latest_attempted_patch_after": true,
+  "next_prompt_has_primary_contract_phrase_after": true,
+  "writers_has_normalized_content_source_after": true,
+  "metadata_resolves_manifest_version_from_manifest_path_after": true,
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21h_remaining_baseline_finish_20260401_214343\\content\\handoff\\latest_report_index.json",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21h_remaining_baseline_finish_20260401_214343\\content\\handoff\\next_prompt.txt",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21h_remaining_baseline_finish_20260401_214343\\content\\patchops\\files\\writers.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21h_remaining_baseline_finish_20260401_214343\\content\\patchops\\reporting\\metadata.py"
+  ]
+}

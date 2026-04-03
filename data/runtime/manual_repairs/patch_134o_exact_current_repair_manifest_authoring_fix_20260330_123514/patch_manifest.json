@@ -1,0 +1,58 @@
+{
+  "manifest_version": "1",
+  "patch_name": "patch_134o_exact_current_repair_manifest_authoring_fix",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/patchops",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "patchops/workflows/apply_patch.py",
+      "content": null,
+      "content_path": "content/patchops/workflows/apply_patch.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_apply_report_write_current.py",
+      "content": null,
+      "content_path": "content/tests/test_apply_report_write_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "apply_report_write_hardening_pytest",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_report_preference_apply_flow.py",
+        "tests/test_report_preference_apply_flow_current.py",
+        "tests/test_report_preference_examples.py",
+        "tests/test_apply_report_write_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:/dev/patchops/data/runtime/manual_repairs/patch_134o_exact_current_repair_manifest_authoring_fix_20260330_123514/inner_reports",
+    "report_name_prefix": "patch_134o_exact_current_repair_manifest_authoring_fix",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "self_hosted",
+    "summary_integrity",
+    "apply_flow",
+    "manifest_authoring_fix"
+  ],
+  "notes": "Patch 134O keeps the exact-current apply report-write hardening payload and repairs the manifest authoring shape only."
+}

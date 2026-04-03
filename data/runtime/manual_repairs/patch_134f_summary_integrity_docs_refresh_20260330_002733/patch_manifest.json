@@ -1,0 +1,64 @@
+{
+  "manifest_version": "1",
+  "patch_name": "patch_134f_summary_integrity_docs_refresh",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "files_to_write": [
+    {
+      "path": "README.md",
+      "content_path": "content\\README.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs\\llm_usage.md",
+      "content_path": "content\\docs\\llm_usage.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs\\operator_quickstart.md",
+      "content_path": "content\\docs\\operator_quickstart.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs\\project_status.md",
+      "content_path": "content\\docs\\project_status.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs\\patch_ledger.md",
+      "content_path": "content\\docs\\patch_ledger.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs\\summary_integrity_repair_stream.md",
+      "content_path": "content\\docs\\summary_integrity_repair_stream.md",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "patch_134f_docs_refresh_validation",
+      "program": "py",
+      "args": [
+        "validate_patch_134f.py",
+        "C:\\dev\\patchops"
+      ],
+      "working_directory": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_134f_summary_integrity_docs_refresh_20260330_002733",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_134f_summary_integrity_docs_refresh_20260330_002733\\inner_reports",
+    "report_name_prefix": "patch_134f_summary_integrity_docs_refresh",
+    "write_to_desktop": true
+  },
+  "tags": [
+    "summary_integrity",
+    "self_hosted",
+    "docs_refresh"
+  ],
+  "notes": "Patch 134F refreshes maintained reading surfaces so the summary-integrity repair stream is understandable from current repo docs without chat history."
+}

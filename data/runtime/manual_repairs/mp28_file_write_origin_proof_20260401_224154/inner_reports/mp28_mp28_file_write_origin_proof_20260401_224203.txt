@@ -1,0 +1,136 @@
+PATCHOPS APPLY
+Patch Name           : mp28_file_write_origin_proof
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp28_file_write_origin_proof_20260401_224154\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp28_file_write_origin_proof_20260401_224203
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp28_file_write_origin_proof_20260401_224154\inner_reports\mp28_mp28_file_write_origin_proof_20260401_224203.txt
+Manifest Version     : 1
+Wrapper Mode Used    : apply
+Manifest Path Used   : C:\dev\patchops\data\runtime\manual_repairs\mp28_file_write_origin_proof_20260401_224154\patch_manifest.json
+Profile Resolved     : generic_python
+Runtime Resolved     : (none)
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\metadata.py
+C:\dev\patchops\tests\test_file_write_origin_proof_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\metadata.py -> C:\dev\patchops\data\runtime\patch_backups\mp28_file_write_origin_proof_20260401_224203\patchops\reporting\metadata.py
+MISSING: C:\dev\patchops\tests\test_file_write_origin_proof_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\metadata.py
+WROTE : C:\dev\patchops\tests\test_file_write_origin_proof_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : full-pytest-quiet
+COMMAND : py -m pytest -q
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[full-pytest-quiet][stdout]
+........................................................................ [ 16%]
+........................................................................ [ 32%]
+........................................................................ [ 48%]
+........................................................................ [ 65%]
+.......................................................................F [ 81%]
+........................................................................ [ 97%]
+..........                                                               [100%]
+================================== FAILURES ===================================
+_____ test_build_run_origin_metadata_allows_optional_fields_when_missing ______
+
+    def test_build_run_origin_metadata_allows_optional_fields_when_missing() -> None:
+        result = SimpleNamespace(
+            mode="inspect",
+            manifest_path=Path("C:/demo/manifest.json"),
+            resolved_profile=None,
+            runtime_path=None,
+            wrapper_project_root=Path("C:/demo/wrapper"),
+            target_project_root=None,
+        )
+    
+>       origin = build_run_origin_metadata(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_run_origin_metadata_current.py:67: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+result = namespace(mode='inspect', manifest_path=WindowsPath('C:/demo/manifest.json'), resolved_profile=None, runtime_path=None, wrapper_project_root=WindowsPath('C:/demo/wrapper'), target_project_root=None)
+
+    def build_run_origin_metadata(result: WorkflowResult) -> RunOriginMetadata:
+>       file_write_origin = "wrapper_owned_write_engine" if result.write_records else None
+                                                            ^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'types.SimpleNamespace' object has no attribute 'write_records'
+
+patchops\reporting\metadata.py:22: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/test_run_origin_metadata_current.py::test_build_run_origin_metadata_allows_optional_fields_when_missing
+
+[full-pytest-quiet][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'full-pytest-quiet' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

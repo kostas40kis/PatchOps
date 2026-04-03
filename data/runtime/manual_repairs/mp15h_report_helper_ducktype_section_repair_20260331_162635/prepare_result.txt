@@ -1,0 +1,6 @@
+decision=mp15h_report_helper_ducktype_section_repair
+sections_path=C:\dev\patchops\patchops\reporting\sections.py
+command_sections_path=C:\dev\patchops\patchops\reporting\command_sections.py
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp15h_report_helper_ducktype_section_repair_20260331_162635\patch_manifest.json
+rationale=Repair MP15 by separating the public helper dataclass from the private reporting.sections wrapper object and using duck-typed single-section handling.
+validation_targets=tests/test_reporting.py;tests/test_reporting_command_sections_current.py;tests/test_reporting_output_helper_current.py;tests/test_summary_integrity_current.py;tests/test_summary_derivation_lock_current.py;tests/test_required_vs_tolerated_report_current.py;tests/test_summary_integrity_workflow_current.py

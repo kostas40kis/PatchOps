@@ -1,0 +1,8 @@
+decision=mp15b_report_helper_contract_alignment_repair
+sections_path=C:\dev\patchops\patchops\reporting\sections.py
+command_sections_path=C:\dev\patchops\patchops\reporting\command_sections.py
+alias_already_present=true
+alias_added=false
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp15b_report_helper_contract_alignment_repair_20260331_154319\patch_manifest.json
+validation_targets=tests/test_reporting.py;tests/test_reporting_command_sections_current.py;tests/test_reporting_output_helper_current.py;tests/test_summary_integrity_current.py;tests/test_summary_derivation_lock_current.py;tests/test_required_vs_tolerated_report_current.py;tests/test_summary_integrity_workflow_current.py
+rationale=Repair MP15 by preserving the reporting.sections monkeypatch contract instead of introducing a non-monkeypatchable helper binding.

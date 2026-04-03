@@ -1,0 +1,9 @@
+decision=author_mp30
+decision_reason=MP29 proof exists; author the narrow handoff linkage note.
+handoff_doc_path=C:\dev\patchops\docs\handoff_surface.md
+handoff_doc_exists=yes
+mp29_test_exists=yes
+mp30_test_exists=no
+linkage_header_present=no
+required_fragments_present=no
+required_fragments=handoff/current_handoff.md | canonical report | Manifest Path | Active Profile | Runtime Path | Wrapper Project Root | Target Project Root | File Write Origin | This note is a linkage note only. It does not redesign the handoff bundle.

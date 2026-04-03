@@ -1,0 +1,14 @@
+{
+  "manifest_version": "1",
+  "patch_name": "starter_demo_roundtrip_current_documentation_patch",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_129_new_target_onboarding_flow_proof_20260328_183629\\demo_roundtrip_current_target",
+  "mode": "apply",
+  "intent": "documentation_patch",
+  "project_packet_path": "C:\\dev\\patchops\\docs\\projects\\demo_roundtrip_current.md",
+  "notes": [
+    "Bootstrap artifact only.",
+    "Patch 83 should replace this stub with an intent-aware starter helper.",
+    "Use the nearest safe example manifest before modifying this file."
+  ]
+}

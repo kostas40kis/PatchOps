@@ -1,0 +1,50 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp24_backup_write_evidence_integration_proof",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "tests/test_backup_write_evidence_integration_current.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "tests/test_backup_write_evidence_integration_current.py",
+      "content": null,
+      "content_path": "content/tests/test_backup_write_evidence_integration_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "full-pytest-quiet",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp24_backup_write_evidence_integration_proof_20260401_220315\\inner_reports",
+    "report_name_prefix": "mp24",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "pythonization",
+    "mp24",
+    "proof",
+    "self_hosted"
+  ],
+  "notes": "Prove that backup evidence and write evidence in the canonical report match actual file behavior for existing and missing targets."
+}

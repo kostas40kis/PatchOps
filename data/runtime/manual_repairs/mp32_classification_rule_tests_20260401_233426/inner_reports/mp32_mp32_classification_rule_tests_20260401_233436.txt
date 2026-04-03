@@ -1,0 +1,98 @@
+PATCHOPS APPLY
+Patch Name           : mp32_classification_rule_tests
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp32_classification_rule_tests_20260401_233426\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp32_classification_rule_tests_20260401_233436
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp32_classification_rule_tests_20260401_233426\inner_reports\mp32_mp32_classification_rule_tests_20260401_233436.txt
+Manifest Version     : 1
+Wrapper Mode Used    : apply
+Manifest Path Used   : C:\dev\patchops\data\runtime\manual_repairs\mp32_classification_rule_tests_20260401_233426\patch_manifest.json
+Profile Resolved     : generic_python
+Runtime Resolved     : (none)
+File Write Origin    : wrapper_owned_write_engine
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_failure_classification_rules_current.py
+
+
+BACKUP
+------
+MISSING: C:\dev\patchops\tests\test_failure_classification_rules_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\tests\test_failure_classification_rules_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : mp32 classification rule tests
+COMMAND : py -3 -m pytest -q tests/test_failure_classification_rules_current.py tests/test_failure_category_model_current.py tests/test_failure_classifier.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[mp32 classification rule tests][stdout]
+..........                                                               [100%]
+
+[mp32 classification rule tests][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

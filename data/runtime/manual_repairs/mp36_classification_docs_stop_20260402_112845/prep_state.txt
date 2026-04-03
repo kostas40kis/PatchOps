@@ -1,0 +1,9 @@
+decision=author_mp36
+decision_reason=Refresh failure-repair guidance so maintained docs match classifier behavior.
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp36_classification_docs_stop_20260402_112845\patch_manifest.json
+inner_report_root=C:\dev\patchops\data\runtime\manual_repairs\mp36_classification_docs_stop_20260402_112845\inner_reports
+docs_path=C:\dev\patchops\docs\failure_repair_guide.md
+test_path=C:\dev\patchops\tests\test_classification_docs_stop_current.py
+current_test_exists=no
+required_fragments_present=no
+required_fragments=classification-guided repair choice | verify-only | wrapper-only repair | repair target content | suspicious | target_project_failure | wrapper_failure | patch_authoring_failure | ambiguous_or_suspicious_run

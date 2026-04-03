@@ -1,0 +1,93 @@
+PATCHOPS APPLY
+Patch Name           : mp13_summary_derivation_lock
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp13_summary_derivation_lock_20260331_143300\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp13_summary_derivation_lock_20260331_143300
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp13_summary_derivation_lock_20260331_143300\inner_reports\mp13_mp13_summary_derivation_lock_20260331_143300.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_summary_derivation_lock_current.py
+
+
+BACKUP
+------
+MISSING: C:\dev\patchops\tests\test_summary_derivation_lock_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\tests\test_summary_derivation_lock_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : summary_derivation_lock_contracts
+COMMAND : py -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[summary_derivation_lock_contracts][stdout]
+...........................                                              [100%]
+
+[summary_derivation_lock_contracts][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

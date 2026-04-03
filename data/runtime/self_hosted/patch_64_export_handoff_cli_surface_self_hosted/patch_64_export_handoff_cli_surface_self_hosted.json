@@ -1,0 +1,78 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_64_export_handoff_cli_surface_self_hosted",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "patchops/cli.py",
+                         "patchops/handoff.py",
+                         "tests/test_handoff.py",
+                         "docs/handoff_surface.md"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "patchops/cli.py",
+                               "content_path":  "content/patchops/cli.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "patchops/handoff.py",
+                               "content_path":  "content/patchops/handoff.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_handoff.py",
+                               "content_path":  "content/tests/test_handoff.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/handoff_surface.md",
+                               "content_path":  "content/docs/handoff_surface.md",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "smoke_commands":  [
+
+                       ],
+    "audit_commands":  [
+
+                       ],
+    "cleanup_commands":  [
+
+                         ],
+    "archive_commands":  [
+
+                         ],
+    "failure_policy":  {
+
+                       },
+    "report_preferences":  {
+                               "report_name_prefix":  "patch_64_export_handoff_cli_surface_self_hosted",
+                               "write_to_desktop":  true
+                           },
+    "tags":  [
+                 "stage2",
+                 "handoff",
+                 "cli",
+                 "export",
+                 "self_hosted",
+                 "patch_64"
+             ],
+    "notes":  "Patch 64 adds the export-handoff CLI surface and compact handoff bundle generation while keeping handoff logic in Python."
+}

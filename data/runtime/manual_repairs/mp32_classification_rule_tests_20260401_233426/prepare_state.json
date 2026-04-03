@@ -1,0 +1,12 @@
+{
+  "decision": "author_mp32",
+  "decision_reason": "lock the maintained classification rule examples into narrow tests.",
+  "categories_module_exists": "yes",
+  "legacy_test_exists": "yes",
+  "current_model_test_exists": "yes",
+  "current_rules_test_exists": "no",
+  "required_fragments_present": "no",
+  "required_fragments": "classify_command_failure | TARGET_PROJECT_FAILURE | WRAPPER_FAILURE | PATCH_AUTHORING_FAILURE | AMBIGUOUS_OR_SUSPICIOUS_RUN | normalize_failure_category",
+  "inner_report_root": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp32_classification_rule_tests_20260401_233426\\inner_reports",
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp32_classification_rule_tests_20260401_233426\\patch_manifest.json"
+}

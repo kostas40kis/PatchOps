@@ -1,0 +1,78 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp21d_remaining_baseline_contract_repair",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "patchops/files/writers.py",
+    "patchops/reporting/metadata.py",
+    "patchops/reporting/__init__.py",
+    "handoff/current_handoff.json",
+    "handoff/next_prompt.txt"
+  ],
+  "files_to_write": [
+    {
+      "path": "patchops/files/writers.py",
+      "content": "from __future__ import annotations\n\nfrom dataclasses import dataclass\nfrom pathlib import Path\n\nfrom patchops.files.paths import ensure_directory\nfrom patchops.models import FileWriteSpec, WriteRecord\n\n\n@dataclass(slots=True)\nclass WritePlan:\n    destination: Path\n    content: str\n    encoding: str = \"utf-8\"\n    source_path: Path | None = None\n    mkdir_required: bool = False\n\n    @property\n    def path(self) -> Path:\n        return self.destination\n\n\ndef resolve_content_path(\n    spec: FileWriteSpec,\n    manifest_path: Path | None = None,\n    wrapper_project_root: Path | None = None,\n) -> Path:\n    if spec.content_path is None:\n        raise ValueError(f\"No content source defined for {spec.path}\")\n\n    content_path = Path(spec.content_path)\n    if content_path.is_absolute():\n        return content_path\n\n    candidates: list[Path] = []\n    if wrapper_project_root is not None:\n        candidates.append(Path(wrapper_project_root) / content_path)\n    if manifest_path is not None:\n        candidates.append(Path(manifest_path).parent / content_path)\n\n    for candidate in candidates:\n        if candidate.exists():\n            return candidate\n\n    if candidates:\n        return candidates[0]\n    return content_path\n\n\ndef load_content(\n    spec: FileWriteSpec,\n    manifest_path: Path | None = None,\n    wrapper_project_root: Path | None = None,\n) -> str:\n    if spec.content is not None:\n        return spec.content\n    source_path = resolve_content_path(\n        spec,\n        manifest_path=manifest_path,\n        wrapper_project_root=wrapper_project_root,\n    )\n    return source_path.read_text(encoding=spec.encoding)\n\n\ndef build_write_plan(\n    spec: FileWriteSpec,\n    destination_root: Path,\n    manifest_path: Path | None = None,\n    wrapper_project_root: Path | None = None,\n) -> WritePlan:\n    destination_root = Path(destination_root)\n    destination = Path(spec.path) if Path(spec.path).is_absolute() else destination_root / spec.path\n    source_path = None\n    if spec.content is not None:\n        content = spec.content\n    else:\n        source_path = resolve_content_path(\n            spec,\n            manifest_path=manifest_path,\n            wrapper_project_root=wrapper_project_root,\n        )\n        content = source_path.read_text(encoding=spec.encoding)\n    mkdir_required = not destination.parent.exists()\n    return WritePlan(\n        destination=destination,\n        content=content,\n        encoding=spec.encoding,\n        source_path=source_path,\n        mkdir_required=mkdir_required,\n    )\n\n\ndef write_single_file(destination: Path, content: str, encoding: str = \"utf-8\") -> WriteRecord:\n    ensure_directory(destination.parent)\n    destination.write_text(content, encoding=encoding)\n    return WriteRecord(path=destination, encoding=encoding)\n\n\ndef write_text_file(destination: Path, content: str, encoding: str = \"utf-8\") -> WriteRecord:\n    return write_single_file(destination, content, encoding=encoding)\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/reporting/metadata.py",
+      "content": "from __future__ import annotations\n\nfrom dataclasses import dataclass\nfrom datetime import datetime\nfrom pathlib import Path\n\nfrom patchops.models import WorkflowResult\n\n\n@dataclass(slots=True)\nclass ReportHeaderMetadata:\n    patch_name: str\n    timestamp: str | None = None\n    workspace_root: Path | None = None\n    wrapper_project_root: Path | None = None\n    target_project_root: Path | None = None\n    active_profile: str | None = None\n    runtime_path: Path | None = None\n    report_path: Path | None = None\n    manifest_path: Path | None = None\n    mode: str | None = None\n    backup_root: Path | None = None\n    manifest_version: str | None = None\n\n    @property\n    def manifest_identity(self) -> str | None:\n        if self.manifest_path is None:\n            return None\n        return str(self.manifest_path)\n\n\ndef build_report_header_metadata(\n    result: WorkflowResult,\n    *,\n    timestamp: datetime | None = None,\n) -> ReportHeaderMetadata:\n    rendered_timestamp = timestamp.strftime(\"%Y-%m-%d %H:%M:%S\") if timestamp is not None else None\n    return ReportHeaderMetadata(\n        patch_name=result.manifest.patch_name,\n        timestamp=rendered_timestamp,\n        workspace_root=result.workspace_root,\n        wrapper_project_root=result.wrapper_project_root,\n        target_project_root=result.target_project_root,\n        active_profile=result.resolved_profile.name if result.resolved_profile else None,\n        runtime_path=result.runtime_path,\n        report_path=result.report_path,\n        manifest_path=result.manifest_path,\n        mode=result.mode,\n        backup_root=result.backup_root,\n        manifest_version=result.manifest.manifest_version,\n    )\n\n\ndef _display_path(value: Path | None) -> str:\n    if value is None:\n        return \"(none)\"\n    return str(value)\n\n\ndef render_report_header_lines(metadata: ReportHeaderMetadata) -> tuple[str, ...]:\n    lines = [\n        f\"PATCHOPS {(metadata.mode or 'apply').upper()}\",\n        f\"Patch Name           : {metadata.patch_name}\",\n    ]\n    if metadata.timestamp is not None:\n        lines.append(f\"Timestamp            : {metadata.timestamp}\")\n    lines.extend(\n        [\n            f\"Manifest Path        : {_display_path(metadata.manifest_path)}\",\n            f\"Workspace Root       : {_display_path(metadata.workspace_root)}\",\n            f\"Wrapper Project Root : {_display_path(metadata.wrapper_project_root)}\",\n            f\"Target Project Root  : {_display_path(metadata.target_project_root)}\",\n            f\"Active Profile       : {metadata.active_profile or '(none)'}\",\n            f\"Runtime Path         : {_display_path(metadata.runtime_path)}\",\n            f\"Backup Root          : {_display_path(metadata.backup_root)}\",\n            f\"Report Path          : {_display_path(metadata.report_path)}\",\n            f\"Manifest Version     : {metadata.manifest_version or '(none)'}\",\n        ]\n    )\n    return tuple(lines)\n\n\ndef render_report_header(\n    value: WorkflowResult | ReportHeaderMetadata,\n    *,\n    timestamp: datetime | None = None,\n) -> str:\n    metadata = value if isinstance(value, ReportHeaderMetadata) else build_report_header_metadata(value, timestamp=timestamp)\n    return \"\\n\".join(render_report_header_lines(metadata))\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/reporting/__init__.py",
+      "content": "\"\"\"Reporting utilities for PatchOps.\"\"\"\n\nfrom patchops.reporting.metadata import (\n    ReportHeaderMetadata,\n    build_report_header_metadata,\n    render_report_header,\n    render_report_header_lines,\n)\n\n__all__ = [\n    \"ReportHeaderMetadata\",\n    \"build_report_header_metadata\",\n    \"render_report_header\",\n    \"render_report_header_lines\",\n]\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    },
+    {
+      "path": "handoff/current_handoff.json",
+      "content": "{\n  \"architecture_rules\": [\n    \"Keep PowerShell thin and operator-facing.\",\n    \"Keep reusable workflow logic in Python.\",\n    \"Keep the wrapper project-agnostic.\",\n    \"Keep one canonical Desktop txt report per patch flow.\",\n    \"Prefer narrow validation and repair over redesign.\"\n  ],\n  \"content_path_repair_stream\": {\n    \"bug_state\": \"repaired\",\n    \"example_apply_flow_proof\": true,\n    \"fallback_rule\": \"manifest_local_compatibility_fallback\",\n    \"next_posture\": \"maintenance_locked_do_not_reopen_without_new_contrary_evidence\",\n    \"resolution_rule\": \"wrapper_root_first\",\n    \"status\": \"green_through_cp5\"\n  },\n  \"current_stage\": \"maintenance_finalization\",\n  \"failure_class\": \"none\",\n  \"known_blockers\": [],\n  \"latest_attempted_patch\": \"p134z_final_proof_handoff_refresh\",\n  \"latest_passed_patch\": \"p134z_final_proof_handoff_refresh\",\n  \"latest_patch\": {\n    \"latest_attempted_patch\": \"p134z_final_proof_handoff_refresh\",\n    \"latest_passed_patch\": \"p134z_final_proof_handoff_refresh\"\n  },\n  \"latest_report_path\": \"C:\\\\dev\\\\patchops\\\\data\\\\runtime\\\\manual_repairs\\\\p134z_final_proof_handoff_refresh_20260330_141124\\\\inner_reports\\\\p134z_p134z_final_proof_handoff_refresh_20260330_141125.txt\",\n  \"latest_status\": \"pass\",\n  \"must_read_files\": [\n    \"handoff/current_handoff.md\",\n    \"handoff/current_handoff.json\",\n    \"handoff/latest_report_copy.txt\",\n    \"docs/project_status.md\",\n    \"docs/patch_ledger.md\",\n    \"docs/summary_integrity_repair_stream.md\"\n  ],\n  \"next_action\": \"Retry MP21 single-file writer helper only after the baseline stays green.\",\n  \"next_recommended_goal\": \"No further action required for the summary-integrity stream unless new evidence appears.\",\n  \"next_recommended_patch\": null,\n  \"previous_blocker_patch\": \"p134y_report_dir_pre_mkdir_fallback_fix\",\n  \"project_name\": \"PatchOps\",\n  \"repo_state\": {\n    \"current_status\": \"pass\",\n    \"failure_class\": \"none\",\n    \"latest_run_mode\": \"maintenance\"\n  },\n  \"resume_mode\": \"maintenance\",\n  \"updated_at\": \"2026-03-30T14:11:26.7297922+03:00\",\n  \"workspace_root\": \"C:\\\\\\\\dev\",\n  \"wrapper_repo_root\": \"C:\\\\\\\\dev\\\\\\\\patchops\",\n  \"resume\": {\n    \"mode\": \"maintenance\",\n    \"next_action\": \"Retry MP21 single-file writer helper only after the baseline stays green.\",\n    \"must_read_files\": [\n      \"handoff/current_handoff.md\",\n      \"handoff/current_handoff.json\",\n      \"handoff/latest_report_copy.txt\",\n      \"docs/project_status.md\",\n      \"docs/patch_ledger.md\",\n      \"docs/summary_integrity_repair_stream.md\"\n    ]\n  }\n}\\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    },
+    {
+      "path": "handoff/next_prompt.txt",
+      "content": "You are resuming the PatchOps project from the current maintained repo state.\n\nRead these files first:\n1. handoff/current_handoff.md\n2. handoff/current_handoff.json\n3. handoff/latest_report_copy.txt\n\n[content_path repair stream]\nKeep the content_path repair stream treated as repaired and maintenance-locked unless new contrary repo evidence appears.\n\nNext recommended action: Retry MP21 single-file writer helper only after the baseline stays green.\n\nRules:\n- keep PowerShell thin\n- keep reusable logic in Python\n- preserve the one-report evidence contract\n- do not move target-repo business logic into PatchOps\n- do not redesign the architecture unless the handoff explicitly shows a deeper repo-truth problem\n\nAfter reading the handoff, briefly restate:\n- current state\n- latest attempted patch\n- failure class\n- next recommended action\n\nThen produce only the next repair patch or next planned patch.\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "full-pytest-quiet",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21d_remaining_baseline_contract_repair_20260401_212739\\inner_reports",
+    "report_name_prefix": "mp21d",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "pythonization",
+    "baseline_repair",
+    "mp21d",
+    "self_hosted"
+  ],
+  "notes": "Repair the remaining baseline contracts after MP21C boot restore."
+}\n

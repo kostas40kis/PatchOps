@@ -1,0 +1,15 @@
+{
+  "patch_name": "mp21d2_remaining_baseline_contract_repair_manifest_safe",
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213037\\patch_manifest.json",
+  "manifest_valid_json": true,
+  "files_to_write_count": 5,
+  "current_handoff_has_resume_before": true,
+  "next_prompt_has_content_path_marker_before": false,
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213037\\content\\patchops\\files\\writers.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213037\\content\\patchops\\reporting\\metadata.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213037\\content\\patchops\\reporting\\__init__.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213037\\content\\handoff\\current_handoff.json",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21d2_remaining_baseline_contract_repair_manifest_safe_20260401_213037\\content\\handoff\\next_prompt.txt"
+  ]
+}

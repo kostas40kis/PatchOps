@@ -1,0 +1,79 @@
+{
+  "manifest_version": "1",
+  "patch_name": "patch_134j_report_dir_proof_pytest_repair",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "patchops/workflows/apply_patch.py",
+      "content": null,
+      "content_path": "content/patchops/workflows/apply_patch.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_report_preference_apply_flow.py",
+      "content": null,
+      "content_path": "content/tests/test_report_preference_apply_flow.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_report_preference_apply_flow_current.py",
+      "content": null,
+      "content_path": "content/tests/test_report_preference_apply_flow_current.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs/summary_integrity_repair_stream.md",
+      "content": null,
+      "content_path": "content/docs/summary_integrity_repair_stream.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs/project_status.md",
+      "content": null,
+      "content_path": "content/docs/project_status.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs/patch_ledger.md",
+      "content": null,
+      "content_path": "content/docs/patch_ledger.md",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "report_dir_proof_pytest",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_report_preference_apply_flow.py",
+        "tests/test_report_preference_apply_flow_current.py"
+      ],
+      "working_directory": "C:\\dev\\patchops",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_134j_report_dir_proof_pytest_repair_20260330_005127\\inner_reports",
+    "report_name_prefix": "patch_134j_report_dir_proof_pytest_repair",
+    "write_to_desktop": true
+  },
+  "tags": [
+    "summary_integrity",
+    "self_hosted",
+    "report_dir_proof_pytest_repair"
+  ],
+  "notes": "Patch 134J keeps the report-dir creation repair and proves it with focused pytest coverage using an explicit Python runtime."
+}

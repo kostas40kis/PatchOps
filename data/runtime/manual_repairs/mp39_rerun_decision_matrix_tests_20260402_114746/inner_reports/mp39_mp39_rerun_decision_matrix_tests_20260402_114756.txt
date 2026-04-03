@@ -1,0 +1,98 @@
+PATCHOPS APPLY
+Patch Name           : mp39_rerun_decision_matrix_tests
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp39_rerun_decision_matrix_tests_20260402_114746\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp39_rerun_decision_matrix_tests_20260402_114756
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp39_rerun_decision_matrix_tests_20260402_114746\inner_reports\mp39_mp39_rerun_decision_matrix_tests_20260402_114756.txt
+Manifest Version     : 1
+Wrapper Mode Used    : apply
+Manifest Path Used   : C:\dev\patchops\data\runtime\manual_repairs\mp39_rerun_decision_matrix_tests_20260402_114746\patch_manifest.json
+Profile Resolved     : generic_python
+Runtime Resolved     : (none)
+File Write Origin    : wrapper_owned_write_engine
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_rerun_decision_matrix_current.py
+
+
+BACKUP
+------
+MISSING: C:\dev\patchops\tests\test_rerun_decision_matrix_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\tests\test_rerun_decision_matrix_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : mp39 rerun decision matrix tests
+COMMAND : py -3 -m pytest -q tests/test_rerun_decision_matrix_current.py tests/test_wrapper_retry_decision_helper_current.py tests/test_verify_only_decision_helper_current.py tests/test_failure_classification_rules_current.py tests/test_failure_category_model_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[mp39 rerun decision matrix tests][stdout]
+...........................                                              [100%]
+
+[mp39 rerun decision matrix tests][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

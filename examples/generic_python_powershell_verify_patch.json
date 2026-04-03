@@ -1,0 +1,57 @@
+{
+  "manifest_version": "1",
+  "patch_name": "generic_python_powershell_example_verify",
+  "active_profile": "generic_python_powershell",
+  "target_project_root": null,
+  "backup_files": [
+    "relative/path/to/file.ext"
+  ],
+  "files_to_write": [],
+  "validation_commands": [
+    {
+      "name": "validation_command",
+      "program": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [
+    {
+      "name": "powershell_echo",
+      "program": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-Command",
+        "Write-Output 'patchops verify profile example'"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": null,
+    "report_name_prefix": null,
+    "write_to_desktop": true
+  },
+  "tags": [
+    "example",
+    "generic_python_powershell",
+    "verify"
+  ],
+  "notes": "Replace placeholder paths and commands before using this verify-only manifest for real work."
+}

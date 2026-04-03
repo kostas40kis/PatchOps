@@ -1,0 +1,112 @@
+PATCHOPS APPLY
+Patch Name           : patch_134i_report_dir_proof_repair
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_134i_report_dir_proof_repair_20260330_004619\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\patch_134i_report_dir_proof_repair_20260330_004619
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\patch_134i_report_dir_proof_repair_20260330_004619\inner_reports\patch_134i_report_dir_proof_repair_patch_134i_report_dir_proof_repair_20260330_004619.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\workflows\apply_patch.py
+C:\dev\patchops\tests\test_report_preference_apply_flow.py
+C:\dev\patchops\tests\test_report_preference_apply_flow_current.py
+C:\dev\patchops\docs\summary_integrity_repair_stream.md
+C:\dev\patchops\docs\project_status.md
+C:\dev\patchops\docs\patch_ledger.md
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\docs\patch_ledger.md -> C:\dev\patchops\data\runtime\patch_backups\patch_134i_report_dir_proof_repair_20260330_004619\docs\patch_ledger.md
+BACKUP : C:\dev\patchops\docs\project_status.md -> C:\dev\patchops\data\runtime\patch_backups\patch_134i_report_dir_proof_repair_20260330_004619\docs\project_status.md
+BACKUP : C:\dev\patchops\docs\summary_integrity_repair_stream.md -> C:\dev\patchops\data\runtime\patch_backups\patch_134i_report_dir_proof_repair_20260330_004619\docs\summary_integrity_repair_stream.md
+BACKUP : C:\dev\patchops\patchops\workflows\apply_patch.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134i_report_dir_proof_repair_20260330_004619\patchops\workflows\apply_patch.py
+BACKUP : C:\dev\patchops\tests\test_report_preference_apply_flow.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134i_report_dir_proof_repair_20260330_004619\tests\test_report_preference_apply_flow.py
+BACKUP : C:\dev\patchops\tests\test_report_preference_apply_flow_current.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134i_report_dir_proof_repair_20260330_004619\tests\test_report_preference_apply_flow_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\workflows\apply_patch.py
+WROTE : C:\dev\patchops\tests\test_report_preference_apply_flow.py
+WROTE : C:\dev\patchops\tests\test_report_preference_apply_flow_current.py
+WROTE : C:\dev\patchops\docs\summary_integrity_repair_stream.md
+WROTE : C:\dev\patchops\docs\project_status.md
+WROTE : C:\dev\patchops\docs\patch_ledger.md
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : patch_134i_validation
+COMMAND : py validate_patch_134i.py 'C:\dev\patchops'
+CWD     : C:\dev\patchops\data\runtime\manual_repairs\patch_134i_report_dir_proof_repair_20260330_004619
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[patch_134i_validation][stdout]
+
+[patch_134i_validation][stderr]
+Traceback (most recent call last):
+  File "C:\dev\patchops\data\runtime\manual_repairs\patch_134i_report_dir_proof_repair_20260330_004619\validate_patch_134i.py", line 6, in <module>
+    from patchops.workflows.apply_patch import apply_manifest
+ModuleNotFoundError: No module named 'patchops'
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'patch_134i_validation' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

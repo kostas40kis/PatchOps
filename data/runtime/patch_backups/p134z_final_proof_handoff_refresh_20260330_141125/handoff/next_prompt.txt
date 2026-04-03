@@ -1,0 +1,30 @@
+You are taking over the PatchOps project at C:\dev\patchops.
+
+Read these files in this order:
+1. handoff/current_handoff.md
+2. handoff/current_handoff.json
+3. handoff/latest_report_copy.txt
+
+Your task is to perform the exact next recommended action described in the handoff.
+
+Current exported state:
+- current stage: Stage 2 in progress
+- latest attempted patch: Patch 127
+- latest passed patch: Patch 127
+- failure class: none
+- next action: Continue with Patch 128.
+
+Rules:
+- keep PowerShell thin
+- keep reusable logic in Python
+- preserve the one-report evidence contract
+- do not move target-repo business logic into PatchOps
+- do not redesign the architecture unless the handoff explicitly says architecture drift is the real problem
+
+After reading the handoff, briefly restate:
+- current state
+- latest attempted patch
+- failure class
+- next action
+
+Then produce only the next repair patch or next planned patch.

@@ -1,0 +1,96 @@
+PATCHOPS APPLY
+Patch Name           : mp12_stdout_stderr_presence_normalization
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp12_stdout_stderr_presence_normalization_20260331_142831\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp12_stdout_stderr_presence_normalization_20260331_142832
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp12_stdout_stderr_presence_normalization_20260331_142831\inner_reports\mp12_mp12_stdout_stderr_presence_normalization_20260331_142832.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\command_sections.py
+C:\dev\patchops\tests\test_reporting_command_sections_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp12_stdout_stderr_presence_normalization_20260331_142832\patchops\reporting\command_sections.py
+BACKUP : C:\dev\patchops\tests\test_reporting_command_sections_current.py -> C:\dev\patchops\data\runtime\patch_backups\mp12_stdout_stderr_presence_normalization_20260331_142832\tests\test_reporting_command_sections_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\command_sections.py
+WROTE : C:\dev\patchops\tests\test_reporting_command_sections_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : stdout_stderr_presence_contracts
+COMMAND : py -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_summary_integrity_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[stdout_stderr_presence_contracts][stdout]
+........................                                                 [100%]
+
+[stdout_stderr_presence_contracts][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

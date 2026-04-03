@@ -1,0 +1,56 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp10_command_section_model",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/patchops",
+  "backup_files": [
+    "patchops/reporting/command_sections.py",
+    "patchops/reporting/sections.py",
+    "tests/test_reporting_command_sections_current.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "patchops/reporting/command_sections.py",
+      "content_path": "content/patchops/reporting/command_sections.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/reporting/sections.py",
+      "content_path": "content/patchops/reporting/sections.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_reporting_command_sections_current.py",
+      "content_path": "content/tests/test_reporting_command_sections_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "command_section_model_contracts",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_reporting.py",
+        "tests/test_reporting_command_sections_current.py",
+        "tests/test_summary_integrity_current.py",
+        "tests/test_summary_integrity_workflow_current.py"
+      ],
+      "working_directory": "."
+    }
+  ],
+  "report_preferences": {
+    "report_name_prefix": "mp10",
+    "report_dir": "C:/dev/patchops/data/runtime/manual_repairs/mp10_command_section_model_20260331_141809/inner_reports"
+  },
+  "tags": [
+    "self_hosted",
+    "pythonization",
+    "mp10",
+    "command_section_model",
+    "reporting"
+  ],
+  "notes": "MP10: introduce a small reportable command section model and route current command section assembly through it without changing rendered shape."
+}

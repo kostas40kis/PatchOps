@@ -1,0 +1,27 @@
+.........F.........                                                      [100%]
+================================== FAILURES ===================================
+__________ TestManagedPositionV2.test_round_trip_preserves_identity ___________
+
+self = <tests.test_managed_position_v2.TestManagedPositionV2 testMethod=test_round_trip_preserves_identity>
+
+    def test_round_trip_preserves_identity(self) -> None:
+        position = self.make_position()
+>       restored = ManagedPositionV2.from_dict(position.to_dict())
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_managed_position_v2.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+cls = <class 'src.trader.execution.managed_position_v2.ManagedPositionV2'>
+payload = {'allocator_decision_id': 'alloc_001', 'base_asset': None, 'chain': 'solana', 'closed_at': None, ...}
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any]) -> "ManagedPositionV2":
+>       return cls(**dict(payload))
+               ^^^^^^^^^^^^^^^^^^^^
+E       TypeError: ManagedPositionV2.__init__() got an unexpected keyword argument 'position_key'
+
+src\trader\execution\managed_position_v2.py:269: TypeError
+=========================== short test summary info ===========================
+FAILED tests/test_managed_position_v2.py::TestManagedPositionV2::test_round_trip_preserves_identity
+1 failed, 18 passed in 0.22s

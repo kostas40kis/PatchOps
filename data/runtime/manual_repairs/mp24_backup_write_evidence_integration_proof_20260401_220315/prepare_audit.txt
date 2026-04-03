@@ -1,0 +1,9 @@
+{
+  "patch_name": "mp24_backup_write_evidence_integration_proof",
+  "proof_test_path": "C:\\dev\\patchops\\tests\\test_backup_write_evidence_integration_current.py",
+  "proof_test_exists_before": false,
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp24_backup_write_evidence_integration_proof_20260401_220315\\patch_manifest.json",
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp24_backup_write_evidence_integration_proof_20260401_220315\\content\\tests\\test_backup_write_evidence_integration_current.py"
+  ]
+}

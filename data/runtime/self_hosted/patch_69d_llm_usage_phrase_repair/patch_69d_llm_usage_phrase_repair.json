@@ -1,0 +1,61 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_69d_llm_usage_phrase_repair",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "docs/llm_usage.md"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "docs/llm_usage.md",
+                               "content_path":  "content/docs/llm_usage.md",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "smoke_commands":  [
+
+                       ],
+    "audit_commands":  [
+
+                       ],
+    "cleanup_commands":  [
+
+                         ],
+    "archive_commands":  [
+
+                         ],
+    "failure_policy":  {
+
+                       },
+    "report_preferences":  {
+                               "report_name_prefix":  "patch_69d_llm_usage_phrase_repair",
+                               "write_to_desktop":  true
+                           },
+    "tags":  [
+                 "stage2",
+                 "handoff",
+                 "docs",
+                 "repair",
+                 "llm_usage",
+                 "self_hosted",
+                 "patch_69d"
+             ],
+    "notes":  "Narrow Patch 69 follow-up repair. Add the one remaining exact legacy phrase required by docs/llm_usage.md validation."
+}

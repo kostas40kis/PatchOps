@@ -1,0 +1,13 @@
+{
+  "patch_name": "mp21_single_file_writer_helper_retry",
+  "writers_path": "C:\\dev\\patchops\\patchops\\files\\writers.py",
+  "single_file_test_path": "C:\\dev\\patchops\\tests\\test_single_file_writer_current.py",
+  "write_single_file_exists_before": true,
+  "write_text_file_delegates_before": true,
+  "single_file_test_exists_before": false,
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21_single_file_writer_helper_retry_20260401_215236\\patch_manifest.json",
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21_single_file_writer_helper_retry_20260401_215236\\content\\patchops\\files\\writers.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21_single_file_writer_helper_retry_20260401_215236\\content\\tests\\test_single_file_writer_current.py"
+  ]
+}

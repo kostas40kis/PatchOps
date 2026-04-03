@@ -1,0 +1,52 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp33_classifier_helper_wiring_in_one_workflow_path",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "files_to_write": [
+    {
+      "path": "patchops/workflows/apply_patch.py",
+      "content_path": "data\\runtime\\manual_repairs\\mp33_classifier_helper_wiring_in_one_workflow_path_20260401_235445\\content\\patchops\\workflows\\apply_patch.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_classifier_helper_wiring_current.py",
+      "content_path": "data\\runtime\\manual_repairs\\mp33_classifier_helper_wiring_in_one_workflow_path_20260401_235445\\content\\tests\\test_classifier_helper_wiring_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "mp33 classifier helper wiring tests",
+      "program": "py",
+      "args": [
+        "-3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_classifier_helper_wiring_current.py",
+        "tests/test_failure_classification_rules_current.py",
+        "tests/test_failure_category_model_current.py",
+        "tests/test_failure_classifier.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp33_classifier_helper_wiring_in_one_workflow_path_20260401_235445\\inner_reports",
+    "report_name_prefix": "mp33",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "maintenance",
+    "pythonization",
+    "phase_e",
+    "mp33",
+    "self_hosted"
+  ],
+  "notes": "MP33 classifier helper wiring in one workflow path after confirmed MP32 completion."
+}

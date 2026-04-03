@@ -1,0 +1,31 @@
+﻿{
+  "profile_name": "generic_python",
+  "intent": "documentation_patch",
+  "target_root": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_129_new_target_onboarding_flow_proof_20260328_183629\\demo_roundtrip_current_target",
+  "wrapper_project_root": null,
+  "starter_examples": [
+    "examples/generic_python_doc_patch.json"
+  ],
+  "rationale": "Examples remain the baseline; this helper reduces blank-page authoring by giving a conservative manifest skeleton tied to the requested patch class.",
+  "manifest": {
+    "manifest_version": "1",
+    "patch_name": "starter_documentation_patch",
+    "active_profile": "generic_python",
+    "backup_files": [],
+    "files_to_write": [],
+    "validation_commands": [],
+    "smoke_commands": [],
+    "audit_commands": [],
+    "cleanup_commands": [],
+    "archive_commands": [],
+    "failure_policy": {},
+    "report_preferences": {},
+    "tags": [
+      "starter",
+      "documentation_patch"
+    ],
+    "notes": "Starter manifest for a documentation patch. Add the real documentation file writes and keep the validation surface narrow.",
+    "target_project_root": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_129_new_target_onboarding_flow_proof_20260328_183629\\demo_roundtrip_current_target"
+  }
+}
+

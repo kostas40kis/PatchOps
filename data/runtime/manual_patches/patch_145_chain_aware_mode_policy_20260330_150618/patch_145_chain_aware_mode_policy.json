@@ -1,0 +1,64 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_145_chain_aware_mode_policy",
+    "active_profile":  "trader",
+    "target_project_root":  "C:\\dev\\trader",
+    "backup_files":  [
+                         "src/trader/execution/chain_aware_mode_policy.py",
+                         "tests/test_chain_aware_mode_policy.py",
+                         "docs/architecture/chain_aware_mode_policy.md",
+                         "scripts/run_patch_145_chain_aware_mode_policy_tests.ps1"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "src/trader/execution/chain_aware_mode_policy.py",
+                               "content_path":  "data/runtime/manual_patches/patch_145_chain_aware_mode_policy_20260330_150618/content/src/trader/execution/chain_aware_mode_policy.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_chain_aware_mode_policy.py",
+                               "content_path":  "data/runtime/manual_patches/patch_145_chain_aware_mode_policy_20260330_150618/content/tests/test_chain_aware_mode_policy.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/architecture/chain_aware_mode_policy.md",
+                               "content_path":  "data/runtime/manual_patches/patch_145_chain_aware_mode_policy_20260330_150618/content/docs/architecture/chain_aware_mode_policy.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "scripts/run_patch_145_chain_aware_mode_policy_tests.ps1",
+                               "content_path":  "data/runtime/manual_patches/patch_145_chain_aware_mode_policy_20260330_150618/content/scripts/run_patch_145_chain_aware_mode_policy_tests.ps1",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "patch_145_tests",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q",
+                                                 "tests/test_chain_aware_mode_policy.py",
+                                                 "tests/test_chain_aware_route_score_inputs.py"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  true,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "report_preferences":  {
+                               "write_to_desktop":  true,
+                               "report_name_prefix":  "trader_patch"
+                           },
+    "tags":  [
+                 "trader",
+                 "phase1",
+                 "cross_chain",
+                 "patch145",
+                 "patchops_native"
+             ],
+    "notes":  "Patch 145 applied through PatchOps-native manifest flow to verify summary-integrity behavior on a real trader patch."
+}

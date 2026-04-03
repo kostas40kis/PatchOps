@@ -1,0 +1,112 @@
+{
+    "manifest_version":  1,
+    "patch_name":  "patch_50_git_traceability_hygiene",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:\\dev\\patchops",
+    "report_dir":  "C:\\Users\\kostas\\Desktop",
+    "backup_files":  [
+                         "docs\\git_traceability_hygiene.md",
+                         "docs\\patch_ledger.md",
+                         "docs\\self_hosted_helper_note.md"
+                     ],
+    "target_files":  [
+                         {
+                             "path":  "docs\\git_traceability_hygiene.md",
+                             "content_path":  "C:\\dev\\patchops\\data\\runtime\\self_hosted\\patch_50_git_traceability_hygiene\\content\\docs\\git_traceability_hygiene.md"
+                         },
+                         {
+                             "path":  "docs\\patch_ledger.md",
+                             "content_path":  "C:\\dev\\patchops\\data\\runtime\\self_hosted\\patch_50_git_traceability_hygiene\\content\\docs\\patch_ledger.md"
+                         },
+                         {
+                             "path":  "docs\\self_hosted_helper_note.md",
+                             "content_path":  "C:\\dev\\patchops\\data\\runtime\\self_hosted\\patch_50_git_traceability_hygiene\\content\\docs\\self_hosted_helper_note.md"
+                         }
+                     ],
+    "validation_commands":  [
+                                {
+                                    "name":  "patchops_pytest_quiet",
+                                    "program":  "C:\\dev\\trader\\.venv\\Scripts\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                },
+                                {
+                                    "name":  "patchops_profiles",
+                                    "program":  "C:\\dev\\trader\\.venv\\Scripts\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "patchops.cli",
+                                                 "profiles"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                },
+                                {
+                                    "name":  "patchops_examples",
+                                    "program":  "C:\\dev\\trader\\.venv\\Scripts\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "patchops.cli",
+                                                 "examples"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                },
+                                {
+                                    "name":  "patchops_doctor_trader",
+                                    "program":  "C:\\dev\\trader\\.venv\\Scripts\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "patchops.cli",
+                                                 "doctor",
+                                                 "--profile",
+                                                 "trader"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                },
+                                {
+                                    "name":  "patchops_plan_trader_first_verify",
+                                    "program":  "C:\\dev\\trader\\.venv\\Scripts\\python.exe",
+                                    "args":  [
+                                                 "-m",
+                                                 "patchops.cli",
+                                                 "plan",
+                                                 ".\\examples\\trader_first_verify_patch.json",
+                                                 "--mode",
+                                                 "verify"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "tags":  [
+                 "patchops",
+                 "self_hosted",
+                 "git",
+                 "traceability",
+                 "report_clarity",
+                 "maintenance_mode"
+             ],
+    "notes":  "Self-hosted PatchOps maintenance patch. Adds Git/traceability hygiene docs and documents correct report-path surfacing behavior for self-hosted runs."
+}

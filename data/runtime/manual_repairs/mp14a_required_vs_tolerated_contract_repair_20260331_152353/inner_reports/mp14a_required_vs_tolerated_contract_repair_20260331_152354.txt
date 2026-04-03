@@ -1,0 +1,93 @@
+PATCHOPS APPLY
+Patch Name           : mp14a_required_vs_tolerated_contract_repair
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp14a_required_vs_tolerated_contract_repair_20260331_152353\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp14a_required_vs_tolerated_contract_repair_20260331_152354
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp14a_required_vs_tolerated_contract_repair_20260331_152353\inner_reports\mp14a_required_vs_tolerated_contract_repair_20260331_152354.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py -> C:\dev\patchops\data\runtime\patch_backups\mp14a_required_vs_tolerated_contract_repair_20260331_152354\tests\test_required_vs_tolerated_report_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : reporting_stream_pytest
+COMMAND : python -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[reporting_stream_pytest][stdout]
+..............................                                           [100%]
+
+[reporting_stream_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

@@ -1,0 +1,41 @@
+{
+  "manifest_version": "1",
+  "patch_name": "trader_first_verify_patch",
+  "active_profile": "trader",
+  "target_project_root": "C:/dev/trader",
+  "backup_files": [],
+  "files_to_write": [],
+  "validation_commands": [
+    {
+      "name": "trader_pytest_quiet",
+      "program": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": null,
+    "report_name_prefix": "trader_first_verify_patch",
+    "write_to_desktop": true
+  },
+  "tags": [
+    "starter",
+    "trader",
+    "first_usage",
+    "verify_patch"
+  ],
+  "notes": "Low-risk trader-first verify starter. Use this as a verification rehearsal before the first real apply manifest."
+}\n

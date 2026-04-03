@@ -1,0 +1,11 @@
+PATCHOPS RUN SUMMARY
+--------------------
+Mode               : apply
+Patch Name         : patch_134i_report_dir_proof_repair
+Manifest Path      : C:\dev\patchops\data\runtime\manual_repairs\patch_134i_report_dir_proof_repair_20260330_004619\patch_manifest.json
+Target Project Root: C:\dev\patchops
+Active Profile     : generic_python
+Runtime Path       : (none)
+Report Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_134i_report_dir_proof_repair_20260330_004619\inner_reports\patch_134i_report_dir_proof_repair_patch_134i_report_dir_proof_repair_20260330_004619.txt
+ExitCode           : 1
+Result             : FAIL

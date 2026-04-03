@@ -1,0 +1,52 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp21_single_file_writer_helper",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "patchops/files/writers.py",
+    "tests/test_single_file_writer_current.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "patchops/files/writers.py",
+      "content_path": "content/patchops/files/writers.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_single_file_writer_current.py",
+      "content_path": "content/tests/test_single_file_writer_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "write-plan-and-single-file-writer-tests",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_write_plan_current.py",
+        "tests/test_single_file_writer_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21_single_file_writer_helper_20260401_205923\\inner_reports",
+    "report_name_prefix": "mp21",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "pythonization",
+    "mp21",
+    "self_hosted",
+    "writers"
+  ],
+  "notes": "MP21 single-file writer helper. Keep PowerShell thin and move deterministic single-file writing into one Python helper."
+}

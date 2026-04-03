@@ -1,0 +1,90 @@
+PATCHOPS APPLY
+Patch Name           : mp15u_report_helper_contract_restore
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp15u_report_helper_contract_restore_20260331_233509\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp15u_report_helper_contract_restore_20260331_233510
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp15u_report_helper_contract_restore_20260331_233509\inner_reports\mp15u_report_helper_contract_restore_20260331_233510.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\command_sections.py
+C:\dev\patchops\patchops\reporting\sections.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15u_report_helper_contract_restore_20260331_233510\patchops\reporting\command_sections.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15u_report_helper_contract_restore_20260331_233510\patchops\reporting\sections.py
+
+
+WRITING FILES
+-------------
+(none)
+
+
+VALIDATION COMMANDS
+-------------------
+(none)
+
+
+FULL OUTPUT
+-----------
+(none)
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : wrapper_failure
+Message  : [Errno 2] No such file or directory: 'C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp15u_report_helper_contract_restore_20260331_233509\\data\\runtime\\manual_repairs\\mp15u_report_helper_contract_restore_20260331_233509\\content\\patchops\\reporting\\command_sections.py'
+Details  : FileNotFoundError
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

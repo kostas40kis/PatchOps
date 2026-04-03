@@ -1,0 +1,11 @@
+{
+  "decision": "author_mp31",
+  "decision_reason": "formalize the maintained failure category model.",
+  "module_exists": "no",
+  "test_exists": "no",
+  "legacy_test_exists": "yes",
+  "required_categories_present": "no",
+  "required_categories": "target_project_failure | wrapper_failure | patch_authoring_failure | ambiguous_or_suspicious_run",
+  "inner_report_root": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp31_failure_category_model_cleanup_20260401_232847\\inner_reports",
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp31_failure_category_model_cleanup_20260401_232847\\patch_manifest.json"
+}

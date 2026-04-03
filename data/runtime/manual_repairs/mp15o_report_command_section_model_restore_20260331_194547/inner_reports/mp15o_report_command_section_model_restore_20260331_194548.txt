@@ -1,0 +1,338 @@
+PATCHOPS APPLY
+Patch Name           : mp15o_report_command_section_model_restore
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp15o_report_command_section_model_restore_20260331_194547\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp15o_report_command_section_model_restore_20260331_194548
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp15o_report_command_section_model_restore_20260331_194547\inner_reports\mp15o_report_command_section_model_restore_20260331_194548.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\command_sections.py
+C:\dev\patchops\patchops\reporting\sections.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15o_report_command_section_model_restore_20260331_194548\patchops\reporting\command_sections.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15o_report_command_section_model_restore_20260331_194548\patchops\reporting\sections.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\command_sections.py
+WROTE : C:\dev\patchops\patchops\reporting\sections.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : report_command_model_pytest
+COMMAND : python -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_reporting_output_helper_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[report_command_model_pytest][stdout]
+..FF...F...F.FFFF.F..............                                        [100%]
+================================== FAILURES ===================================
+_______ test_wrapper_only_retry_report_contains_explicit_retry_section ________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-220/test_wrapper_only_retry_report0')
+
+    def test_wrapper_only_retry_report_contains_explicit_retry_section(tmp_path: Path):
+        result = _build_result(
+            tmp_path,
+            "wrapper_only_retry",
+            files_to_write=[FileWriteSpec(path="example.txt", content="ignored")],
+        )
+    
+        with active_wrapper_only_retry_context(" report writer failed after validation "):
+>           text = render_workflow_report(result)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:26: in render_workflow_report
+    wrapper_only_retry_section(result),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+result = WorkflowResult(mode='wrapper_only_retry', manifest_path=WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kost...e_results=[], audit_results=[], cleanup_results=[], archive_results=[], failure=None, exit_code=0, result_label='PASS')
+
+    def wrapper_only_retry_section(result: WorkflowResult) -> str:
+        if result.mode != WRAPPER_ONLY_RETRY_KIND:
+            return ""
+        retry_reason = get_active_wrapper_only_retry_reason()
+>       state = build_wrapper_only_retry_state(
+            manifest=result.manifest,
+            target_project_root=result.target_project_root,
+            retry_reason=retry_reason,
+        )
+E       TypeError: build_wrapper_only_retry_state() got an unexpected keyword argument 'retry_reason'
+
+patchops\reporting\sections.py:52: TypeError
+_ test_wrapper_only_retry_report_marks_stay_narrow_when_expected_files_exist __
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-220/test_wrapper_only_retry_report1')
+
+    def test_wrapper_only_retry_report_marks_stay_narrow_when_expected_files_exist(tmp_path: Path):
+        target_root = tmp_path / "target_project"
+        target_root.mkdir(parents=True, exist_ok=True)
+        (target_root / "example.txt").write_text("ok", encoding="utf-8")
+    
+        result = _build_result(
+            tmp_path,
+            "wrapper_only_retry",
+            files_to_write=[FileWriteSpec(path="example.txt", content="ignored")],
+        )
+    
+        with active_wrapper_only_retry_context(None):
+>           text = render_workflow_report(result)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:26: in render_workflow_report
+    wrapper_only_retry_section(result),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+result = WorkflowResult(mode='wrapper_only_retry', manifest_path=WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kost...e_results=[], audit_results=[], cleanup_results=[], archive_results=[], failure=None, exit_code=0, result_label='PASS')
+
+    def wrapper_only_retry_section(result: WorkflowResult) -> str:
+        if result.mode != WRAPPER_ONLY_RETRY_KIND:
+            return ""
+        retry_reason = get_active_wrapper_only_retry_reason()
+>       state = build_wrapper_only_retry_state(
+            manifest=result.manifest,
+            target_project_root=result.target_project_root,
+            retry_reason=retry_reason,
+        )
+E       TypeError: build_wrapper_only_retry_state() got an unexpected keyword argument 'retry_reason'
+
+patchops\reporting\sections.py:52: TypeError
+_____ test_build_report_command_section_preserves_current_command_values ______
+
+    def test_build_report_command_section_preserves_current_command_values():
+        result = _command_result()
+    
+        section = build_report_command_section(result, section_label="VALIDATION COMMANDS")
+    
+        assert section.section_label == "VALIDATION COMMANDS"
+        assert section.command_name == result.name
+        assert section.command_text == result.display_command
+>       assert section.working_directory == result.working_directory
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ReportCommandSection' object has no attribute 'working_directory'
+
+tests\test_reporting_command_sections_current.py:44: AttributeError
+______ test_render_report_command_output_section_preserves_visible_shape ______
+
+    def test_render_report_command_output_section_preserves_visible_shape():
+        result = _command_result(stdout="captured stdout", stderr="captured stderr")
+    
+        section = build_report_command_section(result, section_label="FULL OUTPUT")
+>       lines = render_report_command_output_section(section)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting_command_sections_current.py:92: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (ReportCommandSection(section_label='FULL OUTPUT', command_name='reporting_contracts', command_text='py -m pytest -q tests/test_reporting.py', cwd_text='C:\\dev\\patchops', exit_text='0', classification=None),)
+section = ReportCommandSection(section_label='FULL OUTPUT', command_name='reporting_contracts', command_text='py -m pytest -q tests/test_reporting.py', cwd_text='C:\\dev\\patchops', exit_text='0', classification=None)
+
+    def render_report_command_output_section(*args):
+        if len(args) == 1:
+            section = args[0]
+            return (
+                f"[{section.command_name}][stdout]",
+>               section.stdout_text if section.stdout_text else "",
+                                       ^^^^^^^^^^^^^^^^^^^
+                f"[{section.command_name}][stderr]",
+                section.stderr_text if section.stderr_text else "",
+            )
+E           AttributeError: 'ReportCommandSection' object has no attribute 'stdout_text'
+
+patchops\reporting\command_sections.py:108: AttributeError
+__ test_render_report_command_output_section_keeps_labels_when_stdout_empty ___
+
+    def test_render_report_command_output_section_keeps_labels_when_stdout_empty():
+        result = _command_result(stdout="", stderr="captured stderr")
+    
+        section = build_report_command_section(result, section_label="FULL OUTPUT")
+>       lines = render_report_command_output_section(section)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting_command_sections_current.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (ReportCommandSection(section_label='FULL OUTPUT', command_name='reporting_contracts', command_text='py -m pytest -q tests/test_reporting.py', cwd_text='C:\\dev\\patchops', exit_text='0', classification=None),)
+section = ReportCommandSection(section_label='FULL OUTPUT', command_name='reporting_contracts', command_text='py -m pytest -q tests/test_reporting.py', cwd_text='C:\\dev\\patchops', exit_text='0', classification=None)
+
+    def render_report_command_output_section(*args):
+        if len(args) == 1:
+            section = args[0]
+            return (
+                f"[{section.command_name}][stdout]",
+>               section.stdout_text if section.stdout_text else "",
+                                       ^^^^^^^^^^^^^^^^^^^
+                f"[{section.command_name}][stderr]",
+                section.stderr_text if section.stderr_text else "",
+            )
+E           AttributeError: 'ReportCommandSection' object has no attribute 'stdout_text'
+
+patchops\reporting\command_sections.py:108: AttributeError
+__ test_render_report_command_output_section_keeps_labels_when_stderr_empty ___
+
+    def test_render_report_command_output_section_keeps_labels_when_stderr_empty():
+        result = _command_result(stdout="captured stdout", stderr="")
+    
+        section = build_report_command_section(result, section_label="FULL OUTPUT")
+>       lines = render_report_command_output_section(section)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting_command_sections_current.py:143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (ReportCommandSection(section_label='FULL OUTPUT', command_name='reporting_contracts', command_text='py -m pytest -q tests/test_reporting.py', cwd_text='C:\\dev\\patchops', exit_text='0', classification=None),)
+section = ReportCommandSection(section_label='FULL OUTPUT', command_name='reporting_contracts', command_text='py -m pytest -q tests/test_reporting.py', cwd_text='C:\\dev\\patchops', exit_text='0', classification=None)
+
+    def render_report_command_output_section(*args):
+        if len(args) == 1:
+            section = args[0]
+            return (
+                f"[{section.command_name}][stdout]",
+>               section.stdout_text if section.stdout_text else "",
+                                       ^^^^^^^^^^^^^^^^^^^
+                f"[{section.command_name}][stderr]",
+                section.stderr_text if section.stderr_text else "",
+            )
+E           AttributeError: 'ReportCommandSection' object has no attribute 'stdout_text'
+
+patchops\reporting\command_sections.py:108: AttributeError
+_ test_render_report_command_output_section_keeps_labels_when_both_outputs_empty _
+
+    def test_render_report_command_output_section_keeps_labels_when_both_outputs_empty():
+        result = _command_result(stdout="", stderr="")
+    
+        section = build_report_command_section(result, section_label="FULL OUTPUT")
+>       lines = render_report_command_output_section(section)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting_command_sections_current.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+args = (ReportCommandSection(section_label='FULL OUTPUT', command_name='reporting_contracts', command_text='py -m pytest -q tests/test_reporting.py', cwd_text='C:\\dev\\patchops', exit_text='0', classification=None),)
+section = ReportCommandSection(section_label='FULL OUTPUT', command_name='reporting_contracts', command_text='py -m pytest -q tests/test_reporting.py', cwd_text='C:\\dev\\patchops', exit_text='0', classification=None)
+
+    def render_report_command_output_section(*args):
+        if len(args) == 1:
+            section = args[0]
+            return (
+                f"[{section.command_name}][stdout]",
+>               section.stdout_text if section.stdout_text else "",
+                                       ^^^^^^^^^^^^^^^^^^^
+                f"[{section.command_name}][stderr]",
+                section.stderr_text if section.stderr_text else "",
+            )
+E           AttributeError: 'ReportCommandSection' object has no attribute 'stdout_text'
+
+patchops\reporting\command_sections.py:108: AttributeError
+__________ test_build_report_command_section_exposes_current_fields ___________
+
+    def test_build_report_command_section_exposes_current_fields() -> None:
+        section = build_report_command_section(_result())
+    
+        assert section.command_name == "alpha"
+        assert "pytest" in section.command_text
+>       assert section.exit_code == 0
+               ^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ReportCommandSection' object has no attribute 'exit_code'
+
+tests\test_reporting_output_helper_current.py:33: AttributeError
+___________ test_report_output_helper_accepts_single_section_object ___________
+
+    def test_report_output_helper_accepts_single_section_object() -> None:
+        result = _result("alpha", "hello\n", "warn\n")
+        rule = lambda title: f"\n{title}\n{'-' * len(title)}"
+        section = ReportCommandOutputSection(title="FULL OUTPUT", results=[result], rule=rule)
+    
+        text = render_report_command_output_section(section)
+    
+        assert section.command_name == "alpha"
+        assert "[alpha][stdout]" in text
+>       assert "hello" in text
+E       AssertionError: assert 'hello' in ('[alpha][stdout]', 'hello\n', '[alpha][stderr]', 'warn\n')
+
+tests\test_reporting_output_helper_current.py:56: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_reporting.py::test_wrapper_only_retry_report_contains_explicit_retry_section
+FAILED tests/test_reporting.py::test_wrapper_only_retry_report_marks_stay_narrow_when_expected_files_exist
+FAILED tests/test_reporting_command_sections_current.py::test_build_report_command_section_preserves_current_command_values
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_preserves_visible_shape
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_keeps_labels_when_stdout_empty
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_keeps_labels_when_stderr_empty
+FAILED tests/test_reporting_command_sections_current.py::test_render_report_command_output_section_keeps_labels_when_both_outputs_empty
+FAILED tests/test_reporting_output_helper_current.py::test_build_report_command_section_exposes_current_fields
+FAILED tests/test_reporting_output_helper_current.py::test_report_output_helper_accepts_single_section_object
+
+[report_command_model_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'report_command_model_pytest' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

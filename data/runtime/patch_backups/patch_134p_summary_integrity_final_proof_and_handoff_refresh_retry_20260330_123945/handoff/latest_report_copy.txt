@@ -1,0 +1,61 @@
+PATCHOPS FINAL CONTRACT-LOCK VALIDATION SWEEP
+=============================================
+Patch Name            : patch_127_final_contract_lock_validation_sweep
+Generated             : 20260328_181707
+Project Root          : C:\dev\patchops
+Runtime               : py -3
+Runtime Artifact Root : C:\dev\patchops\data\runtime\manual_repairs\patch_127_final_contract_lock_validation_sweep_20260328_181707
+Report Path           : C:\Users\kostas\Desktop\patch_127_final_contract_lock_validation_sweep_20260328_181707.txt
+
+TARGET FILES
+------------
+docs/finalization_master_plan.md
+docs/project_status.md
+docs/patch_ledger.md
+tests/test_final_maintenance_mode_docs.py
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\docs\finalization_master_plan.md -> C:\dev\patchops\data\runtime\manual_repairs\patch_127_final_contract_lock_validation_sweep_20260328_181707\backups\docs\finalization_master_plan.md
+BACKUP : C:\dev\patchops\docs\project_status.md -> C:\dev\patchops\data\runtime\manual_repairs\patch_127_final_contract_lock_validation_sweep_20260328_181707\backups\docs\project_status.md
+BACKUP : C:\dev\patchops\docs\patch_ledger.md -> C:\dev\patchops\data\runtime\manual_repairs\patch_127_final_contract_lock_validation_sweep_20260328_181707\backups\docs\patch_ledger.md
+MISSING: C:\dev\patchops\tests\test_final_maintenance_mode_docs.py
+
+WRITING FILES
+-------------
+COMMAND : py -3 C:\dev\patchops\data\runtime\manual_repairs\patch_127_final_contract_lock_validation_sweep_20260328_181707\apply_patch_127.py
+EXIT    : 0
+
+[stdout]
+WROTE : docs/finalization_master_plan.md
+WROTE : docs/project_status.md
+WROTE : docs/patch_ledger.md
+WROTE : tests/test_final_maintenance_mode_docs.py
+
+
+[stderr]
+
+
+VALIDATION COMMANDS
+-------------------
+COMMAND : py -3 -m pytest -q
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+FULL OUTPUT
+-----------
+[stdout]
+........................................................................ [ 22%]
+........................................................................ [ 44%]
+........................................................................ [ 67%]
+........................................................................ [ 89%]
+.................................                                        [100%]
+
+
+[stderr]
+
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

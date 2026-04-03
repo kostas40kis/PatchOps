@@ -1,0 +1,98 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_171_allocation_phase3_suite_runner",
+    "active_profile":  "trader",
+    "target_project_root":  "C:\\dev\\trader",
+    "backup_files":  [
+                         "src\\trader\\execution\\allocation_phase3_suite_runner.py",
+                         "tests\\test_allocation_phase3_suite_runner.py",
+                         "docs\\architecture\\allocation_phase3_suite_runner.md",
+                         "scripts\\run_patch_171_allocation_phase3_suite_runner_tests.ps1"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "src\\trader\\execution\\allocation_phase3_suite_runner.py",
+                               "content":  "from __future__ import annotations\n\nfrom dataclasses import dataclass\nfrom typing import Dict, List, Sequence, Tuple\n\n\nclass AllocationPhase3SuiteRunnerError(RuntimeError):\n    \"\"\"Raised when the named allocation Phase 3 suite is malformed.\"\"\"\n\n\nALLOCATION_PHASE3_PATCH_RANGE: Tuple[int, int] = (164, 170)\n\nALLOCATION_PHASE3_TEST_MODULES: Tuple[str, ...] = (\n    \"tests.test_chain_strategy_budget_policy\",\n    \"tests.test_allocation_candidate\",\n    \"tests.test_allocation_decision\",\n    \"tests.test_allocation_decision_store\",\n    \"tests.test_final_portfolio_constraint_gate\",\n    \"tests.test_allocation_review_packet_builder\",\n    \"tests.test_allocation_replay_report\",\n)\n\n\n@dataclass(frozen=True)\nclass AllocationPhase3SuiteDefinition:\n    suite_name: str\n    patch_range_start: int\n    patch_range_end: int\n    test_modules: Tuple[str, ...]\n    notes: str\n\n    def to_dict(self) -\u003e Dict[str, object]:\n        return {\n            \"suite_name\": self.suite_name,\n            \"patch_range_start\": self.patch_range_start,\n            \"patch_range_end\": self.patch_range_end,\n            \"test_modules\": list(self.test_modules),\n            \"notes\": self.notes,\n        }\n\n\ndef build_allocation_phase3_suite_definition() -\u003e AllocationPhase3SuiteDefinition:\n    return AllocationPhase3SuiteDefinition(\n        suite_name=\"allocation_phase3_suite\",\n        patch_range_start=ALLOCATION_PHASE3_PATCH_RANGE[0],\n        patch_range_end=ALLOCATION_PHASE3_PATCH_RANGE[1],\n        test_modules=ALLOCATION_PHASE3_TEST_MODULES,\n        notes=(\n            \"Named allocator Phase 3 suite covering budget policy, allocation \"\n            \"candidate/decision flow, persistence, final constraint gate, review \"\n            \"packet rendering, and replay audit.\"\n        ),\n    )\n\n\ndef validate_allocation_phase3_suite(\n    test_modules: Sequence[str] | None = None,\n) -\u003e Tuple[str, ...]:\n    modules = tuple(ALLOCATION_PHASE3_TEST_MODULES if test_modules is None else test_modules)\n    if not modules:\n        raise AllocationPhase3SuiteRunnerError(\"allocation phase 3 suite must not be empty\")\n\n    normalized: List[str] = []\n    for module_name in modules:\n        if not isinstance(module_name, str) or not module_name.strip():\n            raise AllocationPhase3SuiteRunnerError(\n                \"allocation phase 3 suite modules must be non-empty strings\"\n            )\n        normalized_name = module_name.strip()\n        if normalized_name in normalized:\n            raise AllocationPhase3SuiteRunnerError(\n                f\"duplicate allocation phase 3 suite module: {normalized_name}\"\n            )\n        normalized.append(normalized_name)\n\n    return tuple(normalized)\n\n\ndef build_allocation_phase3_suite_args() -\u003e List[str]:\n    modules = validate_allocation_phase3_suite()\n    return [\"-m\", \"unittest\", \"-v\", *modules]\n\n\ndef build_allocation_phase3_suite_command(python_program: str = \"python\") -\u003e List[str]:\n    if not isinstance(python_program, str) or not python_program.strip():\n        raise AllocationPhase3SuiteRunnerError(\"python_program must be a non-empty string\")\n    return [python_program.strip(), *build_allocation_phase3_suite_args()]\n\n\ndef build_allocation_phase3_suite_metadata() -\u003e Dict[str, object]:\n    definition = build_allocation_phase3_suite_definition()\n    modules = validate_allocation_phase3_suite(definition.test_modules)\n    return {\n        **definition.to_dict(),\n        \"validated_module_count\": len(modules),\n        \"command_args\": build_allocation_phase3_suite_args(),\n    }\n",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests\\test_allocation_phase3_suite_runner.py",
+                               "content":  "from __future__ import annotations\n\nimport unittest\n\nfrom src.trader.execution.allocation_phase3_suite_runner import (\n    ALLOCATION_PHASE3_PATCH_RANGE,\n    ALLOCATION_PHASE3_TEST_MODULES,\n    AllocationPhase3SuiteRunnerError,\n    build_allocation_phase3_suite_args,\n    build_allocation_phase3_suite_command,\n    build_allocation_phase3_suite_definition,\n    build_allocation_phase3_suite_metadata,\n    validate_allocation_phase3_suite,\n)\n\n\nclass TestAllocationPhase3SuiteRunner(unittest.TestCase):\n    def test_definition_matches_expected_patch_range(self) -\u003e None:\n        definition = build_allocation_phase3_suite_definition()\n\n        self.assertEqual(definition.suite_name, \"allocation_phase3_suite\")\n        self.assertEqual(\n            (definition.patch_range_start, definition.patch_range_end),\n            ALLOCATION_PHASE3_PATCH_RANGE,\n        )\n        self.assertEqual(definition.test_modules, ALLOCATION_PHASE3_TEST_MODULES)\n\n    def test_validation_returns_unique_ordered_modules(self) -\u003e None:\n        modules = validate_allocation_phase3_suite()\n        self.assertEqual(modules, ALLOCATION_PHASE3_TEST_MODULES)\n        self.assertEqual(len(modules), len(set(modules)))\n\n    def test_suite_args_include_all_phase3_modules(self) -\u003e None:\n        args = build_allocation_phase3_suite_args()\n        self.assertEqual(args[:3], [\"-m\", \"unittest\", \"-v\"])\n        self.assertEqual(tuple(args[3:]), ALLOCATION_PHASE3_TEST_MODULES)\n\n    def test_command_builder_supports_custom_python_program(self) -\u003e None:\n        command = build_allocation_phase3_suite_command(\"py\")\n        self.assertEqual(command[0], \"py\")\n        self.assertEqual(command[1:], build_allocation_phase3_suite_args())\n\n    def test_metadata_surfaces_command_and_counts(self) -\u003e None:\n        metadata = build_allocation_phase3_suite_metadata()\n        self.assertEqual(metadata[\"validated_module_count\"], len(ALLOCATION_PHASE3_TEST_MODULES))\n        self.assertEqual(metadata[\"command_args\"], build_allocation_phase3_suite_args())\n\n    def test_duplicate_modules_fail_closed(self) -\u003e None:\n        with self.assertRaises(AllocationPhase3SuiteRunnerError):\n            validate_allocation_phase3_suite(\n                [\"tests.test_allocation_candidate\", \"tests.test_allocation_candidate\"]\n            )\n\n    def test_empty_module_name_fails_closed(self) -\u003e None:\n        with self.assertRaises(AllocationPhase3SuiteRunnerError):\n            validate_allocation_phase3_suite([\"tests.test_allocation_candidate\", \"  \"])\n\n\nif __name__ == \"__main__\":\n    unittest.main()\n",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs\\architecture\\allocation_phase3_suite_runner.md",
+                               "content":  "# Allocation Phase 3 Suite Runner\n\n## Purpose\n\nPatch 171 introduces the named allocator Phase 3 suite runner.\n\nPatches 164 through 170 established the allocator Phase 3 building blocks:\n- chain and strategy budget policy,\n- allocation candidates,\n- allocation decisions,\n- append-only decision storage,\n- final portfolio constraint gating,\n- review packet rendering,\n- replay audit.\n\nPatch 171 creates one canonical suite definition that groups those test surfaces together.\n\n## Why this layer exists\n\nThe allocator Phase 3 work is now large enough that operator and handoff flows need one named proof surface instead of remembering many separate test module names.\n\nThis patch gives the project:\n\n- one canonical suite name,\n- one canonical patch range,\n- one canonical ordered module list,\n- one canonical unittest command shape.\n\n## Core responsibilities\n\nThis layer must:\n\n- define the allocator Phase 3 test module set,\n- fail closed if the suite is empty or malformed,\n- preserve deterministic ordering,\n- expose command args for runner scripts and PatchOps manifests,\n- keep the suite logic in trader execution code, not in ad hoc shell glue.\n\n## What this layer does not do\n\nThis patch does not:\n\n- change allocator behavior,\n- widen live behavior,\n- replace the earlier narrow tests,\n- move business logic into PatchOps.\n\nIt only defines and proves the named test suite surface.\n\n## Interaction with nearby patches\n\n- Patch 164 introduced chain strategy budget policy.\n- Patch 165 introduced allocation candidates.\n- Patch 166 introduced allocation decisions.\n- Patch 167 introduced append-only decision storage.\n- Patch 168 introduced the final portfolio constraint gate.\n- Patch 169 introduced review packet rendering.\n- Patch 170 introduced replay audit.\n- Patch 171 groups those surfaces into one canonical Phase 3 suite.\n\n## Validation surface\n\nThe patch should prove at least these behaviors:\n\n- suite definition exposes the expected patch range,\n- suite validation preserves ordered unique modules,\n- command args include all allocator Phase 3 test modules,\n- custom python launcher names are supported,\n- malformed suite definitions fail closed.\n",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "scripts\\run_patch_171_allocation_phase3_suite_runner_tests.ps1",
+                               "content":  "$ErrorActionPreference = \"Stop\"\n\n$projectRoot = \"C:\\dev\\trader\"\n$venvPython = Join-Path $projectRoot \".venv\\Scripts\\python.exe\"\n\nif (-not (Test-Path $venvPython)) {\n    throw \"Expected venv python not found: $venvPython\"\n}\n\n\u0026 $venvPython -m unittest -v `\n    tests.test_allocation_phase3_suite_runner `\n    tests.test_chain_strategy_budget_policy `\n    tests.test_allocation_candidate `\n    tests.test_allocation_decision `\n    tests.test_allocation_decision_store `\n    tests.test_final_portfolio_constraint_gate `\n    tests.test_allocation_review_packet_builder `\n    tests.test_allocation_replay_report\n",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "patch_171_suite_runner_contract_tests",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "unittest",
+                                                 "tests.test_allocation_phase3_suite_runner",
+                                                 "-v"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  true,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                },
+                                {
+                                    "name":  "patch_171_named_phase3_suite",
+                                    "program":  "python",
+                                    "args":  [
+                                                 "-m",
+                                                 "unittest",
+                                                 "-v",
+                                                 "tests.test_chain_strategy_budget_policy",
+                                                 "tests.test_allocation_candidate",
+                                                 "tests.test_allocation_decision",
+                                                 "tests.test_allocation_decision_store",
+                                                 "tests.test_final_portfolio_constraint_gate",
+                                                 "tests.test_allocation_review_packet_builder",
+                                                 "tests.test_allocation_replay_report"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  true,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "smoke_commands":  [
+
+                       ],
+    "audit_commands":  [
+
+                       ],
+    "cleanup_commands":  [
+
+                         ],
+    "archive_commands":  [
+
+                         ],
+    "failure_policy":  {
+
+                       },
+    "report_preferences":  {
+                               "report_name_prefix":  "trader_patch_171_allocation_phase3_suite_runner",
+                               "write_to_desktop":  true
+                           },
+    "tags":  [
+                 "trader",
+                 "patch_171",
+                 "allocator",
+                 "allocation_phase3_suite_runner"
+             ],
+    "notes":  "Patch 171 all-in-one PatchOps runner with inline authored content."
+}

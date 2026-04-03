@@ -1,0 +1,9 @@
+{
+  "latest_patch_name": "p134z_final_proof_handoff_refresh",
+  "latest_status": "PASS",
+  "latest_report_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\p134z_final_proof_handoff_refresh_20260330_141124\\inner_reports\\p134z_p134z_final_proof_handoff_refresh_20260330_141125.txt",
+  "copied_to": "C:\\dev\\patchops\\handoff\\latest_report_copy.txt",
+  "copied_at": "2026-03-30T14:11:26.7297922+03:00",
+  "latest_attempted_patch": "p134z_final_proof_handoff_refresh",
+  "latest_passed_patch": "p134z_final_proof_handoff_refresh"
+}

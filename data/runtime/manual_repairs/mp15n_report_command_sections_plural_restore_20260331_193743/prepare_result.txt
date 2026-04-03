@@ -1,0 +1,5 @@
+decision=mp15n_report_command_sections_plural_restore
+target_path=C:\dev\patchops\patchops\reporting\command_sections.py
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp15n_report_command_sections_plural_restore_20260331_193743\patch_manifest.json
+validation_targets=tests/test_reporting.py; tests/test_reporting_command_sections_current.py; tests/test_reporting_output_helper_current.py; tests/test_summary_integrity_current.py; tests/test_summary_derivation_lock_current.py; tests/test_required_vs_tolerated_report_current.py; tests/test_summary_integrity_workflow_current.py
+rationale=Restore build_report_command_sections while preserving build_report_command_section and the single-section monkeypatch path.

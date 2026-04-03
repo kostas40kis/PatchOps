@@ -1,0 +1,67 @@
+{
+  "manifest_version": "1",
+  "patch_name": "patch_134e_summary_integrity_workflow_hardening_repair",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "files_to_write": [
+    {
+      "path": "docs/summary_integrity_workflow_hardening.md",
+      "content_path": "content/docs/summary_integrity_workflow_hardening.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/result_integrity.py",
+      "content_path": "content/patchops/result_integrity.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/reporting/renderer.py",
+      "content_path": "content/patchops/reporting/renderer.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/cli.py",
+      "content_path": "content/patchops/cli.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/handoff.py",
+      "content_path": "content/patchops/handoff.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_summary_integrity_workflow_current.py",
+      "content_path": "content/tests/test_summary_integrity_workflow_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "summary_integrity_workflow_current",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_summary_integrity_current.py",
+        "tests/test_summary_integrity_workflow_current.py"
+      ],
+      "working_directory": "C:\\dev\\patchops",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_134e_summary_integrity_workflow_hardening_repair_20260330_002313\\inner_reports",
+    "report_name_prefix": "patch_134e_summary_integrity_workflow_hardening_repair",
+    "write_to_desktop": true
+  },
+  "tags": [
+    "summary_integrity",
+    "self_hosted",
+    "workflow_hardening"
+  ],
+  "notes": "Patch 134E hardens workflow-facing summary surfaces so CLI and handoff fail closed when required command evidence contradicts stale success state."
+}

@@ -1,0 +1,11 @@
+{
+  "patch_name": "mp27b_header_section_provenance_render_repair",
+  "sections_path": "C:\\dev\\patchops\\patchops\\reporting\\sections.py",
+  "test_path": "C:\\dev\\patchops\\tests\\test_header_section_bridge_current.py",
+  "uses_metadata_renderer_before": false,
+  "bridge_test_exists_before": false,
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp27b_header_section_provenance_render_repair_20260401_222826\\content\\patchops\\reporting\\sections.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp27b_header_section_provenance_render_repair_20260401_222826\\content\\tests\\test_header_section_bridge_current.py"
+  ]
+}\n

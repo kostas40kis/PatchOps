@@ -1,0 +1,108 @@
+PATCHOPS APPLY
+Patch Name           : patch_134e_summary_integrity_workflow_hardening_repair
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_134e_summary_integrity_workflow_hardening_repair_20260330_002313\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\patch_134e_summary_integrity_workflow_hardening_repair_20260330_002314
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\patch_134e_summary_integrity_workflow_hardening_repair_20260330_002313\inner_reports\patch_134e_summary_integrity_workflow_hardening_repair_patch_134e_summary_integrity_workflow_hardening_repair_20260330_002314.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\docs\summary_integrity_workflow_hardening.md
+C:\dev\patchops\patchops\result_integrity.py
+C:\dev\patchops\patchops\reporting\renderer.py
+C:\dev\patchops\patchops\cli.py
+C:\dev\patchops\patchops\handoff.py
+C:\dev\patchops\tests\test_summary_integrity_workflow_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\docs\summary_integrity_workflow_hardening.md -> C:\dev\patchops\data\runtime\patch_backups\patch_134e_summary_integrity_workflow_hardening_repair_20260330_002314\docs\summary_integrity_workflow_hardening.md
+BACKUP : C:\dev\patchops\patchops\cli.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134e_summary_integrity_workflow_hardening_repair_20260330_002314\patchops\cli.py
+BACKUP : C:\dev\patchops\patchops\handoff.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134e_summary_integrity_workflow_hardening_repair_20260330_002314\patchops\handoff.py
+BACKUP : C:\dev\patchops\patchops\reporting\renderer.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134e_summary_integrity_workflow_hardening_repair_20260330_002314\patchops\reporting\renderer.py
+BACKUP : C:\dev\patchops\patchops\result_integrity.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134e_summary_integrity_workflow_hardening_repair_20260330_002314\patchops\result_integrity.py
+BACKUP : C:\dev\patchops\tests\test_summary_integrity_workflow_current.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134e_summary_integrity_workflow_hardening_repair_20260330_002314\tests\test_summary_integrity_workflow_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\docs\summary_integrity_workflow_hardening.md
+WROTE : C:\dev\patchops\patchops\result_integrity.py
+WROTE : C:\dev\patchops\patchops\reporting\renderer.py
+WROTE : C:\dev\patchops\patchops\cli.py
+WROTE : C:\dev\patchops\patchops\handoff.py
+WROTE : C:\dev\patchops\tests\test_summary_integrity_workflow_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : summary_integrity_workflow_current
+COMMAND : py -m pytest -q tests/test_summary_integrity_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[summary_integrity_workflow_current][stdout]
+........                                                                 [100%]
+
+[summary_integrity_workflow_current][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

@@ -1,0 +1,41 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_134a_summary_integrity_truth_reset_and_authoring_audit",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:\\dev\\patchops",
+    "files_to_write":  [
+                           {
+                               "path":  "docs/project_status.md",
+                               "content_path":  "content/docs/project_status.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/patch_ledger.md",
+                               "content_path":  "content/docs/patch_ledger.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/summary_integrity_repair_stream.md",
+                               "content_path":  "content/docs/summary_integrity_repair_stream.md",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "patch_134a_truth_reset_note_validation",
+                                    "program":  "py",
+                                    "args":  [
+                                                 "validate_patch_134a.py",
+                                                 "C:\\dev\\patchops"
+                                             ],
+                                    "working_directory":  "C:\\dev\\patchops\\data\\\\runtime\\\\manual_repairs\\\\patch_134a_summary_integrity_truth_reset_and_authoring_audit_20260329_180951"
+                                }
+                            ],
+    "notes":  "Patch 1 of the six-patch summary-integrity continuation circle. Documentation-first truth reset and authoring audit.",
+    "tags":  [
+                 "summary_integrity",
+                 "maintenance",
+                 "self_hosted",
+                 "truth_reset"
+             ]
+}

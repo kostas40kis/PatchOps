@@ -1,0 +1,120 @@
+PATCHOPS APPLY
+Patch Name           : mp14_required_vs_tolerated_report_proof
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp14_required_vs_tolerated_report_proof_20260331_143712\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp14_required_vs_tolerated_report_proof_20260331_143713
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp14_required_vs_tolerated_report_proof_20260331_143712\inner_reports\mp14_mp14_required_vs_tolerated_report_proof_20260331_143713.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py
+
+
+BACKUP
+------
+MISSING: C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : required_vs_tolerated_report_contracts
+COMMAND : py -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[required_vs_tolerated_report_contracts][stdout]
+.........................F....                                           [100%]
+================================== FAILURES ===================================
+_________ test_later_success_does_not_erase_earlier_required_failure __________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-214/test_later_success_does_not_er0')
+
+    def test_later_success_does_not_erase_earlier_required_failure(tmp_path: Path) -> None:
+        manifest_path = _manifest(
+            tmp_path,
+            "later_success_does_not_erase_required_failure",
+            [
+                _command("required_fail", 1),
+                _command("later_success", 0),
+            ],
+        )
+    
+        result, report_text = _run_apply(manifest_path)
+    
+        assert result.returncode != 0
+        assert "Result             : FAIL" in result.stdout
+        assert "NAME    : required_fail" in report_text
+>       assert "NAME    : later_success" in report_text
+E       assert 'NAME    : later_success' in "PATCHOPS APPLY\nPatch Name           : later_success_does_not_erase_required_failure\nManifest Path        : C:\\User... Command 'required_fail' failed during validation with exit code 1.\n\nSUMMARY\n-------\nExitCode : 1\nResult   : FAIL"
+
+tests\test_required_vs_tolerated_report_current.py:127: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_required_vs_tolerated_report_current.py::test_later_success_does_not_erase_earlier_required_failure
+
+[required_vs_tolerated_report_contracts][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'required_vs_tolerated_report_contracts' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

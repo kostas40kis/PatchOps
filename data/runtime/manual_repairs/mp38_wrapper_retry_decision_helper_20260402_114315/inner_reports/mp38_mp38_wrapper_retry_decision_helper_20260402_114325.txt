@@ -1,0 +1,101 @@
+PATCHOPS APPLY
+Patch Name           : mp38_wrapper_retry_decision_helper
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp38_wrapper_retry_decision_helper_20260402_114315\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp38_wrapper_retry_decision_helper_20260402_114325
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp38_wrapper_retry_decision_helper_20260402_114315\inner_reports\mp38_mp38_wrapper_retry_decision_helper_20260402_114325.txt
+Manifest Version     : 1
+Wrapper Mode Used    : apply
+Manifest Path Used   : C:\dev\patchops\data\runtime\manual_repairs\mp38_wrapper_retry_decision_helper_20260402_114315\patch_manifest.json
+Profile Resolved     : generic_python
+Runtime Resolved     : (none)
+File Write Origin    : wrapper_owned_write_engine
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\rerun_decisions.py
+C:\dev\patchops\tests\test_wrapper_retry_decision_helper_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\rerun_decisions.py -> C:\dev\patchops\data\runtime\patch_backups\mp38_wrapper_retry_decision_helper_20260402_114325\patchops\rerun_decisions.py
+MISSING: C:\dev\patchops\tests\test_wrapper_retry_decision_helper_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\rerun_decisions.py
+WROTE : C:\dev\patchops\tests\test_wrapper_retry_decision_helper_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : mp38 wrapper-retry decision helper tests
+COMMAND : py -3 -m pytest -q tests/test_wrapper_retry_decision_helper_current.py tests/test_verify_only_decision_helper_current.py tests/test_failure_classification_rules_current.py tests/test_failure_category_model_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[mp38 wrapper-retry decision helper tests][stdout]
+.....................                                                    [100%]
+
+[mp38 wrapper-retry decision helper tests][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

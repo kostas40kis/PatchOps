@@ -1,0 +1,14 @@
+decision=author_mp33
+decision_reason=Wire the reusable classifier helper through one stable workflow path.
+apply_path_exists=yes
+categories_exists=yes
+rules_test_exists=yes
+legacy_test_exists=yes
+current_test_exists=no
+helper_import_present=no
+helper_def_present=no
+helper_call_present=no
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp33_classifier_helper_wiring_in_one_workflow_path_20260401_235445\patch_manifest.json
+inner_report_root=C:\dev\patchops\data\runtime\manual_repairs\mp33_classifier_helper_wiring_in_one_workflow_path_20260401_235445\inner_reports
+workflow_path=patchops/workflows/apply_patch.py
+required_fragments=from patchops.failure_categories import normalize_failure_category | def _normalize_failure_info( | failure=_normalize_failure_info(failure)

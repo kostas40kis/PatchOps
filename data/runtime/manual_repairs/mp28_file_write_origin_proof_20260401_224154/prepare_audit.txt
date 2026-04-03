@@ -1,0 +1,12 @@
+{
+  "patch_name": "mp28_file_write_origin_proof",
+  "metadata_path": "C:\\dev\\patchops\\patchops\\reporting\\metadata.py",
+  "test_path": "C:\\dev\\patchops\\tests\\test_file_write_origin_proof_current.py",
+  "file_write_origin_exists_before": false,
+  "test_exists_before": false,
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp28_file_write_origin_proof_20260401_224154\\patch_manifest.json",
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp28_file_write_origin_proof_20260401_224154\\content\\patchops\\reporting\\metadata.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp28_file_write_origin_proof_20260401_224154\\content\\tests\\test_file_write_origin_proof_current.py"
+  ]
+}

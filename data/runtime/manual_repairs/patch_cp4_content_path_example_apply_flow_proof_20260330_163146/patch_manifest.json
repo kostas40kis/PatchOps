@@ -1,0 +1,54 @@
+{
+  "manifest_version": "1",
+  "patch_name": "patch_cp4_content_path_example_apply_flow_proof",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/patchops",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "tests/test_content_path_example_apply_current.py",
+      "content": "from __future__ import annotations\n\nimport json\nfrom pathlib import Path\n\nfrom patchops.workflows.apply_patch import apply_manifest\n\n\nPROJECT_ROOT = Path(__file__).resolve().parents[1]\n\n\ndef test_generic_content_path_example_applies_successfully_end_to_end(tmp_path: Path) -> None:\n    source_manifest_path = PROJECT_ROOT / \"examples\" / \"generic_content_path_patch.json\"\n    source_payload_path = PROJECT_ROOT / \"examples\" / \"content\" / \"generic_content_path_note.txt\"\n\n    wrapper_root = tmp_path / \"wrapper_project\"\n    target_root = tmp_path / \"target_repo\"\n    report_dir = tmp_path / \"reports\"\n    patch_root = (\n        wrapper_root\n        / \"data\"\n        / \"runtime\"\n        / \"manual_repairs\"\n        / \"patch_cp4_content_path_example_apply_flow_proof\"\n    )\n\n    target_root.mkdir(parents=True, exist_ok=True)\n    report_dir.mkdir(parents=True, exist_ok=True)\n    patch_root.mkdir(parents=True, exist_ok=True)\n\n    payload = source_payload_path.read_text(encoding=\"utf-8\")\n\n    copied_payload_path = wrapper_root / \"examples\" / \"content\" / \"generic_content_path_note.txt\"\n    copied_payload_path.parent.mkdir(parents=True, exist_ok=True)\n    copied_payload_path.write_text(payload, encoding=\"utf-8\")\n\n    manifest_data = json.loads(source_manifest_path.read_text(encoding=\"utf-8\"))\n    manifest_data[\"target_project_root\"] = target_root.as_posix()\n    manifest_data[\"report_preferences\"] = {\n        \"report_dir\": report_dir.as_posix(),\n        \"report_name_prefix\": \"generic_content_path_example_apply_current\",\n        \"write_to_desktop\": False,\n    }\n\n    manifest_path = patch_root / \"patch_manifest.json\"\n    manifest_path.write_text(json.dumps(manifest_data, indent=2) + \"\\n\", encoding=\"utf-8\")\n\n    result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)\n\n    written_file = target_root / \"CONTENT_PATH_EXAMPLE.txt\"\n    assert result.result_label == \"PASS\"\n    assert result.exit_code == 0\n    assert result.report_path.exists()\n    assert written_file.exists()\n    assert written_file.read_text(encoding=\"utf-8\") == payload\n\n    report_text = result.report_path.read_text(encoding=\"utf-8\")\n    assert \"CONTENT_PATH_EXAMPLE.txt\" in report_text\n    assert \"generic_content_path_example\" in report_text\n    assert \"Result   : PASS\" in report_text\n",
+      "content_path": null,
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "pytest_content_path_example_apply_proof",
+      "program": "py",
+      "args": [
+        "-3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_content_path_example_apply_current.py",
+        "tests/test_content_source_examples.py",
+        "tests/test_content_path_wrapper_root_current.py",
+        "tests/test_content_path_apply_flow.py",
+        "tests/test_writers.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:/Users/kostas/Desktop",
+    "report_name_prefix": "patch_cp4_content_path_example_apply_flow_proof",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "content_path",
+    "example_manifest",
+    "apply_flow",
+    "proof"
+  ],
+  "notes": "Fourth repair-stream patch. This patch adds an end-to-end apply-flow proof for the maintained generic_content_path example manifest."
+}\n

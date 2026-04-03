@@ -1,0 +1,11 @@
+decision=stop_mp29_already_present
+decision_reason=tests/test_launcher_to_core_provenance_current.py already exists.
+metadata_path=C:\dev\patchops\patchops\reporting\metadata.py
+sections_path=C:\dev\patchops\patchops\reporting\sections.py
+run_origin_test_exists=yes
+header_test_exists=yes
+file_write_test_exists=yes
+has_metadata_builder=yes
+mentions_write_records=yes
+has_compat_guard=yes
+write_origin_markers=mp28_file_write_origin_metadata_contract | wrapper_owned_write_engine | mp28_file_write_origin_report_contract | File Write Origin : wrapper_owned_write_engine | File Write Origin : {metadata.run_origin.file_write_origin or | File Write Origin | Write Origin | Wrapper-Owned Write Engine | Wrapper Write Engine | Writes Applied By Wrapper | Writes Applied By

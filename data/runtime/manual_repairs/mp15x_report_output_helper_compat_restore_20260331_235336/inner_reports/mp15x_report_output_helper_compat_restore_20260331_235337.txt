@@ -1,0 +1,115 @@
+PATCHOPS APPLY
+Patch Name           : mp15x_report_output_helper_compat_restore
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp15x_report_output_helper_compat_restore_20260331_235336\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp15x_report_output_helper_compat_restore_20260331_235337
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp15x_report_output_helper_compat_restore_20260331_235336\inner_reports\mp15x_report_output_helper_compat_restore_20260331_235337.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\command_sections.py
+C:\dev\patchops\patchops\reporting\sections.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15x_report_output_helper_compat_restore_20260331_235337\patchops\reporting\command_sections.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15x_report_output_helper_compat_restore_20260331_235337\patchops\reporting\sections.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\command_sections.py
+WROTE : C:\dev\patchops\patchops\reporting\sections.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : targeted_reporting_contracts
+COMMAND : py -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_reporting_output_helper_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[targeted_reporting_contracts][stdout]
+..................F..............                                        [100%]
+================================== FAILURES ===================================
+___________ test_report_output_helper_accepts_single_section_object ___________
+
+    def test_report_output_helper_accepts_single_section_object() -> None:
+        result = _result("alpha", "hello\n", "warn\n")
+        rule = lambda title: f"\n{title}\n{'-' * len(title)}"
+        section = ReportCommandOutputSection(title="FULL OUTPUT", results=[result], rule=rule)
+    
+        text = render_report_command_output_section(section)
+    
+        assert section.command_name == "alpha"
+        assert "[alpha][stdout]" in text
+>       assert "hello" in text
+E       AssertionError: assert 'hello' in ('[alpha][stdout]', 'hello\n', '[alpha][stderr]', 'warn\n')
+
+tests\test_reporting_output_helper_current.py:56: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_reporting_output_helper_current.py::test_report_output_helper_accepts_single_section_object
+
+[targeted_reporting_contracts][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'targeted_reporting_contracts' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

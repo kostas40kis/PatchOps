@@ -1,0 +1,96 @@
+PATCHOPS APPLY
+Patch Name           : mp17_backup_plan_object
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp17_backup_plan_object_20260401_195904\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp17_backup_plan_object_20260401_195905
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp17_backup_plan_object_20260401_195904\inner_reports\mp17_backup_plan_object_20260401_195905.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\files\backups.py
+C:\dev\patchops\tests\test_backup_plan_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\files\backups.py -> C:\dev\patchops\data\runtime\patch_backups\mp17_backup_plan_object_20260401_195905\patchops\files\backups.py
+MISSING: C:\dev\patchops\tests\test_backup_plan_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\files\backups.py
+WROTE : C:\dev\patchops\tests\test_backup_plan_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : backup_plan_contracts
+COMMAND : py -m pytest -q tests/test_backup_plan_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[backup_plan_contracts][stdout]
+....                                                                     [100%]
+
+[backup_plan_contracts][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

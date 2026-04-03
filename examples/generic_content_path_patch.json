@@ -1,0 +1,45 @@
+{
+  "manifest_version": "1",
+  "patch_name": "generic_content_path_example",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/some_other_project",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "CONTENT_PATH_EXAMPLE.txt",
+      "content": null,
+      "content_path": "examples/content/generic_content_path_note.txt",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "python_version",
+      "program": "python",
+      "args": [
+        "--version"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": null,
+    "report_name_prefix": "generic_content_path_demo",
+    "write_to_desktop": true
+  },
+  "tags": [
+    "example",
+    "generic_python",
+    "content_path"
+  ],
+  "notes": "Demonstrates using content_path for a file write payload stored outside the manifest JSON."
+}

@@ -1,0 +1,71 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp21h_remaining_baseline_finish",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "handoff/latest_report_index.json",
+    "handoff/next_prompt.txt",
+    "patchops/files/writers.py",
+    "patchops/reporting/metadata.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "handoff/latest_report_index.json",
+      "content": null,
+      "content_path": "content/handoff/latest_report_index.json",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "handoff/next_prompt.txt",
+      "content": null,
+      "content_path": "content/handoff/next_prompt.txt",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/files/writers.py",
+      "content": null,
+      "content_path": "content/patchops/files/writers.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/reporting/metadata.py",
+      "content": null,
+      "content_path": "content/patchops/reporting/metadata.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "full-pytest-quiet",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21h_remaining_baseline_finish_20260401_214343\\inner_reports",
+    "report_name_prefix": "mp21h",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "pythonization",
+    "baseline_repair",
+    "mp21h",
+    "self_hosted"
+  ],
+  "notes": "Finish the exact remaining baseline contracts before retrying MP21."
+}

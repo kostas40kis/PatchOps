@@ -1,0 +1,98 @@
+PATCHOPS APPLY
+Patch Name           : mp23_content_path_contract_proof
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp23_content_path_contract_proof_20260401_220019\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp23_content_path_contract_proof_20260401_220028
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp23_content_path_contract_proof_20260401_220019\inner_reports\mp23_mp23_content_path_contract_proof_20260401_220028.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_content_path_contract_proof_current.py
+
+
+BACKUP
+------
+MISSING: C:\dev\patchops\tests\test_content_path_contract_proof_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\tests\test_content_path_contract_proof_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : full-pytest-quiet
+COMMAND : py -m pytest -q
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[full-pytest-quiet][stdout]
+........................................................................ [ 16%]
+........................................................................ [ 33%]
+........................................................................ [ 50%]
+........................................................................ [ 66%]
+........................................................................ [ 83%]
+.......................................................................  [100%]
+
+[full-pytest-quiet][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

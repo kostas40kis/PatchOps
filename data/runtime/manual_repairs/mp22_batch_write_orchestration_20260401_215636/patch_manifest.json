@@ -1,0 +1,63 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp22_batch_write_orchestration",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "patchops/files/writers.py",
+    "patchops/workflows/apply_patch.py",
+    "tests/test_batch_write_orchestration_current.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "patchops/files/writers.py",
+      "content": null,
+      "content_path": "content/patchops/files/writers.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/workflows/apply_patch.py",
+      "content": null,
+      "content_path": "content/patchops/workflows/apply_patch.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_batch_write_orchestration_current.py",
+      "content": null,
+      "content_path": "content/tests/test_batch_write_orchestration_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "full-pytest-quiet",
+      "program": "py",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp22_batch_write_orchestration_20260401_215636\\inner_reports",
+    "report_name_prefix": "mp22",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "pythonization",
+    "mp22",
+    "self_hosted"
+  ],
+  "notes": "Route multi-file writes through the shared write helper and plan model without changing manifest semantics."
+}

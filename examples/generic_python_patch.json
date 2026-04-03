@@ -1,0 +1,21 @@
+{
+  "manifest_version": "1",
+  "patch_name": "generic_stage1_example_patch",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/some_other_project",
+  "files_to_write": [
+    {
+      "path": "README_generated_by_patchops.txt",
+      "content": "Generic Python example patch manifest.\n"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "python_version",
+      "program": "python",
+      "args": ["--version"],
+      "working_directory": "."
+    }
+  ],
+  "tags": ["example", "generic_python"]
+}

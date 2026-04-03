@@ -1,0 +1,116 @@
+{
+  "manifest_version": "1",
+  "patch_name": "patch_130_final_release_maintenance_gate",
+  "active_profile": "generic_python_powershell",
+  "target_project_root": "C:/dev/patchops",
+  "backup_files": [
+    "docs/project_status.md",
+    "docs/patch_ledger.md",
+    "tests/test_final_release_maintenance_gate.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "docs/project_status.md",
+      "content": null,
+      "content_path": "data/runtime/manual_repairs/patch_130_final_release_maintenance_gate_20260328_201630/docs/project_status.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "docs/patch_ledger.md",
+      "content": null,
+      "content_path": "data/runtime/manual_repairs/patch_130_final_release_maintenance_gate_20260328_201630/docs/patch_ledger.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_final_release_maintenance_gate.py",
+      "content": null,
+      "content_path": "data/runtime/manual_repairs/patch_130_final_release_maintenance_gate_20260328_201630/tests/test_final_release_maintenance_gate.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "full_pytest",
+      "program": "C:\\Users\\kostas\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "-m",
+        "pytest",
+        "-q"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    },
+    {
+      "name": "release_readiness",
+      "program": "C:\\Users\\kostas\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "-m",
+        "patchops.cli",
+        "release-readiness",
+        "--wrapper-root",
+        ".",
+        "--profile",
+        "generic_python_powershell",
+        "--core-tests-green",
+        "--report-path",
+        "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_130_final_release_maintenance_gate_20260328_201630\\release_readiness_f6.txt"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [
+    {
+      "name": "profiles_summary",
+      "program": "C:\\Users\\kostas\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "-m",
+        "patchops.cli",
+        "profiles",
+        "--wrapper-root",
+        "."
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    },
+    {
+      "name": "examples_index",
+      "program": "C:\\Users\\kostas\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "-m",
+        "patchops.cli",
+        "examples"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": null,
+    "report_name_prefix": "patch_130_final_release_maintenance_gate",
+    "write_to_desktop": true
+  },
+  "tags": [
+    "finalization",
+    "f6",
+    "maintenance_gate",
+    "self_hosted"
+  ],
+  "notes": "F6 final release / maintenance gate patch for PatchOps self-hosted finalization."
+}

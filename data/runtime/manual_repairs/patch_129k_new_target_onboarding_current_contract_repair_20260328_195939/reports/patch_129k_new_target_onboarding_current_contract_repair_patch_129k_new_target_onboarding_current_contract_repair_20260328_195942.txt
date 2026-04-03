@@ -1,0 +1,97 @@
+PATCHOPS APPLY
+Patch Name           : patch_129k_new_target_onboarding_current_contract_repair
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_129k_new_target_onboarding_current_contract_repair_20260328_195939\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\patch_129k_new_target_onboarding_current_contract_repair_20260328_195942
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\patch_129k_new_target_onboarding_current_contract_repair_20260328_195939\reports\patch_129k_new_target_onboarding_current_contract_repair_patch_129k_new_target_onboarding_current_contract_repair_20260328_195942.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_new_target_onboarding_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\tests\test_new_target_onboarding_current.py -> C:\dev\patchops\data\runtime\patch_backups\patch_129k_new_target_onboarding_current_contract_repair_20260328_195942\tests\test_new_target_onboarding_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\tests\test_new_target_onboarding_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : full_pytest
+COMMAND : py -3 -m pytest -q
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[full_pytest][stdout]
+........................................................................ [ 22%]
+........................................................................ [ 44%]
+........................................................................ [ 66%]
+........................................................................ [ 88%]
+.......................................                                  [100%]
+
+[full_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

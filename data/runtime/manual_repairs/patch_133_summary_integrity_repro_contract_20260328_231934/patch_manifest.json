@@ -1,0 +1,60 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_133_summary_integrity_repro_contract",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "tests/test_summary_integrity_current.py",
+                               "content":  null,
+                               "content_path":  "data/runtime/manual_repairs/patch_133_summary_integrity_repro_contract_20260328_231934/content/test_summary_integrity_current.py",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "summary_integrity_repro_contract",
+                                    "program":  "py",
+                                    "args":  [
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q",
+                                                 "tests/test_summary_integrity_current.py"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false,
+                                    "allowed_exit_codes":  [
+                                                               0
+                                                           ]
+                                }
+                            ],
+    "smoke_commands":  [
+
+                       ],
+    "audit_commands":  [
+
+                       ],
+    "cleanup_commands":  [
+
+                         ],
+    "archive_commands":  [
+
+                         ],
+    "failure_policy":  {
+
+                       },
+    "report_preferences":  {
+                               "report_name_prefix":  "patch_133_summary_integrity_repro_contract",
+                               "write_to_desktop":  true
+                           },
+    "tags":  [
+                 "self_hosted",
+                 "summary_integrity",
+                 "current_contract",
+                 "maintenance"
+             ],
+    "notes":  "Self-hosted PatchOps repro contract for impossible PASS summary after required validation failure."
+}

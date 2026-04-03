@@ -1,0 +1,267 @@
+PATCHOPS APPLY
+Patch Name           : p134s_report_path_compact_fix
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\p134s_report_path_compact_fix_20260330_125535\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\p134s_report_path_compact_fix_20260330_125536
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\p134s_report_path_compact_fix_20260330_125535\inner_reports\p134s_p134s_report_path_compact_fix_20260330_125536.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\workflows\common.py
+C:\dev\patchops\tests\test_report_path_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\workflows\common.py -> C:\dev\patchops\data\runtime\patch_backups\p134s_report_path_compact_fix_20260330_125536\patchops\workflows\common.py
+BACKUP : C:\dev\patchops\tests\test_report_path_current.py -> C:\dev\patchops\data\runtime\patch_backups\p134s_report_path_compact_fix_20260330_125536\tests\test_report_path_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\workflows\common.py
+WROTE : C:\dev\patchops\tests\test_report_path_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : report_path_compact_pytest
+COMMAND : py -m pytest -q tests/test_report_preference_apply_flow.py tests/test_report_preference_apply_flow_current.py tests/test_report_preference_examples.py tests/test_apply_report_write_current.py tests/test_report_path_current.py
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[report_path_compact_pytest][stdout]
+.....FF                                                                  [100%]
+================================== FAILURES ===================================
+_____________ test_build_report_path_compacts_long_current_shape ______________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-184/test_build_report_path_compact0')
+
+    def test_build_report_path_compacts_long_current_shape(tmp_path: Path) -> None:
+        token = "patch_134p_summary_integrity_final_proof_and_handoff_refresh_retry"
+        report_dir = tmp_path / "data" / "runtime" / "manual_repairs" / (token + "_20260330_123944") / "inner_reports"
+    
+        report_path = build_report_path(token, token, report_dir)
+    
+        assert report_path.parent == report_dir
+        assert report_dir.exists()
+>       assert len(str(report_path)) <= 220
+E       AssertionError: assert 254 <= 220
+E        +  where 254 = len('C:\\Users\\kostas\\AppData\\Local\\Temp\\pytest-of-kostas\\pytest-184\\test_build_report_path_compact0\\data\\runtime...ary_integrity_final_proof_and_handoff_refresh_retry_20260330_123944\\inner_reports\\r_741676c84942_20260330_125536.txt')
+E        +    where 'C:\\Users\\kostas\\AppData\\Local\\Temp\\pytest-of-kostas\\pytest-184\\test_build_report_path_compact0\\data\\runtime...ary_integrity_final_proof_and_handoff_refresh_retry_20260330_123944\\inner_reports\\r_741676c84942_20260330_125536.txt' = str(WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-184/test_build_report_path_compact0/data/runti...mary_integrity_final_proof_and_handoff_refresh_retry_20260330_123944/inner_reports/r_741676c84942_20260330_125536.txt'))
+
+tests\test_report_path_current.py:24: AssertionError
+___ test_apply_manifest_uses_compact_report_name_for_long_self_hosted_shape ___
+
+report_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-184/test_apply_manifest_uses_compa0/wrapper/da...mary_integrity_final_proof_and_handoff_refresh_retry_20260330_123944/inner_reports/r_acc639b9c1a9_20260330_125536.txt')
+report_text = 'PATCHOPS APPLY\nPatch Name           : patch_134p_summary_integrity_final_proof_and_handoff_refresh_retry\nManifest P...-------------\n(none)\n\n\nFAILURE DETAILS\n---------------\n(none)\n\nSUMMARY\n-------\nExitCode : 0\nResult   : PASS'
+
+    def _write_workflow_report(report_path: Path, report_text: str) -> None:
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        try:
+>           report_path.write_text(report_text, encoding="utf-8")
+
+patchops\workflows\apply_patch.py:19: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\pathlib.py:1047: in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-184/test_apply_manifest_uses_compa0/wrapper/da...mary_integrity_final_proof_and_handoff_refresh_retry_20260330_123944/inner_reports/r_acc639b9c1a9_20260330_125536.txt')
+mode = 'w', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\kostas\\AppData\\Local\\Temp\\pytest-of-kostas\\pytest-184\\test_apply_manifest_uses_compa0\\wrapper\\data\\runtime\\manual_repairs\\patch_134p_summary_integrity_final_proof_and_handoff_refresh_retry_20260330_123944\\inner_reports\\r_acc639b9c1a9_20260330_125536.txt'
+
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\pathlib.py:1013: FileNotFoundError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-184/test_apply_manifest_uses_compa0')
+
+    def test_apply_manifest_uses_compact_report_name_for_long_self_hosted_shape(tmp_path: Path) -> None:
+        wrapper_root = tmp_path / "wrapper"
+        wrapper_root.mkdir(parents=True, exist_ok=True)
+    
+        _seed_text(wrapper_root / "docs" / "project_status.md", "old project status\n")
+        _seed_text(wrapper_root / "docs" / "patch_ledger.md", "old patch ledger\n")
+        _seed_text(wrapper_root / "docs" / "summary_integrity_repair_stream.md", "old stream\n")
+        _seed_text(wrapper_root / "handoff" / "current_handoff.md", "old handoff markdown\n")
+        _seed_text(wrapper_root / "handoff" / "current_handoff.json", "{}\n")
+        _seed_text(wrapper_root / "handoff" / "latest_report_copy.txt", "old latest report\n")
+        _seed_text(wrapper_root / "handoff" / "latest_report_index.json", "{}\n")
+        _seed_text(wrapper_root / "handoff" / "next_prompt.txt", "old next prompt\n")
+    
+        token = "patch_134p_summary_integrity_final_proof_and_handoff_refresh_retry"
+        patch_root = wrapper_root / "data" / "runtime" / "manual_repairs" / (token + "_20260330_123944")
+        report_dir = patch_root / "inner_reports"
+        patch_root.mkdir(parents=True, exist_ok=True)
+    
+        manifest_data = {
+            "manifest_version": "1",
+            "patch_name": token,
+            "active_profile": "generic_python",
+            "target_project_root": str(wrapper_root).replace("\\", "/"),
+            "backup_files": [
+                "docs/project_status.md",
+                "docs/patch_ledger.md",
+                "docs/summary_integrity_repair_stream.md",
+                "handoff/current_handoff.md",
+                "handoff/current_handoff.json",
+                "handoff/latest_report_copy.txt",
+                "handoff/latest_report_index.json",
+                "handoff/next_prompt.txt",
+            ],
+            "files_to_write": [
+                {
+                    "path": "docs/project_status.md",
+                    "content": "new project status\n",
+                    "content_path": None,
+                    "encoding": "utf-8",
+                },
+                {
+                    "path": "docs/patch_ledger.md",
+                    "content": "new patch ledger\n",
+                    "content_path": None,
+                    "encoding": "utf-8",
+                },
+                {
+                    "path": "docs/summary_integrity_repair_stream.md",
+                    "content": "new stream\n",
+                    "content_path": None,
+                    "encoding": "utf-8",
+                },
+            ],
+            "validation_commands": [
+                {
+                    "name": "python_version",
+                    "program": sys.executable,
+                    "args": ["--version"],
+                    "working_directory": ".",
+                    "use_profile_runtime": False,
+                    "allowed_exit_codes": [0],
+                }
+            ],
+            "smoke_commands": [],
+            "audit_commands": [],
+            "cleanup_commands": [],
+            "archive_commands": [],
+            "failure_policy": {},
+            "report_preferences": {
+                "report_dir": str(report_dir).replace("\\", "/"),
+                "report_name_prefix": token,
+                "write_to_desktop": False,
+            },
+            "tags": ["test", "summary_integrity", "current", "long_report_path"],
+            "notes": "Temporary manifest used by test_apply_manifest_uses_compact_report_name_for_long_self_hosted_shape.",
+        }
+    
+        manifest_path = patch_root / "patch_manifest.json"
+        manifest_path.write_text(json.dumps(manifest_data, indent=2) + "\n", encoding="utf-8")
+    
+>       result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_report_path_current.py:109: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\workflows\apply_patch.py:118: in apply_manifest
+    _write_workflow_report(report_path, report_text)
+patchops\workflows\apply_patch.py:22: in _write_workflow_report
+    report_path.write_text(report_text, encoding="utf-8")
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\pathlib.py:1047: in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-184/test_apply_manifest_uses_compa0/wrapper/da...mary_integrity_final_proof_and_handoff_refresh_retry_20260330_123944/inner_reports/r_acc639b9c1a9_20260330_125536.txt')
+mode = 'w', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\kostas\\AppData\\Local\\Temp\\pytest-of-kostas\\pytest-184\\test_apply_manifest_uses_compa0\\wrapper\\data\\runtime\\manual_repairs\\patch_134p_summary_integrity_final_proof_and_handoff_refresh_retry_20260330_123944\\inner_reports\\r_acc639b9c1a9_20260330_125536.txt'
+
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\pathlib.py:1013: FileNotFoundError
+=========================== short test summary info ===========================
+FAILED tests/test_report_path_current.py::test_build_report_path_compacts_long_current_shape
+FAILED tests/test_report_path_current.py::test_apply_manifest_uses_compact_report_name_for_long_self_hosted_shape
+
+[report_path_compact_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'report_path_compact_pytest' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

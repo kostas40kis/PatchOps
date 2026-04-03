@@ -1,0 +1,708 @@
+PATCHOPS APPLY
+Patch Name           : mp15b_report_helper_contract_alignment_repair
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp15b_report_helper_contract_alignment_repair_20260331_154319\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp15b_report_helper_contract_alignment_repair_20260331_154320
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp15b_report_helper_contract_alignment_repair_20260331_154319\inner_reports\mp15b_report_helper_contract_alignment_repair_20260331_154320.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\sections.py
+C:\dev\patchops\patchops\reporting\command_sections.py
+C:\dev\patchops\tests\test_reporting_output_helper_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15b_report_helper_contract_alignment_repair_20260331_154320\patchops\reporting\command_sections.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15b_report_helper_contract_alignment_repair_20260331_154320\patchops\reporting\sections.py
+BACKUP : C:\dev\patchops\tests\test_reporting_output_helper_current.py -> C:\dev\patchops\data\runtime\patch_backups\mp15b_report_helper_contract_alignment_repair_20260331_154320\tests\test_reporting_output_helper_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\sections.py
+WROTE : C:\dev\patchops\patchops\reporting\command_sections.py
+WROTE : C:\dev\patchops\tests\test_reporting_output_helper_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : report_helper_alignment_pytest
+COMMAND : python -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_reporting_output_helper_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 1
+
+
+FULL OUTPUT
+-----------
+[report_helper_alignment_pytest][stdout]
+FFFFF.F...F.F...F..FFFFFFFFFF....                                        [100%]
+================================== FAILURES ===================================
+_______________ test_report_contains_summary_and_manifest_path ________________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_report_contains_summary_a0')
+
+    def test_report_contains_summary_and_manifest_path(tmp_path: Path):
+        result = _build_result(tmp_path, "apply")
+>       text = render_workflow_report(result)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [], title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+______ test_report_lists_target_files_from_manifest_even_without_writes _______
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_report_lists_target_files0')
+
+    def test_report_lists_target_files_from_manifest_even_without_writes(tmp_path: Path):
+        result = _build_result(
+            tmp_path,
+            "verify_only",
+            files_to_write=[FileWriteSpec(path="example.txt", content="ignored")],
+        )
+>       text = render_workflow_report(result)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting.py:61: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [], title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+_______ test_wrapper_only_retry_report_contains_explicit_retry_section ________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_wrapper_only_retry_report0')
+
+    def test_wrapper_only_retry_report_contains_explicit_retry_section(tmp_path: Path):
+        result = _build_result(
+            tmp_path,
+            "wrapper_only_retry",
+            files_to_write=[FileWriteSpec(path="example.txt", content="ignored")],
+        )
+    
+        with active_wrapper_only_retry_context(" report writer failed after validation "):
+>           text = render_workflow_report(result)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [], title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+_ test_wrapper_only_retry_report_marks_stay_narrow_when_expected_files_exist __
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_wrapper_only_retry_report1')
+
+    def test_wrapper_only_retry_report_marks_stay_narrow_when_expected_files_exist(tmp_path: Path):
+        target_root = tmp_path / "target_project"
+        target_root.mkdir(parents=True, exist_ok=True)
+        (target_root / "example.txt").write_text("ok", encoding="utf-8")
+    
+        result = _build_result(
+            tmp_path,
+            "wrapper_only_retry",
+            files_to_write=[FileWriteSpec(path="example.txt", content="ignored")],
+        )
+    
+        with active_wrapper_only_retry_context(None):
+>           text = render_workflow_report(result)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting.py:98: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [], title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+_____ test_verify_only_report_does_not_render_wrapper_only_retry_section ______
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_verify_only_report_does_n0')
+
+    def test_verify_only_report_does_not_render_wrapper_only_retry_section(tmp_path: Path):
+        result = _build_result(tmp_path, "verify_only")
+>       text = render_workflow_report(result)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [], title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+____________ test_report_header_stays_visible_after_helper_cleanup ____________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_report_header_stays_visib0')
+
+    def test_report_header_stays_visible_after_helper_cleanup(tmp_path: Path):
+        result = _build_result(tmp_path, "apply")
+>       text = render_workflow_report(result)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [], title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+_ test_full_output_section_preserves_stdout_and_stderr_labels_after_model_introduction _
+
+    def test_full_output_section_preserves_stdout_and_stderr_labels_after_model_introduction():
+        result = _command_result(stdout="captured stdout", stderr="captured stderr")
+    
+>       text = full_output_section([result], "FULL OUTPUT")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting_command_sections_current.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='reporting_contracts', program='py', args=['-m', 'pytest', '-q', 'tests/test_reporting.py'], worki...ured stdout', stderr='captured stderr', display_command='py -m pytest -q tests/test_reporting.py', phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+____________ test_full_output_section_uses_shared_output_renderer _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001D7E27A3020>
+
+    def test_full_output_section_uses_shared_output_renderer(monkeypatch):
+        result = _command_result(stdout="captured stdout", stderr="captured stderr")
+        seen: list[str] = []
+    
+        def fake_renderer(section):
+            seen.append(section.command_name)
+            return (
+                "[patched][stdout]",
+                "patched stdout",
+                "[patched][stderr]",
+                "patched stderr",
+            )
+    
+        monkeypatch.setattr(reporting_sections, "render_report_command_output_section", fake_renderer)
+    
+>       text = reporting_sections.full_output_section([result], "FULL OUTPUT")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting_command_sections_current.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='reporting_contracts', program='py', args=['-m', 'pytest', '-q', 'tests/test_reporting.py'], worki...ured stdout', stderr='captured stderr', display_command='py -m pytest -q tests/test_reporting.py', phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: test_full_output_section_uses_shared_output_renderer.<locals>.fake_renderer() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+_____________ test_report_output_helper_alias_matches_base_helper _____________
+
+    def test_report_output_helper_alias_matches_base_helper() -> None:
+        result = _result("alpha", "hello\n", "warn\n")
+        rule = lambda title: f"\n{title}\n{'-' * len(title)}"
+    
+        base = render_command_output_section("FULL OUTPUT", [result], rule)
+>       alias = render_report_command_output_section("FULL OUTPUT", [result], rule)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+tests\test_reporting_output_helper_current.py:32: TypeError
+_______ test_summary_cannot_claim_pass_when_required_validation_failed ________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_summary_cannot_claim_pass0')
+
+    def test_summary_cannot_claim_pass_when_required_validation_failed(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            validation_specs=[_command_spec("required_validation", [0])],
+            validation_results=[_command_result("required_validation", 4, "validation")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_integrity_current.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='required_validation', program='py', args=['-c', "print('summary integrity test')"], working_direc...ut='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+___ test_summary_keeps_earlier_required_failure_sticky_after_later_success ____
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_summary_keeps_earlier_req0')
+
+    def test_summary_keeps_earlier_required_failure_sticky_after_later_success(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            validation_specs=[_command_spec("required_validation", [0])],
+            validation_results=[_command_result("required_validation", 4, "validation")],
+            smoke_specs=[_command_spec("later_smoke", [0])],
+            smoke_results=[_command_result("later_smoke", 0, "smoke")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_integrity_current.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='required_validation', program='py', args=['-c', "print('summary integrity test')"], working_direc...ut='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+________ test_summary_keeps_explicitly_tolerated_non_zero_exit_as_pass ________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_summary_keeps_explicitly_0')
+
+    def test_summary_keeps_explicitly_tolerated_non_zero_exit_as_pass(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            validation_specs=[_command_spec("tolerated_validation", [0, 3])],
+            validation_results=[_command_result("tolerated_validation", 3, "validation")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_integrity_current.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='tolerated_validation', program='py', args=['-c', "print('summary integrity test')"], working_dire...ut='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+__ test_summary_preserves_existing_success_when_required_commands_are_clean ___
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_summary_preserves_existin0')
+
+    def test_summary_preserves_existing_success_when_required_commands_are_clean(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            validation_specs=[_command_spec("validation_ok", [0])],
+            validation_results=[_command_result("validation_ok", 0, "validation")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_integrity_current.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='validation_ok', program='py', args=['-c', "print('summary integrity test')"], working_directory=W...ut='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+_ test_summary_lock_rejects_required_smoke_failure_even_when_result_label_claims_pass _
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_summary_lock_rejects_requ0')
+
+    def test_summary_lock_rejects_required_smoke_failure_even_when_result_label_claims_pass(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            smoke_specs=[_command_spec("required_smoke", [0])],
+            smoke_results=[_command_result("required_smoke", 7, "smoke")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_derivation_lock_current.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [], title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+_ test_summary_lock_keeps_required_failure_sticky_even_when_later_non_zero_is_tolerated _
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_summary_lock_keeps_requir0')
+
+    def test_summary_lock_keeps_required_failure_sticky_even_when_later_non_zero_is_tolerated(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            validation_specs=[_command_spec("required_validation", [0])],
+            validation_results=[_command_result("required_validation", 4, "validation")],
+            smoke_specs=[_command_spec("tolerated_smoke", [0, 3])],
+            smoke_results=[_command_result("tolerated_smoke", 3, "smoke")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_derivation_lock_current.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='required_validation', program='py', args=['-c', "print('summary integrity test')"], working_direc...ut='summary integrity test\n', stderr='', display_command="py -c print('summary integrity test')", phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+_ test_summary_lock_preserves_pass_when_only_explicitly_tolerated_non_zero_exists _
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_summary_lock_preserves_pa0')
+
+    def test_summary_lock_preserves_pass_when_only_explicitly_tolerated_non_zero_exists(tmp_path: Path) -> None:
+        result = _build_result(
+            tmp_path,
+            smoke_specs=[_command_spec("tolerated_smoke", [0, 5])],
+            smoke_results=[_command_result("tolerated_smoke", 5, "smoke")],
+            exit_code=0,
+            result_label="PASS",
+        )
+    
+>       report = render_workflow_report(result)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_summary_derivation_lock_current.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [], title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+____ test_required_command_failure_outside_allowed_exit_codes_renders_fail ____
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_required_command_failure_0')
+
+    def test_required_command_failure_outside_allowed_exit_codes_renders_fail(tmp_path: Path) -> None:
+        wrapper_root = PROJECT_ROOT
+        manifest_data = _base_manifest(tmp_path, "required_failure_report_proof")
+        manifest_data["validation_commands"] = [
+            {
+                "name": "required_fail",
+                "program": "python",
+                "args": ["-c", "import sys; print('required fail'); sys.exit(1)"],
+                "working_directory": ".",
+                "use_profile_runtime": False,
+                "allowed_exit_codes": [0],
+            }
+        ]
+    
+        manifest_path = _write_manifest(tmp_path / "required_failure_report_proof.json", manifest_data)
+>       result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_required_vs_tolerated_report_current.py:61: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\workflows\apply_patch.py:124: in apply_manifest
+    report_text = render_workflow_report(workflow_result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='required_fail', program='python', args=['-c', "import sys; print('required fail'); sys.exit(1)"],...'', display_command='python -c \'import sys; print(\'"\'"\'required fail\'"\'"\'); sys.exit(1)\'', phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+_______________ test_tolerated_non_zero_exit_still_renders_pass _______________
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_tolerated_non_zero_exit_s0')
+
+    def test_tolerated_non_zero_exit_still_renders_pass(tmp_path: Path) -> None:
+        wrapper_root = PROJECT_ROOT
+        manifest_data = _base_manifest(tmp_path, "tolerated_failure_report_proof")
+        manifest_data["validation_commands"] = [
+            {
+                "name": "tolerated_non_zero",
+                "program": "python",
+                "args": ["-c", "import sys; print('tolerated non-zero'); sys.exit(3)"],
+                "working_directory": ".",
+                "use_profile_runtime": False,
+                "allowed_exit_codes": [0, 3],
+            }
+        ]
+    
+        manifest_path = _write_manifest(tmp_path / "tolerated_failure_report_proof.json", manifest_data)
+>       result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_required_vs_tolerated_report_current.py:88: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\workflows\apply_patch.py:124: in apply_manifest
+    report_text = render_workflow_report(workflow_result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='tolerated_non_zero', program='python', args=['-c', "import sys; print('tolerated non-zero'); sys....isplay_command='python -c \'import sys; print(\'"\'"\'tolerated non-zero\'"\'"\'); sys.exit(3)\'', phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+_ test_earlier_required_failure_stays_sticky_without_assuming_later_command_rendering _
+
+tmp_path = WindowsPath('C:/Users/kostas/AppData/Local/Temp/pytest-of-kostas/pytest-217/test_earlier_required_failure_0')
+
+    def test_earlier_required_failure_stays_sticky_without_assuming_later_command_rendering(tmp_path: Path) -> None:
+        wrapper_root = PROJECT_ROOT
+        manifest_data = _base_manifest(tmp_path, "sticky_required_failure_report_proof")
+        manifest_data["validation_commands"] = [
+            {
+                "name": "required_fail",
+                "program": "python",
+                "args": ["-c", "import sys; print('required fail'); sys.exit(1)"],
+                "working_directory": ".",
+                "use_profile_runtime": False,
+                "allowed_exit_codes": [0],
+            },
+            {
+                "name": "later_success",
+                "program": "python",
+                "args": ["-c", "print('later success')"],
+                "working_directory": ".",
+                "use_profile_runtime": False,
+                "allowed_exit_codes": [0],
+            },
+        ]
+    
+        manifest_path = _write_manifest(tmp_path / "sticky_required_failure_report_proof.json", manifest_data)
+>       result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_required_vs_tolerated_report_current.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+patchops\workflows\apply_patch.py:124: in apply_manifest
+    report_text = render_workflow_report(workflow_result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+patchops\reporting\renderer.py:31: in render_workflow_report
+    full_output_section(result.validation_results, "FULL OUTPUT"),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+results = [CommandResult(name='required_fail', program='python', args=['-c', "import sys; print('required fail'); sys.exit(1)"],...'', display_command='python -c \'import sys; print(\'"\'"\'required fail\'"\'"\'); sys.exit(1)\'', phase='validation')]
+title = 'FULL OUTPUT'
+
+    def full_output_section(results: list[CommandResult], title: str) -> str:
+>       return render_report_command_output_section(title, results, _rule)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       TypeError: render_report_command_output_section() takes 1 positional argument but 3 were given
+
+patchops\reporting\sections.py:97: TypeError
+=========================== short test summary info ===========================
+FAILED tests/test_reporting.py::test_report_contains_summary_and_manifest_path
+FAILED tests/test_reporting.py::test_report_lists_target_files_from_manifest_even_without_writes
+FAILED tests/test_reporting.py::test_wrapper_only_retry_report_contains_explicit_retry_section
+FAILED tests/test_reporting.py::test_wrapper_only_retry_report_marks_stay_narrow_when_expected_files_exist
+FAILED tests/test_reporting.py::test_verify_only_report_does_not_render_wrapper_only_retry_section
+FAILED tests/test_reporting.py::test_report_header_stays_visible_after_helper_cleanup
+FAILED tests/test_reporting_command_sections_current.py::test_full_output_section_preserves_stdout_and_stderr_labels_after_model_introduction
+FAILED tests/test_reporting_command_sections_current.py::test_full_output_section_uses_shared_output_renderer
+FAILED tests/test_reporting_output_helper_current.py::test_report_output_helper_alias_matches_base_helper
+FAILED tests/test_summary_integrity_current.py::test_summary_cannot_claim_pass_when_required_validation_failed
+FAILED tests/test_summary_integrity_current.py::test_summary_keeps_earlier_required_failure_sticky_after_later_success
+FAILED tests/test_summary_integrity_current.py::test_summary_keeps_explicitly_tolerated_non_zero_exit_as_pass
+FAILED tests/test_summary_integrity_current.py::test_summary_preserves_existing_success_when_required_commands_are_clean
+FAILED tests/test_summary_derivation_lock_current.py::test_summary_lock_rejects_required_smoke_failure_even_when_result_label_claims_pass
+FAILED tests/test_summary_derivation_lock_current.py::test_summary_lock_keeps_required_failure_sticky_even_when_later_non_zero_is_tolerated
+FAILED tests/test_summary_derivation_lock_current.py::test_summary_lock_preserves_pass_when_only_explicitly_tolerated_non_zero_exists
+FAILED tests/test_required_vs_tolerated_report_current.py::test_required_command_failure_outside_allowed_exit_codes_renders_fail
+FAILED tests/test_required_vs_tolerated_report_current.py::test_tolerated_non_zero_exit_still_renders_pass
+FAILED tests/test_required_vs_tolerated_report_current.py::test_earlier_required_failure_stays_sticky_without_assuming_later_command_rendering
+
+[report_helper_alignment_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'report_helper_alignment_pytest' failed during validation with exit code 1.
+
+SUMMARY
+-------
+ExitCode : 1
+Result   : FAIL

@@ -1,0 +1,95 @@
+{
+    "manifest_version":  "1",
+    "patch_name":  "patch_52_wrapper_only_retry_launcher",
+    "active_profile":  "generic_python",
+    "target_project_root":  "C:/dev/patchops",
+    "backup_files":  [
+                         "patchops/workflows/wrapper_retry.py",
+                         "patchops/cli.py",
+                         "powershell/Invoke-PatchWrapperRetry.ps1",
+                         "tests/test_cli.py",
+                         "tests/test_powershell_launchers.py",
+                         "tests/test_wrapper_retry.py",
+                         "tests/test_powershell_wrapper_retry_launcher.py",
+                         "docs/repair_rerun_matrix.md",
+                         "docs/project_status.md",
+                         "docs/patch_ledger.md"
+                     ],
+    "files_to_write":  [
+                           {
+                               "path":  "patchops/workflows/wrapper_retry.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_52_wrapper_only_retry_launcher/content/patchops/workflows/wrapper_retry.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "patchops/cli.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_52_wrapper_only_retry_launcher/content/patchops/cli.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "powershell/Invoke-PatchWrapperRetry.ps1",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_52_wrapper_only_retry_launcher/content/powershell/Invoke-PatchWrapperRetry.ps1",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_cli.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_52_wrapper_only_retry_launcher/content/tests/test_cli.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_powershell_launchers.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_52_wrapper_only_retry_launcher/content/tests/test_powershell_launchers.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_wrapper_retry.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_52_wrapper_only_retry_launcher/content/tests/test_wrapper_retry.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "tests/test_powershell_wrapper_retry_launcher.py",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_52_wrapper_only_retry_launcher/content/tests/test_powershell_wrapper_retry_launcher.py",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/repair_rerun_matrix.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_52_wrapper_only_retry_launcher/content/docs/repair_rerun_matrix.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/project_status.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_52_wrapper_only_retry_launcher/content/docs/project_status.md",
+                               "encoding":  "utf-8"
+                           },
+                           {
+                               "path":  "docs/patch_ledger.md",
+                               "content_path":  "C:/dev/patchops/data/runtime/self_hosted/patch_52_wrapper_only_retry_launcher/content/docs/patch_ledger.md",
+                               "encoding":  "utf-8"
+                           }
+                       ],
+    "validation_commands":  [
+                                {
+                                    "name":  "pytest_full",
+                                    "program":  "C:\\Users\\kostas\\AppData\\Local\\Programs\\Python\\Launcher\\py.exe",
+                                    "args":  [
+                                                 "-3",
+                                                 "-m",
+                                                 "pytest",
+                                                 "-q"
+                                             ],
+                                    "working_directory":  ".",
+                                    "use_profile_runtime":  false
+                                }
+                            ],
+    "report_preferences":  {
+                               "report_name_prefix":  "patchops_patch"
+                           },
+    "tags":  [
+                 "stage2",
+                 "patch_52",
+                 "wrapper_retry",
+                 "launcher",
+                 "self_hosted"
+             ],
+    "notes":  "Patch 52 adds the thin wrapper-only retry launcher and the matching Python-owned command surface."
+}

@@ -1,0 +1,21 @@
+{
+  "profile_requested": "trader",
+  "profile_available": true,
+  "available_profiles": [
+    "generic_python",
+    "generic_python_powershell",
+    "trader"
+  ],
+  "profile_module_path": "C:\\dev\\patchops\\patchops\\profiles\\trader.py",
+  "working_directory": "C:\\dev\\patchops",
+  "workspace_root_guess": "C:\\dev",
+  "target_root": "C:/dev/trader",
+  "target_root_exists": true,
+  "desktop_path": "C:\\Users\\kostas\\Desktop",
+  "desktop_exists": true,
+  "python_executable": "C:\\Users\\kostas\\AppData\\Local\\Programs\\Python\\Launcher\\py.EXE",
+  "powershell_executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+  "issues": [],
+  "issue_count": 0,
+  "ok": true
+}

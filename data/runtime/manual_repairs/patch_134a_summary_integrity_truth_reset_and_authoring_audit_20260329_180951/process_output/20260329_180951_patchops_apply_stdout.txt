@@ -1,0 +1,11 @@
+PATCHOPS RUN SUMMARY
+--------------------
+Mode               : apply
+Patch Name         : patch_134a_summary_integrity_truth_reset_and_authoring_audit
+Manifest Path      : C:\dev\patchops\data\runtime\manual_repairs\patch_134a_summary_integrity_truth_reset_and_authoring_audit_20260329_180951\patch_manifest.json
+Target Project Root: C:\dev\patchops
+Active Profile     : generic_python
+Runtime Path       : (none)
+Report Path        : C:\Users\kostas\Desktop\generic_python_patch_patch_134a_summary_integrity_truth_reset_and_authoring_audit_20260329_180951.txt
+ExitCode           : 0
+Result             : PASS

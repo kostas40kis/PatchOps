@@ -1,0 +1,18 @@
+{
+  "patch_name": "mp21_single_file_writer_helper",
+  "writers_path": "C:\\dev\\patchops\\patchops\\files\\writers.py",
+  "models_path": "C:\\dev\\patchops\\patchops\\models.py",
+  "write_plan_test_path": "C:\\dev\\patchops\\tests\\test_write_plan_current.py",
+  "writers_exists": true,
+  "models_exists": true,
+  "load_content_exists": true,
+  "write_text_file_exists": true,
+  "write_single_file_exists_before": false,
+  "write_plan_exists": true,
+  "build_write_plan_exists": true,
+  "write_plan_test_exists": true,
+  "baseline_ok": true,
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21_single_file_writer_helper_20260401_205923\\patch_manifest.json",
+  "writer_target": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21_single_file_writer_helper_20260401_205923\\content\\patchops\\files\\writers.py",
+  "test_target": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21_single_file_writer_helper_20260401_205923\\content\\tests\\test_single_file_writer_current.py"
+}

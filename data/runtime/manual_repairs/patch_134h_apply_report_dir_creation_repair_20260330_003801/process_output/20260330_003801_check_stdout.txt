@@ -1,0 +1,8 @@
+{
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\patch_134h_apply_report_dir_creation_repair_20260330_003801\\patch_manifest.json",
+  "patch_name": "patch_134h_apply_report_dir_creation_repair",
+  "active_profile": "generic_python",
+  "ok": true,
+  "issue_count": 0,
+  "issues": []
+}

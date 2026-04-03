@@ -1,0 +1,12 @@
+{
+  "patch_name": "mp25_backup_write_docs_refresh",
+  "doc_path": "C:\\dev\\patchops\\docs\\backup_write_mechanics.md",
+  "test_path": "C:\\dev\\patchops\\tests\\test_backup_write_docs_refresh_current.py",
+  "doc_exists_before": false,
+  "test_exists_before": false,
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp25_backup_write_docs_refresh_20260401_220608\\patch_manifest.json",
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp25_backup_write_docs_refresh_20260401_220608\\content\\docs\\backup_write_mechanics.md",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp25_backup_write_docs_refresh_20260401_220608\\content\\tests\\test_backup_write_docs_refresh_current.py"
+  ]
+}

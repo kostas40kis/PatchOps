@@ -1,0 +1,24 @@
+﻿{
+  "project_root": "C:\\dev\\patchops",
+  "pytest_exit_code": 1,
+  "provisional_classification": "narrow_repair_needed",
+  "highest_runtime_patch_observed": "Patch 125",
+  "highest_patch_in_project_status": "Patch 124",
+  "highest_patch_in_patch_ledger": "Patch 124",
+  "handoff_current_status": null,
+  "handoff_failure_class": null,
+  "handoff_latest_attempted_patch": null,
+  "handoff_latest_passed_patch": null,
+  "handoff_next_action": null,
+  "handoff_json_exists": false,
+  "handoff_index_exists": false,
+  "handoff_prompt_exists": false,
+  "candidate_report_path": null,
+  "notes": [
+    "pytest failed, so the repo is not ready for final freeze yet.",
+    "highest patch observed from runtime folders: Patch 125",
+    "highest patch token seen in docs/patch_ledger.md: Patch 124",
+    "highest patch token seen in docs/project_status.md: Patch 124"
+  ]
+}
+

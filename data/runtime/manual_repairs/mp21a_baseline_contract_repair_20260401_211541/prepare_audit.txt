@@ -1,0 +1,31 @@
+{
+  "patch_name": "mp21a_baseline_contract_repair",
+  "writers_path": "C:\\dev\\patchops\\patchops\\files\\writers.py",
+  "apply_path": "C:\\dev\\patchops\\patchops\\workflows\\apply_patch.py",
+  "metadata_path": "C:\\dev\\patchops\\patchops\\reporting\\metadata.py",
+  "handoff_json_path": "C:\\dev\\patchops\\handoff\\current_handoff.json",
+  "next_prompt_path": "C:\\dev\\patchops\\handoff\\next_prompt.txt",
+  "latest_index_path": "C:\\dev\\patchops\\handoff\\latest_report_index.json",
+  "writers_exists": true,
+  "apply_exists": true,
+  "reporting_init_exists": true,
+  "handoff_json_exists": true,
+  "next_prompt_exists": true,
+  "latest_index_exists": true,
+  "load_content_accepts_wrapper_root_before": false,
+  "report_metadata_file_exists_before": true,
+  "current_handoff_has_repo_state_before": false,
+  "next_prompt_mentions_next_recommended_action_before": false,
+  "apply_patch_notes": [
+    "patched direct load_content call"
+  ],
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21a_baseline_contract_repair_20260401_211541\\patch_manifest.json",
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21a_baseline_contract_repair_20260401_211541\\content\\patchops\\files\\writers.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21a_baseline_contract_repair_20260401_211541\\content\\patchops\\workflows\\apply_patch.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21a_baseline_contract_repair_20260401_211541\\content\\patchops\\reporting\\metadata.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21a_baseline_contract_repair_20260401_211541\\content\\patchops\\reporting\\__init__.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21a_baseline_contract_repair_20260401_211541\\content\\handoff\\current_handoff.json",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp21a_baseline_contract_repair_20260401_211541\\content\\handoff\\next_prompt.txt"
+  ]
+}

@@ -1,0 +1,60 @@
+# PatchOps patch ledger
+
+## High-level status
+
+PatchOps is in maintenance mode after the initial buildout circle and Documentation Stop H.
+
+## Patch 24
+
+Patch 24 covered failure-classification tests and made the wrapper-vs-target distinction enforceable.
+
+## Patch 25
+
+Patch 25 documented compatibility notes for Windows / PowerShell / runtime pitfalls.
+
+## Patch 26
+
+Patch 26 created the main manifest-driven apply workflow.
+
+## Patch 25-26
+
+Together, Patch 25-26 established the execution-integrity bridge from compatibility posture into real end-to-end apply behavior.
+
+## Patch 41
+
+Patch 41 extended the generic_python_powershell profile surface.
+
+## Patch 48
+
+Patch 48 added the final initial-milestone gate.
+
+## Patch 49
+
+Patch 49 was the Documentation Stop H refresh intent.
+
+## Patch 50
+
+Patch 50 covered Git / traceability hygiene intent.
+
+## Patch 50C
+
+Patch 50C restored required tested wording in the maintained docs after an over-minimal doc rewrite removed phrases that the doc tests intentionally enforce.
+
+## Patch 25_26
+
+Patch 25_26 is the maintained shorthand for the compatibility-to-apply bridge across the Patch 25 and Patch 26 transition.
+
+## Patch 51
+
+Patch 51 adds the wrapper-only retry planning surface.
+
+It extends the `plan` command so wrapper-only retry can be previewed as a first-class rerun shape with an explicit retry reason, expected and missing target files, a writes-skipped guarantee, and escalation visibility.
+
+This patch intentionally improves planning and inspection only.
+The thin PowerShell launcher remains the next patch.
+
+## Patch 52
+
+Patch 52 adds the thin wrapper-only retry launcher.
+
+It introduces `powershell/Invoke-PatchWrapperRetry.ps1`, adds a small Python-owned execution surface through `wrapper-retry`, and keeps preview support aligned with the wrapper-only retry planning surface added in Patch 51.

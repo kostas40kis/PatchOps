@@ -1,0 +1,53 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp36_classification_docs_stop",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "files_to_write": [
+    {
+      "path": "docs/failure_repair_guide.md",
+      "content_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp36_classification_docs_stop_20260402_112845\\content\\docs\\failure_repair_guide.md",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_classification_docs_stop_current.py",
+      "content_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp36_classification_docs_stop_20260402_112845\\content\\tests\\test_classification_docs_stop_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "mp36 classification docs stop tests",
+      "program": "py",
+      "args": [
+        "-3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_classification_docs_stop_current.py",
+        "tests/test_handoff_failure_class_current.py",
+        "tests/test_report_failure_section_current.py",
+        "tests/test_failure_classification_rules_current.py",
+        "tests/test_failure_category_model_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp36_classification_docs_stop_20260402_112845\\inner_reports",
+    "report_name_prefix": "mp36",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "maintenance",
+    "pythonization",
+    "phase_e",
+    "mp36",
+    "self_hosted"
+  ],
+  "notes": "MP36 classification docs stop after confirmed MP35A green repair."
+}

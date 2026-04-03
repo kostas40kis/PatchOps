@@ -1,0 +1,13 @@
+{
+  "patch_name": "mp27_report_header_provenance_fields",
+  "metadata_path": "C:\\dev\\patchops\\patchops\\reporting\\metadata.py",
+  "test_path": "C:\\dev\\patchops\\tests\\test_report_header_provenance_current.py",
+  "provenance_lines_exist_before": false,
+  "run_origin_field_exists_before": false,
+  "test_exists_before": false,
+  "manifest_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp27_report_header_provenance_fields_20260401_221937\\patch_manifest.json",
+  "staged_files": [
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp27_report_header_provenance_fields_20260401_221937\\content\\patchops\\reporting\\metadata.py",
+    "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp27_report_header_provenance_fields_20260401_221937\\content\\tests\\test_report_header_provenance_current.py"
+  ]
+}

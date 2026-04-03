@@ -1,0 +1,34 @@
+{
+    "project_name":  "PatchOps",
+    "workspace_root":  "C:\\\\dev",
+    "wrapper_repo_root":  "C:\\\\dev\\\\patchops",
+    "current_stage":  "maintenance_finalization",
+    "latest_passed_patch":  "p134z_final_proof_handoff_refresh",
+    "latest_attempted_patch":  "p134z_final_proof_handoff_refresh",
+    "latest_status":  "pass",
+    "latest_report_path":  "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\p134z_final_proof_handoff_refresh_20260330_141124\\inner_reports\\p134z_p134z_final_proof_handoff_refresh_20260330_141125.txt",
+    "previous_blocker_patch":  "p134y_report_dir_pre_mkdir_fallback_fix",
+    "failure_class":  "none",
+    "resume_mode":  "maintenance",
+    "next_recommended_patch":  null,
+    "next_recommended_goal":  "No further action required for the summary-integrity stream unless new evidence appears.",
+    "must_read_files":  [
+                            "handoff/current_handoff.md",
+                            "handoff/current_handoff.json",
+                            "handoff/latest_report_copy.txt",
+                            "docs/project_status.md",
+                            "docs/patch_ledger.md",
+                            "docs/summary_integrity_repair_stream.md"
+                        ],
+    "known_blockers":  [
+
+                       ],
+    "architecture_rules":  [
+                               "Keep PowerShell thin and operator-facing.",
+                               "Keep reusable workflow logic in Python.",
+                               "Keep the wrapper project-agnostic.",
+                               "Keep one canonical Desktop txt report per patch flow.",
+                               "Prefer narrow validation and repair over redesign."
+                           ],
+    "updated_at":  "2026-03-30T14:11:26.7297922+03:00"
+}

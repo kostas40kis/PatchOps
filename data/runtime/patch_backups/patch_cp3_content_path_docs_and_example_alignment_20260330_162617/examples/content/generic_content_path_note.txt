@@ -1,0 +1,1 @@
+This file is referenced by generic_content_path_patch.json and demonstrates content_path-based writes.

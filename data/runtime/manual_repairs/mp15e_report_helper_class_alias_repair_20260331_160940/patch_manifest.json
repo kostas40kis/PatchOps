@@ -1,0 +1,63 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp15e_report_helper_class_alias_repair",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [
+    "patchops/reporting/sections.py",
+    "patchops/reporting/command_sections.py"
+  ],
+  "files_to_write": [
+    {
+      "path": "patchops/reporting/sections.py",
+      "content_path": "content/patchops/reporting/sections.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "patchops/reporting/command_sections.py",
+      "content_path": "content/patchops/reporting/command_sections.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "report_helper_class_alias_pytest",
+      "program": "python",
+      "args": [
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_reporting.py",
+        "tests/test_reporting_command_sections_current.py",
+        "tests/test_reporting_output_helper_current.py",
+        "tests/test_summary_integrity_current.py",
+        "tests/test_summary_derivation_lock_current.py",
+        "tests/test_required_vs_tolerated_report_current.py",
+        "tests/test_summary_integrity_workflow_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp15e_report_helper_class_alias_repair_20260331_160940\\inner_reports",
+    "report_name_prefix": "mp15e_report_helper_class_alias_repair",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "maintenance",
+    "pythonization",
+    "mp15",
+    "report_helper",
+    "class_alias_repair"
+  ],
+  "notes": "Narrow MP15 repair. Restore a real ReportCommandOutputSection class and a dual-shape report helper that preserves the reporting.sections monkeypatch contract."
+}\n

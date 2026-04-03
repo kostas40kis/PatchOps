@@ -1,0 +1,15 @@
+decision=author_mp29
+decision_reason=mp28 satisfied; author the narrow launcher proof.
+metadata_path=C:\dev\patchops\patchops\reporting\metadata.py
+sections_path=C:\dev\patchops\patchops\reporting\sections.py
+run_origin_test_exists=yes
+header_test_exists=yes
+file_write_test_exists=yes
+has_metadata_builder=yes
+mentions_write_records=yes
+has_compat_guard=yes
+write_origin_markers=mp28_file_write_origin_metadata_contract | wrapper_owned_write_engine | mp28_file_write_origin_report_contract | File Write Origin : wrapper_owned_write_engine | File Write Origin : {metadata.run_origin.file_write_origin or | File Write Origin | Write Origin | Wrapper-Owned Write Engine | Wrapper Write Engine | Writes Applied By Wrapper | Writes Applied By
+content_test_path=C:\dev\patchops\data\runtime\manual_repairs\mp29_launcher_to_core_provenance_proof_20260401_231331\content\tests\test_launcher_to_core_provenance_current.py
+manifest_path=C:\dev\patchops\data\runtime\manual_repairs\mp29_launcher_to_core_provenance_proof_20260401_231331\patch_manifest.json
+inner_report_root=C:\dev\patchops\data\runtime\manual_repairs\mp29_launcher_to_core_provenance_proof_20260401_231331\inner_reports
+validation_targets=tests/test_launcher_to_core_provenance_current.py | tests/test_run_origin_metadata_current.py | tests/test_report_header_provenance_current.py | tests/test_file_write_origin_proof_current.py

@@ -1,0 +1,96 @@
+PATCHOPS APPLY
+Patch Name           : patch_134k_report_dir_proof_layer_repair
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\patch_134k_report_dir_proof_layer_repair_20260330_120353\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\patch_134k_report_dir_proof_layer_repair_20260330_120354
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\patch_134k_report_dir_proof_layer_repair_20260330_120353\inner_reports\patch_134k_report_dir_proof_layer_repair_patch_134k_report_dir_proof_layer_repair_20260330_120354.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\tests\test_report_preference_apply_flow.py
+C:\dev\patchops\tests\test_report_preference_apply_flow_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\tests\test_report_preference_apply_flow.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134k_report_dir_proof_layer_repair_20260330_120354\tests\test_report_preference_apply_flow.py
+BACKUP : C:\dev\patchops\tests\test_report_preference_apply_flow_current.py -> C:\dev\patchops\data\runtime\patch_backups\patch_134k_report_dir_proof_layer_repair_20260330_120354\tests\test_report_preference_apply_flow_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\tests\test_report_preference_apply_flow.py
+WROTE : C:\dev\patchops\tests\test_report_preference_apply_flow_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : report_dir_proof_pytest
+COMMAND : py -m pytest -q tests/test_report_preference_apply_flow.py tests/test_report_preference_apply_flow_current.py tests/test_report_preference_examples.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[report_dir_proof_pytest][stdout]
+....                                                                     [100%]
+
+[report_dir_proof_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

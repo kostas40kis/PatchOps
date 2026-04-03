@@ -1,0 +1,132 @@
+PATCHOPS APPLY
+Patch Name           : mp09a_header_renderer_cleanup_recovery
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp09a_header_renderer_cleanup_recovery_20260331_135050\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp09a_header_renderer_cleanup_recovery_20260331_135050
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp09a_header_renderer_cleanup_recovery_20260331_135050\inner_reports\mp09a_mp09a_header_renderer_cleanup_recovery_20260331_135050.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\metadata.py
+C:\dev\patchops\patchops\reporting\sections.py
+C:\dev\patchops\tests\test_reporting.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\metadata.py -> C:\dev\patchops\data\runtime\patch_backups\mp09a_header_renderer_cleanup_recovery_20260331_135050\patchops\reporting\metadata.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp09a_header_renderer_cleanup_recovery_20260331_135050\patchops\reporting\sections.py
+BACKUP : C:\dev\patchops\tests\test_reporting.py -> C:\dev\patchops\data\runtime\patch_backups\mp09a_header_renderer_cleanup_recovery_20260331_135050\tests\test_reporting.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\metadata.py
+WROTE : C:\dev\patchops\patchops\reporting\sections.py
+WROTE : C:\dev\patchops\tests\test_reporting.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : reporting_contracts
+COMMAND : py -m pytest -q tests/test_reporting.py tests/test_summary_integrity_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 2
+
+
+FULL OUTPUT
+-----------
+[reporting_contracts][stdout]
+
+=================================== ERRORS ====================================
+__________________ ERROR collecting tests/test_reporting.py ___________________
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\python.py:507: in importtestmodule
+    mod = import_path(
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1387: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1360: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1331: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:935: in _load_unlocked
+    ???
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:188: in exec_module
+    source_stat, co = _rewrite_test(fn, self.config)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\site-packages\_pytest\assertion\rewrite.py:357: in _rewrite_test
+    tree = ast.parse(source, filename=strfn)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\ast.py:52: in parse
+    return compile(source, filename, mode, flags,
+E     File "C:\dev\patchops\tests\test_reporting.py", line 138
+E       assert f"Report Path          : {display_path(result.report_path)}" in text\n
+E                                                                                   ^
+E   SyntaxError: unexpected character after line continuation character
+=========================== short test summary info ===========================
+ERROR tests/test_reporting.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+
+[reporting_contracts][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'reporting_contracts' failed during validation with exit code 2.
+
+SUMMARY
+-------
+ExitCode : 2
+Result   : FAIL

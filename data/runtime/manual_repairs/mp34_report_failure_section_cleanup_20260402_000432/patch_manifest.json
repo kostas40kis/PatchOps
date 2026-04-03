@@ -1,0 +1,59 @@
+{
+  "manifest_version": "1",
+  "patch_name": "mp34_report_failure_section_cleanup",
+  "active_profile": "generic_python",
+  "target_project_root": "C:\\dev\\patchops",
+  "backup_files": [],
+  "files_to_write": [
+    {
+      "path": "patchops/reporting/sections.py",
+      "content_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp34_report_failure_section_cleanup_20260402_000432\\content\\patchops\\reporting\\sections.py",
+      "encoding": "utf-8"
+    },
+    {
+      "path": "tests/test_report_failure_section_current.py",
+      "content_path": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp34_report_failure_section_cleanup_20260402_000432\\content\\tests\\test_report_failure_section_current.py",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "mp34 report failure section tests",
+      "program": "py",
+      "args": [
+        "-3",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_report_failure_section_current.py",
+        "tests/test_reporting.py",
+        "tests/test_failure_category_model_current.py",
+        "tests/test_failure_classification_rules_current.py",
+        "tests/test_classifier_helper_wiring_current.py"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": "C:\\dev\\patchops\\data\\runtime\\manual_repairs\\mp34_report_failure_section_cleanup_20260402_000432\\inner_reports",
+    "report_name_prefix": "mp34",
+    "write_to_desktop": false
+  },
+  "tags": [
+    "maintenance",
+    "pythonization",
+    "phase_e",
+    "mp34",
+    "self_hosted"
+  ],
+  "notes": "MP34 report failure section cleanup after confirmed MP33A green repair."
+}

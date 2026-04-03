@@ -1,0 +1,185 @@
+PATCHOPS APPLY
+Patch Name           : mp15h_report_helper_ducktype_section_repair
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp15h_report_helper_ducktype_section_repair_20260331_162635\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp15h_report_helper_ducktype_section_repair_20260331_162635
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp15h_report_helper_ducktype_section_repair_20260331_162635\inner_reports\mp15h_report_helper_ducktype_section_repair_20260331_162635.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\reporting\sections.py
+C:\dev\patchops\patchops\reporting\command_sections.py
+C:\dev\patchops\tests\test_reporting_output_helper_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\reporting\command_sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15h_report_helper_ducktype_section_repair_20260331_162635\patchops\reporting\command_sections.py
+BACKUP : C:\dev\patchops\patchops\reporting\sections.py -> C:\dev\patchops\data\runtime\patch_backups\mp15h_report_helper_ducktype_section_repair_20260331_162635\patchops\reporting\sections.py
+BACKUP : C:\dev\patchops\tests\test_reporting_output_helper_current.py -> C:\dev\patchops\data\runtime\patch_backups\mp15h_report_helper_ducktype_section_repair_20260331_162635\tests\test_reporting_output_helper_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\reporting\sections.py
+WROTE : C:\dev\patchops\patchops\reporting\command_sections.py
+WROTE : C:\dev\patchops\tests\test_reporting_output_helper_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : report_helper_ducktype_pytest
+COMMAND : python -m pytest -q tests/test_reporting.py tests/test_reporting_command_sections_current.py tests/test_reporting_output_helper_current.py tests/test_summary_integrity_current.py tests/test_summary_derivation_lock_current.py tests/test_required_vs_tolerated_report_current.py tests/test_summary_integrity_workflow_current.py
+CWD     : C:\dev\patchops
+EXIT    : 2
+
+
+FULL OUTPUT
+-----------
+[report_helper_ducktype_pytest][stdout]
+
+=================================== ERRORS ====================================
+__________________ ERROR collecting tests/test_reporting.py ___________________
+ImportError while importing test module 'C:\dev\patchops\tests\test_reporting.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_reporting.py:8: in <module>
+    from patchops.reporting.renderer import render_workflow_report
+patchops\reporting\renderer.py:5: in <module>
+    from patchops.reporting.sections import (
+E   ImportError: cannot import name 'command_group_section' from 'patchops.reporting.sections' (C:\dev\patchops\patchops\reporting\sections.py)
+______ ERROR collecting tests/test_reporting_command_sections_current.py ______
+ImportError while importing test module 'C:\dev\patchops\tests\test_reporting_command_sections_current.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_reporting_command_sections_current.py:6: in <module>
+    from patchops.reporting.command_sections import (
+E   ImportError: cannot import name 'build_report_command_section' from 'patchops.reporting.command_sections' (C:\dev\patchops\patchops\reporting\command_sections.py)
+__________ ERROR collecting tests/test_summary_integrity_current.py ___________
+ImportError while importing test module 'C:\dev\patchops\tests\test_summary_integrity_current.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_summary_integrity_current.py:4: in <module>
+    from patchops.reporting.renderer import render_workflow_report
+patchops\reporting\renderer.py:5: in <module>
+    from patchops.reporting.sections import (
+E   ImportError: cannot import name 'command_group_section' from 'patchops.reporting.sections' (C:\dev\patchops\patchops\reporting\sections.py)
+_______ ERROR collecting tests/test_summary_derivation_lock_current.py ________
+ImportError while importing test module 'C:\dev\patchops\tests\test_summary_derivation_lock_current.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_summary_derivation_lock_current.py:3: in <module>
+    from patchops.reporting.renderer import render_workflow_report
+patchops\reporting\renderer.py:5: in <module>
+    from patchops.reporting.sections import (
+E   ImportError: cannot import name 'command_group_section' from 'patchops.reporting.sections' (C:\dev\patchops\patchops\reporting\sections.py)
+_____ ERROR collecting tests/test_required_vs_tolerated_report_current.py _____
+ImportError while importing test module 'C:\dev\patchops\tests\test_required_vs_tolerated_report_current.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_required_vs_tolerated_report_current.py:6: in <module>
+    from patchops.workflows.apply_patch import apply_manifest
+patchops\workflows\apply_patch.py:11: in <module>
+    from patchops.reporting.renderer import render_workflow_report
+patchops\reporting\renderer.py:5: in <module>
+    from patchops.reporting.sections import (
+E   ImportError: cannot import name 'command_group_section' from 'patchops.reporting.sections' (C:\dev\patchops\patchops\reporting\sections.py)
+______ ERROR collecting tests/test_summary_integrity_workflow_current.py ______
+ImportError while importing test module 'C:\dev\patchops\tests\test_summary_integrity_workflow_current.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\kostas\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_summary_integrity_workflow_current.py:5: in <module>
+    import patchops.cli as cli
+patchops\cli.py:19: in <module>
+    from patchops.workflows.apply_patch import apply_manifest
+patchops\workflows\apply_patch.py:11: in <module>
+    from patchops.reporting.renderer import render_workflow_report
+patchops\reporting\renderer.py:5: in <module>
+    from patchops.reporting.sections import (
+E   ImportError: cannot import name 'command_group_section' from 'patchops.reporting.sections' (C:\dev\patchops\patchops\reporting\sections.py)
+=========================== short test summary info ===========================
+ERROR tests/test_reporting.py
+ERROR tests/test_reporting_command_sections_current.py
+ERROR tests/test_summary_integrity_current.py
+ERROR tests/test_summary_derivation_lock_current.py
+ERROR tests/test_required_vs_tolerated_report_current.py
+ERROR tests/test_summary_integrity_workflow_current.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 6 errors during collection !!!!!!!!!!!!!!!!!!!
+
+[report_helper_ducktype_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+Category : target_project_failure
+Message  : Command 'report_helper_ducktype_pytest' failed during validation with exit code 2.
+
+SUMMARY
+-------
+ExitCode : 2
+Result   : FAIL

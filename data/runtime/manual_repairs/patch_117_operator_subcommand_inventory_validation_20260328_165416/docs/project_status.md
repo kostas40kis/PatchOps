@@ -1,0 +1,1193 @@
+# PatchOps project status
+
+## 1. Purpose of this document
+
+This document records the current interpreted status of PatchOps.
+
+Its job is to answer four questions clearly:
+
+1. what PatchOps already supports,
+2. what should be treated as stable now,
+3. what is still being added,
+4. what a future LLM or operator should treat as the next active development direction.
+
+This file should help prevent two common mistakes:
+
+- treating older design ideas as if they were still the current plan,
+- treating newly proposed onboarding features as if they were already fully implemented.
+
+---
+
+## 2. Current high-level interpretation
+
+PatchOps should now be understood as a wrapper project that owns:
+
+- patch application,
+- validation,
+- evidence/report generation,
+- rerun and repair guidance,
+- handoff support,
+- and now the beginning of a stronger target-project onboarding layer.
+
+The architectural boundary remains:
+
+- **PatchOps** = how change is applied, validated, evidenced, retried, and handed off,
+- **target repo** = what the actual project change is.
+
+That boundary remains one of the most important rules in the repo and should not be weakened by future work. fileciteturn11file13
+
+---
+
+## 3. What should be treated as stable now
+
+The following should be treated as the stable core operating model of PatchOps.
+
+### 3.1 Profile-driven, manifest-driven execution
+
+Profiles remain the executable abstraction for target-specific assumptions.
+Manifests remain the explicit instruction surface for what PatchOps should do right now. Project packets are being added as a maintained guidance surface, but they are not a replacement for profiles or manifests. fileciteturn11file9turn11file1
+
+### 3.2 Thin PowerShell, reusable Python
+
+PowerShell remains a thin operator-facing surface.
+Reusable workflow logic should continue to live in Python-owned surfaces rather than being duplicated in launcher scripts. This remains a hard architectural rule for the project. fileciteturn11file9turn11file14
+
+### 3.3 One canonical report per run
+
+PatchOps should continue producing one canonical evidence artifact per run.
+The report contract should stay explicit and should not be weakened for documentation-only work, maintenance work, or future onboarding-related features. fileciteturn11file9turn11file14
+
+### 3.4 Handoff-first continuation for already-running work
+
+For takeover of an already-running PatchOps effort, the expected start point remains the handoff bundle:
+
+1. `handoff/current_handoff.md`
+2. `handoff/current_handoff.json`
+3. `handoff/latest_report_copy.txt`
+
+If the task is target-specific, the relevant project packet should then be read as an additional surface rather than as a replacement for handoff. fileciteturn11file5
+
+### 3.5 Practical operator workflow
+
+The shortest safe working flow still starts with:
+
+- profiles,
+- doctor,
+- examples,
+- template,
+- check,
+- inspect,
+- plan,
+- then apply or verify.
+
+That practical flow remains a core usage story for the wrapper. fileciteturn11file7
+
+---
+
+## 4. What is established but should not be confused with the new work
+
+PatchOps already has an explicit handoff-oriented direction.
+That handoff direction was introduced so a future LLM can resume from concrete repo-generated state instead of rebuilding context from scattered documents. The current project-packet work does not replace that. It extends the onboarding story for brand-new target projects. fileciteturn11file15
+
+Simple rule:
+
+- use **handoff files** to resume active work,
+- use **project packets** to understand a specific target project,
+- use **manifests** to tell PatchOps what to do now,
+- use the **report** to prove what happened.
+
+That separation should remain explicit in all future docs and code. fileciteturn11file1turn11file5
+
+---
+
+## 5. Active development direction now
+
+The active additive direction is the **two-step onboarding / project-packet buildout**.
+
+This direction introduces a new first-class concept:
+
+- the **project packet**
+
+A project packet is intended to live under:
+
+- `docs/projects/<project_name>.md`
+
+and acts as the maintained target-facing contract that sits between:
+
+- the generic PatchOps docs,
+- and the target project being developed with PatchOps. fileciteturn11file9
+
+The project-packet direction is meant to make new target-project startup faster without redesigning PatchOps into a different kind of product. The plan explicitly says this should be an additive feature, not a rewrite. fileciteturn11file5turn11file9
+
+---
+
+## 6. What the new project-packet layer is supposed to do
+
+The project-packet layer is intended to make future onboarding more mechanical.
+
+For a brand-new target project, the desired future flow is:
+
+1. read the generic PatchOps packet,
+2. restate what PatchOps owns,
+3. restate what must remain outside PatchOps,
+4. choose the most appropriate profile,
+5. create `docs/projects/<project_name>.md`,
+6. generate the first manifest from the closest example or starter helper,
+7. run check / inspect / plan / apply or verify,
+8. inspect the canonical report,
+9. update the project packet,
+10. continue patch by patch. fileciteturn11file3turn11file12
+
+This means the project-packet layer is meant to reduce blank-page startup work while preserving the existing profile, manifest, report, and handoff model. fileciteturn11file5
+
+---
+
+## 7. What is already added in the new direction
+
+The current project-packet rollout begins with documentation-first surfaces.
+The intended safest first implementation order is:
+
+1. `docs/project_packet_contract.md`
+2. `docs/project_packet_workflow.md`
+3. refresh `docs/llm_usage.md`
+4. add `docs/projects/`
+5. create `docs/projects/trader.md`
+6. add tests for the new docs and packet structure
+7. only then add generator/refresh CLI support. fileciteturn11file5
+
+That means the correct interpretation is:
+
+- the project-packet concept should now be treated as an explicit supported direction,
+- but the full onboarding packet system should not yet be described as fully shipped until the later packet, test, and helper patches are completed.
+
+---
+
+## 8. What is not yet complete
+
+The following should still be treated as incomplete or future-facing until their patches are finished.
+
+### 8.1 First maintained packet examples
+
+The planned first serious packet example is:
+
+- `docs/projects/trader.md`
+
+with explicit target root, wrapper root, runtime, selected profile, boundary rules, recommended manifests, phased guidance, and current status. fileciteturn11file0
+
+### 8.2 Packet contract tests
+
+The planned documentation and packet tests include:
+
+- `tests/test_project_packet_contract_doc.py`
+- `tests/test_project_packet_examples.py`
+
+These are meant to prevent the new workflow from drifting into vague documentation. fileciteturn11file0turn11file12
+
+### 8.3 Packet generation and refresh support
+
+The intended reusable support layer is expected in Python-owned surfaces such as:
+
+- `patchops/project_packets.py`
+- `patchops/cli.py`
+
+This support is intended to scaffold starter packets and refresh mutable sections conservatively from known state such as handoff files and report metadata. fileciteturn11file0turn11file12
+
+### 8.4 Faster first-use onboarding helpers
+
+The later onboarding layer is expected to add:
+
+- onboarding bootstrap artifacts,
+- profile recommendation help,
+- starter-manifest helpers by intent.
+
+That work belongs to the later phase of the plan and should not be described as present before those patches exist. fileciteturn11file3turn11file12
+
+---
+
+## 9. Stable interpretation rules for future LLMs
+
+A future LLM should preserve the following interpretation rules.
+
+1. Do not move target-project business logic into PatchOps. fileciteturn11file13
+2. Do not let project packets replace profiles, manifests, reports, or handoff files. fileciteturn11file1turn11file9
+3. Do not let PowerShell become the home of reusable wrapper logic. fileciteturn11file9turn11file14
+4. Do not weaken the one-report evidence model just because the work is documentation-heavy. fileciteturn11file9turn11file14
+5. Prefer additive change over broad redesign. fileciteturn11file9turn11file15
+
+---
+
+## 10. Recommended current reading order
+
+For a future LLM onboarding to PatchOps generally, the intended generic packet includes:
+
+1. `README.md`
+2. `docs/overview.md`
+3. `docs/llm_usage.md`
+4. `docs/manifest_schema.md`
+5. `docs/profile_system.md`
+6. `docs/compatibility_notes.md`
+7. `docs/failure_repair_guide.md`
+8. `docs/examples.md`
+9. `docs/project_status.md`
+10. `docs/operator_quickstart.md`
+11. `docs/project_packet_contract.md`
+12. `docs/project_packet_workflow.md` fileciteturn11file9turn11file13
+
+For takeover of an already-running PatchOps effort, read the handoff bundle first, then read the relevant project packet if the task is target-specific. fileciteturn11file5
+
+---
+
+## 11. Recommended next development direction
+
+The next correct additive direction is:
+
+1. finish making project-packet architecture explicit in the main docs,
+2. add `docs/projects/` as a first-class surface,
+3. create the first maintained project packet,
+4. add tests for packet docs and packet examples,
+5. only then add reusable generator and refresh support.
+
+That sequence keeps the rollout controlled and aligned with the plan’s recommended first implementation order. fileciteturn11file5
+
+---
+
+## 12. Bottom line
+
+PatchOps should currently be understood as:
+
+- a stable manifest-driven wrapper,
+- with explicit profile, report, validation, rerun, and handoff behavior,
+- and with a new project-packet onboarding layer being added in a conservative, additive way.
+
+The project is not trying to replace its existing handoff system.
+It is trying to make new target-project startup as teachable and mechanical as continuation already is.
+
+That is the correct status interpretation to preserve until the later project-packet phases are actually implemented. fileciteturn11file5turn11file9
+
+<!-- PATCHOPS_PATCH76_PROJECT_PACKET_ROLLOUT_STATUS:START -->
+## Project packet rollout status
+
+Project packets are now an explicit supported direction for PatchOps.
+
+### Shipped now
+
+- `docs/project_packet_contract.md` defines the packet contract,
+- `docs/project_packet_workflow.md` defines the two-step onboarding workflow,
+- `docs/projects/` is the official home for maintained target packets,
+- `docs/projects/trader.md` exists as the first serious maintained packet example,
+- packet wording tests exist and are passing.
+
+### What this means operationally
+
+Project packets are now part of the practical usage story.
+They help future LLMs and operators understand a target project faster without moving target business logic into the PatchOps core.
+
+### Not shipped yet
+
+The generation and refresh support proposed for later work is still future work.
+That means project-packet scaffold helpers, packet refresh helpers, and any related CLI support should still be treated as the next additive phase rather than already-complete behavior.
+<!-- PATCHOPS_PATCH76_PROJECT_PACKET_ROLLOUT_STATUS:END -->
+
+<!-- PATCH_79_SELF_HOSTED_STATUS_START -->
+## Patch 79 - self-hosted operator guidance status
+
+### Current state
+
+- Patch 79 adds self-hosted operator guidance instead of widening the PowerShell layer.
+- Project-packet scaffold and refresh commands now have a documented operator flow.
+- `docs/projects/wrapper_self_hosted.md` becomes the maintained packet for PatchOps acting as its own current target.
+
+### Why this matters
+
+- operator usage remains simple,
+- reusable logic stays in Python,
+- self-hosted work now follows the same project-packet model as other targets.
+
+### Next planned step
+
+- Patch 80 should refresh `docs/project_packet_workflow.md`, `docs/operator_quickstart.md`, and `docs/project_status.md` as the formal Documentation Stop P-C once this patch passes.
+<!-- PATCH_79_SELF_HOSTED_STATUS_END -->
+
+<!-- PATCHOPS_PATCH80_PROJECT_PACKET_STATUS:START -->
+## Project-packet rollout status
+
+### Shipped now
+
+- project-packet contract and workflow docs,
+- `docs/projects/` as the official packet home,
+- `docs/projects/trader.md` as the first maintained target packet,
+- `docs/projects/wrapper_self_hosted.md` as the self-hosted packet,
+- packet contract tests,
+- `init-project-doc` scaffold support,
+- `refresh-project-doc` mutable-state refresh support,
+- operator guidance for self-hosted project-packet use.
+
+### Still planned
+
+- onboarding bootstrap artifacts,
+- profile recommendation helper,
+- starter helper by intent,
+- final onboarding documentation stop.
+
+### Current interpretation
+
+The project-packet layer is now real and operator-usable.
+The remaining work is about making startup even more mechanical, not about redesigning the architecture.
+<!-- PATCHOPS_PATCH80_PROJECT_PACKET_STATUS:END -->
+
+<!-- PATCHOPS_PATCH84_STATUS_FINALIZATION:START -->
+## Project-packet rollout status after Documentation Stop P-D
+
+### Shipped now
+
+- project-packet contract and workflow docs,
+- maintained project-packet examples under `docs/projects/`,
+- scaffold and refresh helpers,
+- onboarding bootstrap artifacts,
+- profile recommendation helper,
+- starter helper by intent,
+- operator-facing documentation connecting onboarding and continuation,
+- tests protecting the packet, workflow, helper, and command surfaces.
+
+### Practical interpretation
+
+The onboarding layer is now substantially complete:
+- generic docs teach PatchOps,
+- project packets teach one target,
+- helper commands reduce ambiguity during first use,
+- handoff remains the resume surface for already-running work.
+
+### Remaining posture
+
+Further changes after this point should be maintenance, refinement, or target-specific expansion rather than architectural redesign.
+<!-- PATCHOPS_PATCH84_STATUS_FINALIZATION:END -->
+
+<!-- PATCHOPS_PATCH85_STATUS:START -->
+## Patch 85 - onboarding helper roundtrip validation
+
+### Current state
+
+- Patch 85 adds one combined validation test for the helper-first onboarding flow.
+- The new test exercises `recommend-profile`, `init-project-doc`, `starter`, and `refresh-project-doc` in one conservative roundtrip.
+- The goal is to protect helper alignment as a maintained operator-visible flow without widening the architecture.
+
+### Why this matters
+
+- the onboarding layer is now protected as one practical flow, not only as isolated helper surfaces,
+- the patch stays maintenance-sized and validation-first,
+- handoff remains the resume surface for already-running work.
+
+### Remaining posture
+
+- continue with maintenance, refinement, or target-specific expansion,
+- prefer narrow validation or repair patches before any new architecture work.
+<!-- PATCHOPS_PATCH85_STATUS:END -->
+
+<!-- PATCHOPS_PATCH86_STATUS:START -->
+## Patch 86 - handoff failure-mode validation
+
+### Current state
+
+- Patch 86 adds targeted handoff failure-mode tests.
+- The new validation covers:
+  - missing report path -> fail closed,
+  - missing bundled prompt -> recreated on re-export,
+  - missing top-level index -> recreated on re-export,
+  - stale prompt after state change -> refreshed on re-export.
+- The patch stays within maintenance/refinement posture after the Patch 84 onboarding stop and the Patch 85 onboarding helper roundtrip validation.
+
+### Why this matters
+
+- continuation becomes more trustworthy in realistic self-hosted rerun conditions,
+- export-handoff behavior is protected against stale or partially missing artifacts,
+- the repo keeps improving through narrow validation patches instead of broad redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer the smallest test or repair patch that closes a real workflow gap.
+<!-- PATCHOPS_PATCH86_STATUS:END -->
+
+<!-- PATCHOPS_PATCH86C_STATUS:START -->
+## Patch 86C - function-level handoff test repair
+
+### Current state
+
+- Patch 86C repairs the failed Patch 86B repair attempt.
+- The new patcher replaces the failing handoff test by function name instead of relying on one exact text block.
+- The repaired assertion path now matches the shipped handoff contract:
+  - direct export payload -> prompt path and continuation fields,
+  - latest report copy path -> indexed handoff surface.
+
+### Why this matters
+
+- the repair becomes resilient to local formatting drift,
+- the handoff failure-mode coverage remains useful,
+- the repo continues through narrow contract repair instead of wider code changes.
+
+### Remaining posture
+
+- continue with narrow maintenance and refinement patches,
+- prefer robust patchers when fixing test-only drift in already-shipped surfaces.
+<!-- PATCHOPS_PATCH86C_STATUS:END -->
+
+<!-- PATCHOPS_PATCH87_PROJECT_STATUS:START -->
+## Patch 87 - handoff operator docs stop
+
+### Current state
+
+- Patch 87 refreshes the operator-facing handoff docs after the repaired handoff failure-mode tests are green.
+- The docs now describe handoff export and `handoff/next_prompt.txt` as shipped continuation surfaces.
+- The docs also keep the distinction explicit:
+  - handoff = current run-state and next action,
+  - project packets = target-facing contract for new target onboarding.
+
+### Why this matters
+
+- future LLMs and operators no longer need to infer whether handoff export is still future work,
+- current continuation flow is documented as current reality,
+- the repo stays in maintenance/refinement posture instead of drifting back into stale roadmap language.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- treat the old handoff redesign stream as implemented and now maintained.
+<!-- PATCHOPS_PATCH87_PROJECT_STATUS:END -->
+
+<!-- PATCHOPS_PATCH88_STATUS:START -->
+## Patch 88 - handoff example usage docs refresh
+
+### Current state
+
+- Patch 88 refreshes `docs/examples.md` for the current handoff-first continuation flow.
+- The examples now show how to run `export-handoff`, which files are expected under `handoff/`, and when handoff should be used instead of project-packet onboarding.
+- This keeps the handoff redesign sequence moving through small documentation patches after the green validation wave.
+
+### Why this matters
+
+- examples now match the current CLI and handoff surfaces,
+- continuation guidance is easier to follow mechanically,
+- onboarding and continuation remain clearly separated.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- treat the old handoff-redesign stream as implemented and now maintained.
+<!-- PATCHOPS_PATCH88_STATUS:END -->
+
+<!-- PATCHOPS_PATCH88B_PROJECT_STATUS:START -->
+## Current state snapshot
+
+This section preserves older snapshot language that is still intentionally tested, while remaining accurate for the current repo state.
+
+### Stable now
+
+The following exists in the repo today:
+
+- verification-only reruns,
+- wrapper-only retry classification support,
+- `powershell/Invoke-PatchVerify.ps1`,
+- `patchops.cli examples`,
+- the handoff-first continuation surface completed through Patch 69,
+- the later maintenance patches that keep the handoff surface current.
+
+### What remains future work rather than current behavior
+
+This section preserves the distinction between shipped behavior and future work, not yet shipped behavior.
+
+The project should still describe what remains future work rather than current behavior, especially when discussing additive follow-on improvements beyond the current maintained continuation flow.
+
+### Historical anchors that still matter
+
+- Patch 41 remains the profile-surface reference point for `generic_python_powershell`.
+- Patch 48 remains the final initial-milestone gate reference point.
+- Later handoff work should preserve these anchors rather than flatten the earlier project history.
+
+### Current continuation shorthand
+
+For the already-running handoff-first UX, the operator can now run one export command and paste one generated prompt.
+<!-- PATCHOPS_PATCH88B_PROJECT_STATUS:END -->
+\n\n<!-- PATCHOPS_PATCH89_STATUS:START -->
+## Patch 89 - project-packet workflow boundary validation
+
+### Current state
+
+- Patch 89 adds a doc-contract validation test for the onboarding-versus-continuation boundary.
+- The new test reads `docs/project_packet_workflow.md`, `docs/llm_usage.md`, `docs/operator_quickstart.md`, and `docs/project_packet_contract.md`.
+- The goal is to keep the current architecture legible:
+  - handoff first for already-running PatchOps continuation,
+  - generic packet plus project packet for brand-new target onboarding.
+
+### Why this matters
+
+- the most important workflow distinction now has an explicit test,
+- continuation and onboarding remain separate in the docs,
+- the repo continues through narrow maintenance patches rather than broader redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small validation patches when the architecture is already shipped and the main risk is wording drift.
+<!-- PATCHOPS_PATCH89_STATUS:END -->\n
+
+<!-- PATCHOPS_PATCH89B_STATUS:START -->
+## Patch 89B - operator quickstart boundary phrase repair
+
+### Current state
+
+- Patch 89B repairs the single missing phrase exposed by Patch 89.
+- `docs/operator_quickstart.md` now explicitly says `already-running PatchOps work`.
+- The onboarding-versus-continuation boundary remains documentation-driven and test-protected.
+
+### Why this matters
+
+- the boundary test now matches the intended operator wording,
+- the repair stays narrow and honest,
+- continuation and onboarding remain clearly separated.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer tiny doc-contract repairs when the behavior is already correct.
+<!-- PATCHOPS_PATCH89B_STATUS:END -->
+
+<!-- PATCHOPS_PATCH90_STATUS:START -->
+## Patch 90 - project-packet update discipline validation
+
+### Current state
+
+- Patch 90 adds a doc-contract test for project-packet update discipline.
+- The docs now keep three things explicit and testable:
+  - stable sections change rarely,
+  - mutable sections refresh with validated progress,
+  - packet updates should stay grounded in reports and handoff.
+
+### Why this matters
+
+- the onboarding layer remains usable without encouraging packet rewrites detached from evidence,
+- the packet-update story is now protected as a maintained rule,
+- the repo keeps moving through narrow maintenance patches after the substantially complete onboarding rollout.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small validation patches when the main risk is wording drift rather than missing architecture.
+<!-- PATCHOPS_PATCH90_STATUS:END -->
+\n\n<!-- PATCHOPS_PATCH91_STATUS:START -->
+## Patch 91 - onboarding helper docs alignment validation
+
+### Current state
+
+- Patch 91 adds a narrow doc-contract test for the helper-first onboarding command surface.
+- The maintained docs now keep the helper story explicit:
+  - `recommend-profile`,
+  - `init-project-doc`,
+  - `starter`,
+  - onboarding bootstrap artifacts,
+  - `refresh-project-doc`.
+
+### Why this matters
+
+- the operator-visible onboarding path stays aligned with the shipped helper layer,
+- onboarding remains distinct from handoff-first continuation,
+- the repo continues through maintenance validation rather than wider redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer validation patches when the main risk is wording drift across maintained docs.
+<!-- PATCHOPS_PATCH91_STATUS:END -->\n\n<!-- PATCHOPS_PATCH92_STATUS:START -->
+## Patch 92 - onboarding bootstrap docs alignment validation
+
+### Current state
+
+- Patch 92 adds a narrow doc-contract test for the onboarding bootstrap artifact surface.
+- The maintained docs now keep the bootstrap outputs explicit:
+  - `onboarding/current_target_bootstrap.md`,
+  - `onboarding/current_target_bootstrap.json`,
+  - `onboarding/next_prompt.txt`,
+  - `onboarding/starter_manifest.json`.
+
+### Why this matters
+
+- the faster first-use onboarding surface is now documented as a maintained operator story,
+- bootstrap guidance stays distinct from handoff-first continuation,
+- the repo continues through maintenance validation instead of bigger redesign work.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small validation patches when the feature already exists and the main risk is wording drift.
+<!-- PATCHOPS_PATCH92_STATUS:END -->\n\n<!-- PATCHOPS_PATCH93_STATUS:START -->
+## Patch 93 - project-packet examples alignment validation
+
+### Current state
+
+- Patch 93 adds a narrow validation surface for the maintained project-packet examples.
+- The trader packet and the wrapper self-hosted packet now both keep the core packet-example reminders explicit:
+  - roots,
+  - selected profile,
+  - target boundary wording,
+  - next recommended action,
+  - handoff-first continuation when work is already in progress.
+
+### Why this matters
+
+- the maintained packet examples stay aligned with the packet contract and onboarding story,
+- the first serious target packet and the self-hosted packet remain usable as operator-facing references,
+- the repo continues through maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small validation patches when the packet layer is already shipped and the main risk is wording drift.
+<!-- PATCHOPS_PATCH93_STATUS:END -->\n\n<!-- PATCHOPS_PATCH94_STATUS:START -->
+## Patch 94 - onboarding bootstrap artifact contract validation
+
+### Current state
+
+- Patch 94 adds a direct contract test for the actual onboarding bootstrap outputs.
+- The new test proves the current artifact set remains stable:
+  - `current_target_bootstrap.md`,
+  - `current_target_bootstrap.json`,
+  - `next_prompt.txt`,
+  - `starter_manifest.json`.
+
+### Why this matters
+
+- the repo now protects the generated onboarding artifacts themselves, not only the docs around them,
+- the faster first-use onboarding surface stays grounded in a concrete test,
+- the onboarding layer remains in maintenance/refinement posture.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small validation patches when the feature already exists and the main risk is contract drift.
+<!-- PATCHOPS_PATCH94_STATUS:END -->\n
+
+<!-- PATCHOPS_PATCH94B_STATUS:START -->
+## Patch 94B - onboarding bootstrap path contract repair
+
+### Current state
+
+- Patch 94B repairs the single failing assertion introduced by Patch 94.
+- The bootstrap artifact test now matches the current starter-manifest path-format contract.
+- The repair stays on the validation surface and does not widen the bootstrap implementation.
+
+### Why this matters
+
+- the onboarding bootstrap validation wave stays green without redesigning an already-shipped surface,
+- the path expectation now matches the actual generated artifact,
+- maintenance continues through small honest repairs.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer test-contract repairs when a new test drifted from the current implementation contract.
+<!-- PATCHOPS_PATCH94B_STATUS:END -->
+
+<!-- PATCHOPS_PATCH94C_STATUS:START -->
+## Patch 94C - onboarding bootstrap payload contract repair
+
+### Current state
+
+- Patch 94C repairs the remaining failing assertion from the Patch 94 validation wave.
+- The bootstrap artifact test now matches the current direct payload contract:
+  - `written`,
+  - returned artifact paths,
+  - generated markdown and JSON surfaces for profile identity.
+
+### Why this matters
+
+- the onboarding bootstrap validation wave can finish without widening the shipped implementation,
+- the direct payload expectations now match the already-proven bootstrap contract,
+- maintenance continues through small honest repairs.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer test-contract repairs when a new test drifts from the current implementation contract.
+<!-- PATCHOPS_PATCH94C_STATUS:END -->
+
+<!-- PATCHOPS_PATCH95_STATUS:START -->
+## Patch 95 - refresh-project-doc CLI contract validation
+
+### Current state
+
+- Patch 95 adds a direct CLI-contract test for `refresh-project-doc`.
+- The new test protects the operator-facing refresh shape:
+  - packet path,
+  - handoff JSON path,
+  - report path,
+  - mutable-state override flags,
+  - blocker input.
+
+### Why this matters
+
+- packet refresh remains explicitly grounded in handoff and report artifacts,
+- operator usage stays visible and test-protected,
+- the repo continues through narrow maintenance validation instead of broader redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped surfaces.
+<!-- PATCHOPS_PATCH95_STATUS:END -->
+
+<!-- PATCHOPS_PATCH95B_STATUS:START -->
+## Patch 95B - refresh-project-doc help contract repair
+
+### Current state
+
+- Patch 95B repairs the failing help-text assertion introduced by Patch 95.
+- The test now matches the live `refresh-project-doc --help` surface instead of expecting a newer description string.
+- The repair also aligns the new test with the current `--risk` flag name shown by the live CLI help.
+
+### Why this matters
+
+- the refresh CLI validation stays useful without forcing a CLI wording change,
+- the test now follows the shipped surface,
+- maintenance continues through small honest repairs.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer test-contract repairs when a new test drifted from live operator output.
+<!-- PATCHOPS_PATCH95B_STATUS:END -->
+
+<!-- PATCHOPS_PATCH96_STATUS:START -->
+## Patch 96 - helper CLI help contract validation
+
+### Current state
+
+- Patch 96 adds a direct CLI-help contract test for the remaining small helper-first commands.
+- The new test protects:
+  - `recommend-profile`,
+  - `starter`.
+
+### Why this matters
+
+- the helper-first onboarding surface is now protected at both behavior and live help levels,
+- operator-facing usage stays visible and test-backed,
+- the repo continues through narrow maintenance validation instead of broader redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped helper surfaces.
+<!-- PATCHOPS_PATCH96_STATUS:END -->
+
+<!-- PATCHOPS_PATCH97_STATUS:START -->
+## Patch 97 - init-project-doc help contract validation
+
+### Current state
+
+- Patch 97 adds a direct CLI-help contract test for `init-project-doc`.
+- The new test protects the live scaffold-help shape used by the helper-first onboarding flow.
+
+### Why this matters
+
+- the remaining first-use packet scaffold command is now covered at the operator-help level,
+- helper-first onboarding stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped helper surfaces.
+<!-- PATCHOPS_PATCH97_STATUS:END -->
+
+<!-- PATCHOPS_PATCH98_STATUS:START -->
+## Patch 98 - export-handoff help contract validation
+
+### Current state
+
+- Patch 98 adds a direct CLI-help contract test for `export-handoff`.
+- The new test protects the live handoff-export help shape used by the handoff-first continuation flow.
+
+### Why this matters
+
+- the resume-surface export command is now covered at the operator-help level,
+- handoff-first continuation stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH98_STATUS:END -->
+
+<!-- PATCHOPS_PATCH99_STATUS:START -->
+## Patch 99 - bootstrap-target help contract validation
+
+### Current state
+
+- Patch 99 adds a direct CLI-help contract test for `bootstrap-target`.
+- The new test protects the live bootstrap-target help shape used by the onboarding bootstrap flow.
+
+### Why this matters
+
+- the bootstrap-target operator surface is now covered at the help-contract level,
+- onboarding bootstrap remains visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH99_STATUS:END -->
+
+<!-- PATCHOPS_PATCH100_STATUS:START -->
+## Patch 100 - template help contract validation
+
+### Current state
+
+- Patch 100 adds a direct CLI-help contract test for `template`.
+- The new test protects the live starter-template help shape used by the operator-facing manifest bootstrap flow.
+
+### Why this matters
+
+- the template command is now covered at the help-contract level,
+- starter-manifest generation stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH100_STATUS:END -->
+
+<!-- PATCHOPS_PATCH101_STATUS:START -->
+## Patch 101 - doctor help contract validation
+
+### Current state
+
+- Patch 101 adds a direct CLI-help contract test for `doctor`.
+- The new test protects the live doctor help shape used by the operator-facing readiness-inspection flow.
+
+### Why this matters
+
+- the doctor command is now covered at the help-contract level,
+- readiness inspection stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH101_STATUS:END -->
+
+<!-- PATCHOPS_PATCH102_STATUS:START -->
+## Patch 102 - examples help contract validation
+
+### Current state
+
+- Patch 102 adds a direct CLI-help contract test for `examples`.
+- The new test protects the live examples help shape used by the operator-facing example-discovery flow.
+
+### Why this matters
+
+- the examples command is now covered at the help-contract level,
+- example discovery stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH102_STATUS:END -->
+
+<!-- PATCHOPS_PATCH103_STATUS:START -->
+## Patch 103 - schema help contract validation
+
+### Current state
+
+- Patch 103 adds a direct CLI-help contract test for `schema`.
+- The new test protects the live manifest-reference help surface used by operators and future LLMs.
+
+### Why this matters
+
+- the schema command is now covered at the help-contract level,
+- manifest-reference discovery stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH103_STATUS:END -->
+
+<!-- PATCHOPS_PATCH104_STATUS:START -->
+## Patch 104 - release-readiness help contract validation
+
+### Current state
+
+- Patch 104 adds a direct CLI-help contract test for `release-readiness`.
+- The new test protects the live readiness help shape used by the operator-facing freeze/release-readiness flow.
+
+### Why this matters
+
+- the release-readiness command is now covered at the help-contract level,
+- readiness reporting stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH104_STATUS:END -->
+
+<!-- PATCHOPS_PATCH105_STATUS:START -->
+## Patch 105 - release-readiness report artifact contract validation
+
+### Current state
+
+- Patch 105 adds a direct contract test for the `release-readiness` evidence artifact.
+- The new test protects the current `--report-path` surface:
+  - resolved report path in JSON,
+  - deterministic readiness heading,
+  - focused profile line,
+  - status line,
+  - core-tests line,
+  - notes footer.
+
+### Why this matters
+
+- the readiness evidence file is now protected as a current operator-facing surface,
+- release/freeze reporting stays deterministic and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH105_STATUS:END -->
+
+<!-- PATCHOPS_PATCH106_STATUS:START -->
+## Patch 106 - profiles help contract validation
+
+### Current state
+
+- Patch 106 adds a direct CLI-help contract test for `profiles`.
+- The new test protects the live profile-summary help shape used by operators and future LLMs.
+
+### Why this matters
+
+- the profiles command is now covered at the help-contract level,
+- profile discovery stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH106_STATUS:END -->
+
+<!-- PATCHOPS_PATCH107_STATUS:START -->
+## Patch 107 - check help contract validation
+
+### Current state
+
+- Patch 107 adds a direct CLI-help contract test for `check`.
+- The new test protects the live manifest-validation help surface used before apply or verify.
+
+### Why this matters
+
+- the `check` command is now covered at the help-contract level,
+- starter-placeholder validation stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH107_STATUS:END -->
+
+<!-- PATCHOPS_PATCH108_STATUS:START -->
+## Patch 108 - inspect help contract validation
+
+### Current state
+
+- Patch 108 adds a direct CLI-help contract test for `inspect`.
+- The new test protects the existence and stable help surface of the inspect step in the current operator flow.
+
+### Why this matters
+
+- the `check -> inspect -> plan` sequence is now more fully protected,
+- the inspect command stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is operator-surface drift.
+<!-- PATCHOPS_PATCH108_STATUS:END -->
+
+<!-- PATCHOPS_PATCH109_STATUS:START -->
+## Patch 109 - plan help contract validation
+
+### Current state
+
+- Patch 109 adds a direct CLI-help contract test for `plan`.
+- The new test protects the live planning help shape used after `check` and `inspect` and before apply or verify flows.
+
+### Why this matters
+
+- the `plan` command is now covered at the help-contract level,
+- preview planning stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH109_STATUS:END -->
+
+<!-- PATCHOPS_PATCH110_STATUS:START -->
+## Patch 110 - apply help contract validation
+
+### Current state
+
+- Patch 110 adds a direct CLI-help contract test for `apply`.
+- The new test protects the live execution-entry help surface used after planning is complete.
+
+### Why this matters
+
+- the `apply` command is now covered at the help-contract level,
+- core execution entry stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH110_STATUS:END -->
+
+<!-- PATCHOPS_PATCH111_STATUS:START -->
+## Patch 111 - verify help contract validation
+
+### Current state
+
+- Patch 111 adds a direct CLI-help contract test for `verify`.
+- The new test protects the live verify-only entry surface used for rerun-safe validation flows.
+
+### Why this matters
+
+- the `verify` command is now covered at the help-contract level,
+- the verify-only operator entry stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH111_STATUS:END -->
+
+<!-- PATCHOPS_PATCH112_STATUS:START -->
+## Patch 112 - wrapper-retry help contract validation
+
+### Current state
+
+- Patch 112 adds a direct CLI-help contract test for `wrapper-retry`.
+- The new test protects the live wrapper-only retry entry surface used for narrow self-hosted recovery flows.
+
+### Why this matters
+
+- the `wrapper-retry` command is now covered at the help-contract level,
+- wrapper-only retry stays visible and test-backed,
+- the repo continues through narrow maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH112_STATUS:END -->
+
+<!-- PATCHOPS_PATCH113_STATUS:START -->
+## Patch 113 - core execution help-contract inventory validation
+
+### Current state
+
+- Patch 113 adds a narrow inventory test for the core execution-entry help-contract wave.
+- The new test keeps two things explicit:
+  - the shipped parser still exposes `apply`, `verify`, and `wrapper-retry`,
+  - the matching help-contract tests remain present.
+
+### Why this matters
+
+- the core execution-entry trilogy is now protected as a maintained group instead of only as isolated tests,
+- future command-surface changes are more likely to trigger a narrow honest repair,
+- the repo continues through maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small validation patches when the main risk is drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH113_STATUS:END -->
+
+<!-- PATCHOPS_PATCH114_STATUS:START -->
+## Patch 114 - root help contract validation
+
+### Current state
+
+- Patch 114 adds a direct CLI-help contract test for the root `patchops --help` entry.
+- The new test protects the maintained operator-visible command map as a whole.
+
+### Why this matters
+
+- the root command index is now covered at the help-contract level,
+- future drift in the top-level operator surface is more likely to trigger a narrow honest repair,
+- the repo continues through maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small contract tests when the main risk is CLI/help drift across already-shipped operator surfaces.
+<!-- PATCHOPS_PATCH114_STATUS:END -->
+
+<!-- PATCHOPS_PATCH115_STATUS:START -->
+## Patch 115 - PowerShell launcher inventory validation
+
+### Current state
+
+- Patch 115 adds a narrow inventory test for the maintained PowerShell launcher surface.
+- The new test protects the main thin launcher set used across:
+  - apply / verify,
+  - wrapper-only retry,
+  - release readiness,
+  - discovery and authoring flows.
+
+### Why this matters
+
+- the documented launcher layer stays explicit and test-backed,
+- future launcher drift is more likely to trigger a narrow honest repair,
+- the repo continues through maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small inventory or contract tests when the main risk is operator-surface drift across already-shipped tooling.
+<!-- PATCHOPS_PATCH115_STATUS:END -->
+
+<!-- PATCHOPS_PATCH116_STATUS:START -->
+## Patch 116 - secondary PowerShell launcher inventory validation
+
+### Current state
+
+- Patch 116 adds a narrow inventory test for the remaining thin PowerShell launcher surfaces.
+- The new test protects the maintained launcher set for:
+  - handoff export,
+  - manifest/schema discovery,
+  - manifest inspection.
+
+### Why this matters
+
+- the secondary launcher layer stays explicit and test-backed,
+- future drift in these already-shipped operator surfaces is more likely to trigger a narrow honest repair,
+- the repo continues through maintenance validation rather than redesign.
+
+### Remaining posture
+
+- continue with narrow maintenance, refinement, or target-specific expansion,
+- prefer small inventory or contract tests when the main risk is operator-surface drift across already-shipped tooling.
+<!-- PATCHOPS_PATCH116_STATUS:END -->

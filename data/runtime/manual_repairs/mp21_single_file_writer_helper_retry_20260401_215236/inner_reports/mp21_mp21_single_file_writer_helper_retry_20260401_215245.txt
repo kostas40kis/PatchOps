@@ -1,0 +1,101 @@
+PATCHOPS APPLY
+Patch Name           : mp21_single_file_writer_helper_retry
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\mp21_single_file_writer_helper_retry_20260401_215236\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\mp21_single_file_writer_helper_retry_20260401_215245
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\mp21_single_file_writer_helper_retry_20260401_215236\inner_reports\mp21_mp21_single_file_writer_helper_retry_20260401_215245.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\patchops\files\writers.py
+C:\dev\patchops\tests\test_single_file_writer_current.py
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\patchops\files\writers.py -> C:\dev\patchops\data\runtime\patch_backups\mp21_single_file_writer_helper_retry_20260401_215245\patchops\files\writers.py
+MISSING: C:\dev\patchops\tests\test_single_file_writer_current.py
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\patchops\files\writers.py
+WROTE : C:\dev\patchops\tests\test_single_file_writer_current.py
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : full-pytest-quiet
+COMMAND : py -m pytest -q
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[full-pytest-quiet][stdout]
+........................................................................ [ 16%]
+........................................................................ [ 33%]
+........................................................................ [ 50%]
+........................................................................ [ 67%]
+........................................................................ [ 84%]
+.................................................................        [100%]
+
+[full-pytest-quiet][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS

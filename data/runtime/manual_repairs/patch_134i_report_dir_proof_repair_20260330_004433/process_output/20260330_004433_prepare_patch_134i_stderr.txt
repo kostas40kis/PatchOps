@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "C:\dev\patchops\data\runtime\manual_repairs\patch_134i_report_dir_proof_repair_20260330_004433\prepare_patch_134i.py", line 255, in <module>
+    main()
+  File "C:\dev\patchops\data\runtime\manual_repairs\patch_134i_report_dir_proof_repair_20260330_004433\prepare_patch_134i.py", line 199, in main
+    content_root / "tests" / "test_report_preference_apply_flow.py": update_existing_report_pref_test(project_root / "tests" / "test_report_preference_apply_flow.py"),
+                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\dev\patchops\data\runtime\manual_repairs\patch_134i_report_dir_proof_repair_20260330_004433\prepare_patch_134i.py", line 177, in update_existing_report_pref_test
+    return text.replace('"program": "python"', '"program": "%s"' % sys.executable.replace("\\", "/"))
+                                                                   ^^^
+NameError: name 'sys' is not defined. Did you forget to import 'sys'?

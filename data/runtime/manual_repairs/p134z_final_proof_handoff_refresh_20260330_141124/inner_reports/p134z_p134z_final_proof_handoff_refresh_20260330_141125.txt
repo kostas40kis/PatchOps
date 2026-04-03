@@ -1,0 +1,104 @@
+PATCHOPS APPLY
+Patch Name           : p134z_final_proof_handoff_refresh
+Manifest Path        : C:\dev\patchops\data\runtime\manual_repairs\p134z_final_proof_handoff_refresh_20260330_141124\patch_manifest.json
+Workspace Root       : C:\dev
+Wrapper Project Root : C:\dev\patchops
+Target Project Root  : C:\dev\patchops
+Active Profile       : generic_python
+Runtime Path         : (none)
+Backup Root          : C:\dev\patchops\data\runtime\patch_backups\p134z_final_proof_handoff_refresh_20260330_141125
+Report Path          : C:\dev\patchops\data\runtime\manual_repairs\p134z_final_proof_handoff_refresh_20260330_141124\inner_reports\p134z_p134z_final_proof_handoff_refresh_20260330_141125.txt
+Manifest Version     : 1
+
+
+TARGET FILES
+------------
+C:\dev\patchops\docs\project_status.md
+C:\dev\patchops\docs\patch_ledger.md
+C:\dev\patchops\docs\summary_integrity_repair_stream.md
+
+
+BACKUP
+------
+BACKUP : C:\dev\patchops\docs\patch_ledger.md -> C:\dev\patchops\data\runtime\patch_backups\p134z_final_proof_handoff_refresh_20260330_141125\docs\patch_ledger.md
+BACKUP : C:\dev\patchops\docs\project_status.md -> C:\dev\patchops\data\runtime\patch_backups\p134z_final_proof_handoff_refresh_20260330_141125\docs\project_status.md
+BACKUP : C:\dev\patchops\docs\summary_integrity_repair_stream.md -> C:\dev\patchops\data\runtime\patch_backups\p134z_final_proof_handoff_refresh_20260330_141125\docs\summary_integrity_repair_stream.md
+BACKUP : C:\dev\patchops\handoff\current_handoff.json -> C:\dev\patchops\data\runtime\patch_backups\p134z_final_proof_handoff_refresh_20260330_141125\handoff\current_handoff.json
+BACKUP : C:\dev\patchops\handoff\current_handoff.md -> C:\dev\patchops\data\runtime\patch_backups\p134z_final_proof_handoff_refresh_20260330_141125\handoff\current_handoff.md
+BACKUP : C:\dev\patchops\handoff\latest_report_copy.txt -> C:\dev\patchops\data\runtime\patch_backups\p134z_final_proof_handoff_refresh_20260330_141125\handoff\latest_report_copy.txt
+BACKUP : C:\dev\patchops\handoff\latest_report_index.json -> C:\dev\patchops\data\runtime\patch_backups\p134z_final_proof_handoff_refresh_20260330_141125\handoff\latest_report_index.json
+BACKUP : C:\dev\patchops\handoff\next_prompt.txt -> C:\dev\patchops\data\runtime\patch_backups\p134z_final_proof_handoff_refresh_20260330_141125\handoff\next_prompt.txt
+
+
+WRITING FILES
+-------------
+WROTE : C:\dev\patchops\docs\project_status.md
+WROTE : C:\dev\patchops\docs\patch_ledger.md
+WROTE : C:\dev\patchops\docs\summary_integrity_repair_stream.md
+
+
+VALIDATION COMMANDS
+-------------------
+NAME    : summary_integrity_final_proof_pytest
+COMMAND : py -m pytest -q tests/test_summary_integrity_current.py tests/test_summary_integrity_workflow_current.py tests/test_report_preference_apply_flow.py tests/test_report_preference_apply_flow_current.py tests/test_report_preference_examples.py tests/test_apply_report_write_current.py tests/test_report_path_current.py
+CWD     : C:\dev\patchops
+EXIT    : 0
+
+
+FULL OUTPUT
+-----------
+[summary_integrity_final_proof_pytest][stdout]
+.................                                                        [100%]
+
+[summary_integrity_final_proof_pytest][stderr]
+
+
+
+SMOKE COMMANDS
+--------------
+(none)
+
+
+SMOKE OUTPUT
+------------
+(none)
+
+
+AUDIT COMMANDS
+--------------
+(none)
+
+
+AUDIT OUTPUT
+------------
+(none)
+
+
+CLEANUP COMMANDS
+----------------
+(none)
+
+
+CLEANUP OUTPUT
+--------------
+(none)
+
+
+ARCHIVE COMMANDS
+----------------
+(none)
+
+
+ARCHIVE OUTPUT
+--------------
+(none)
+
+
+FAILURE DETAILS
+---------------
+(none)
+
+SUMMARY
+-------
+ExitCode : 0
+Result   : PASS
