@@ -58,11 +58,11 @@ Produce a first useful version that can:
 
 For internal command execution, PatchOps should prefer the Python-owned execution path instead of reintroducing ad hoc subprocess loops inside individual workflow files or PowerShell patch bodies.
 
-The maintained internal path is:
+The preferred internal path is:
 
-- `patchops.execution.process_runner.run_command(...)` for process execution and captured result creation,
-- the normalized execution result model under `patchops.execution.result_model`,
-- and the shared workflow adapter in `patchops.workflows.common` for command-group execution inside apply/verify-style flows.
+- `patchops.execution.process_runner.run_command_result(...)` for direct execution,
+- `patchops.execution.result_model.normalize_execution_result(...)` for reusable normalization,
+- `ExecutionResult` as the reusable internal result shape,
+- and the shared workflow adapter in `patchops.workflows.common` instead of workflow-local subprocess handling.
 
-When future maintenance work needs to run commands, the first question should be whether the existing execution helper path can be reused. New direct execution code should be treated as an exception that needs a clear reason, not as the default authoring pattern.
-
+Contributors should treat `patchops.execution.process_runner` and `patchops.execution.result_model` as the maintained execution surfaces and avoid adding new ad hoc execution helpers in docs examples, workflow files, or one-off PowerShell runners unless current repo evidence proves a narrow exception is required.

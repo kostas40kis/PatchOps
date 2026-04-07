@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from patchops.reporting.command_sections import ReportCommandOutputSection, render_report_command_output_section
 from patchops.failure_categories import normalize_failure_category
 from patchops.rerun_decisions import (
     VERIFY_ONLY,
@@ -37,7 +38,7 @@ def display_path(value: Path | None) -> str:
 
 
 def header_section(result: WorkflowResult) -> str:
-    return render_report_header(build_report_header_metadata(result))
+    return render_report_header(result)
 
 def _build_wrapper_retry_state(result: WorkflowResult):
     manifest_payload = asdict(result.manifest)
@@ -112,21 +113,17 @@ def command_group_section(title: str, results: list[CommandResult]) -> str:
     return "\n".join(lines)
 
 
-def full_output_section(results: list[CommandResult], title: str) -> str:
-    lines = [_rule(title)]
-    if not results:
-        lines.append("(none)")
-        return "\n".join(lines)
-    for section in build_report_command_sections(results, section_label=title):
-        stdout_label, stdout_text, stderr_label, stderr_text = render_report_command_output_section(section)
-        lines.append(stdout_label)
-        lines.append(stdout_text if stdout_text else "")
-        lines.append(stderr_label)
-        lines.append(stderr_text if stderr_text else "")
-    return "\n".join(lines)
 
-
-
+def full_output_section(results, section_label: str = "FULL OUTPUT") -> str:
+    result_items = list(results)
+    if not result_items:
+        return ""
+    section = ReportCommandOutputSection(
+        title=section_label,
+        results=result_items,
+        rule=lambda title: title,
+    )
+    return str(render_report_command_output_section(section))
 
 def _failure_category_label(result: WorkflowResult) -> str:
     if result.failure is None:

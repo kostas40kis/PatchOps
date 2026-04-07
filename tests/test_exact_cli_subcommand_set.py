@@ -24,6 +24,12 @@ EXPECTED_SUBCOMMANDS = {
     "init-project-doc",
     "refresh-project-doc",
     "release-readiness",
+    "check-launcher",
+    "check-bundle",
+    "inspect-bundle",
+    "plan-bundle",
+    "apply-bundle",
+    "run-package",
 }
 
 
@@ -40,4 +46,4 @@ def test_exact_cli_subcommand_set_remains_explicit() -> None:
 
 
 def test_exact_cli_subcommand_count_remains_stable() -> None:
-    assert len(EXPECTED_SUBCOMMANDS) == 18
+    assert len(EXPECTED_SUBCOMMANDS) == 24

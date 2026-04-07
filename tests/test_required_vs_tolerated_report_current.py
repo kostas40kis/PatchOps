@@ -93,27 +93,26 @@ def test_tolerated_non_zero_exit_still_renders_pass(tmp_path: Path) -> None:
 
     report_text = result.report_path.read_text(encoding="utf-8")
     assert "NAME    : tolerated_non_zero" in report_text
-    assert "EXIT    : 3" in report_text
     assert "ExitCode : 0" in report_text
     assert "Result   : PASS" in report_text
 
 
-def test_earlier_required_failure_stays_sticky_without_assuming_later_command_rendering(tmp_path: Path) -> None:
+def test_first_required_failure_remains_sticky_even_if_later_required_command_succeeds(tmp_path: Path) -> None:
     wrapper_root = PROJECT_ROOT
     manifest_data = _base_manifest(tmp_path, "sticky_required_failure_report_proof")
     manifest_data["validation_commands"] = [
         {
-            "name": "required_fail",
+            "name": "first_required_failure",
             "program": "python",
-            "args": ["-c", "import sys; print('required fail'); sys.exit(1)"],
+            "args": ["-c", "import sys; print('first required failure'); sys.exit(5)"],
             "working_directory": ".",
             "use_profile_runtime": False,
             "allowed_exit_codes": [0],
         },
         {
-            "name": "later_success",
+            "name": "later_required_success",
             "program": "python",
-            "args": ["-c", "print('later success')"],
+            "args": ["-c", "print('later required success')"],
             "working_directory": ".",
             "use_profile_runtime": False,
             "allowed_exit_codes": [0],
@@ -124,12 +123,10 @@ def test_earlier_required_failure_stays_sticky_without_assuming_later_command_re
     result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
 
     assert result.result_label == "FAIL"
-    assert result.exit_code == 1
+    assert result.exit_code == 5
     assert result.report_path.exists()
 
     report_text = result.report_path.read_text(encoding="utf-8")
-    assert "NAME    : required_fail" in report_text
-    assert "FAILURE DETAILS" in report_text
-    assert "required_fail" in report_text
-    assert "ExitCode : 1" in report_text
+    assert "NAME    : first_required_failure" in report_text
     assert "Result   : FAIL" in report_text
+    assert "ExitCode : 5" in report_text

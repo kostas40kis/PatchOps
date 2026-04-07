@@ -11,7 +11,6 @@ from patchops.files.backups import (
 )
 
 
-
 def test_render_backup_report_line_for_existing_file_uses_backup_mapping(tmp_path: Path) -> None:
     target_root = tmp_path / "target"
     source = target_root / "patchops" / "files" / "backups.py"
@@ -27,7 +26,6 @@ def test_render_backup_report_line_for_existing_file_uses_backup_mapping(tmp_pat
     )
 
 
-
 def test_render_backup_report_line_for_missing_file_uses_missing_prefix(tmp_path: Path) -> None:
     target_root = tmp_path / "target"
     source = target_root / "docs" / "missing.md"
@@ -36,7 +34,6 @@ def test_render_backup_report_line_for_missing_file_uses_missing_prefix(tmp_path
     execution = execute_backup(build_backup_plan(source, target_root, backup_root))
 
     assert render_backup_report_line(execution) == f"MISSING: {source}"
-
 
 
 def test_render_backup_report_lines_preserves_execution_order(tmp_path: Path) -> None:

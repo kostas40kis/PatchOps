@@ -70,9 +70,37 @@ class ExecutionResult:
             phase=self.phase,
         )
 
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "name": self.name,
+            "program": self.program,
+            "args": list(self.args),
+            "working_directory": self.working_directory,
+            "exit_code": self.exit_code,
+            "stdout": self.stdout,
+            "stderr": self.stderr,
+            "display_command": self.display_command,
+            "phase": self.phase,
+        }
 
-def normalize_command_result(result: CommandResult) -> ExecutionResult:
+
+def normalize_execution_result(result: ExecutionResult | CommandResult) -> ExecutionResult:
+    if isinstance(result, ExecutionResult):
+        return result
     return ExecutionResult.from_command_result(result)
 
 
-__all__ = ["ExecutionResult", "normalize_command_result"]
+def normalize_command_result(result: CommandResult) -> ExecutionResult:
+    return normalize_execution_result(result)
+
+
+def execution_result_as_dict(result: ExecutionResult | CommandResult) -> dict[str, object]:
+    return normalize_execution_result(result).as_dict()
+
+
+__all__ = [
+    "ExecutionResult",
+    "normalize_execution_result",
+    "normalize_command_result",
+    "execution_result_as_dict",
+]

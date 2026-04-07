@@ -5,7 +5,6 @@ from pathlib import Path
 from patchops.files.backups import BackupPlan, backup_file, build_backup_plan, execute_backup_plan
 
 
-
 def test_build_backup_plan_preserves_relative_destination(tmp_path: Path) -> None:
     target_root = tmp_path / "target"
     source = target_root / "patchops" / "demo" / "sample.txt"
@@ -23,7 +22,6 @@ def test_build_backup_plan_preserves_relative_destination(tmp_path: Path) -> Non
     assert plan.missing is False
 
 
-
 def test_build_backup_plan_marks_missing_file_without_guessing_root(tmp_path: Path) -> None:
     target_root = tmp_path / "target"
     source = target_root / "docs" / "missing.md"
@@ -36,7 +34,6 @@ def test_build_backup_plan_marks_missing_file_without_guessing_root(tmp_path: Pa
     assert plan.destination == backup_root / Path("docs/missing.md")
     assert plan.existed is False
     assert plan.missing is True
-
 
 
 def test_execute_backup_plan_copies_existing_file(tmp_path: Path) -> None:
@@ -53,7 +50,6 @@ def test_execute_backup_plan_copies_existing_file(tmp_path: Path) -> None:
     assert record.destination == backup_root / Path("pkg/file.txt")
     assert record.destination is not None
     assert record.destination.read_text(encoding="utf-8") == "backup me"
-
 
 
 def test_backup_file_preserves_missing_file_contract(tmp_path: Path) -> None:

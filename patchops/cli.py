@@ -10,6 +10,8 @@ from typing import Any
 from patchops.doctor import run_doctor
 from patchops.examples_index import list_examples
 from patchops.manifest_checks import check_manifest_path
+from patchops.bundles.launcher_self_check import check_launcher_path
+from patchops.bundles.bundle_zip_check import check_bundle_zip
 from patchops.manifest_loader import load_manifest
 from patchops.manifest_reference import build_manifest_schema_summary
 from patchops.manifest_templates import build_manifest_template
@@ -21,9 +23,74 @@ from patchops.workflows.verify_only import verify_only
 from patchops.workflows.wrapper_retry import execute_wrapper_only_retry
 
 
+from patchops.bundles.bundle_zip_inspect import inspect_bundle_path
+from patchops.bundles.bundle_zip_plan import plan_bundle_path
+from patchops.bundles.bundle_zip_apply import apply_bundle_path
+from patchops.bundle_review import check_bundle_cli_payload
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="patchops")
     subparsers = parser.add_subparsers(dest="command", required=True)
+    apply_bundle_parser = subparsers.add_parser(
+        "apply-bundle",
+        help="Extract a bundle zip and invoke the bundled apply launcher",
+    )
+    apply_bundle_parser.description = (
+        "Extract a bundle zip and invoke the bundled apply launcher."
+    )
+    apply_bundle_parser.add_argument("bundle_zip_path", help="Path to the bundle zip file")
+    apply_bundle_parser.add_argument(
+        "--wrapper-root",
+        dest="bundle_wrapper_root",
+        help="Optional explicit PatchOps wrapper root passed to the launcher",
+    )
+    apply_bundle_parser.add_argument(
+        "--extract-root",
+        dest="bundle_extract_root",
+        help="Optional explicit extraction root for the bundle run",
+    )
+
+
+    plan_bundle_parser = subparsers.add_parser(
+        "plan-bundle",
+        help="Plan a raw zip patch bundle before execution",
+    )
+    plan_bundle_parser.description = (
+        "Plan a raw zip patch bundle before execution."
+    )
+    plan_bundle_parser.add_argument(
+        "bundle_zip_path",
+        help="Path to the raw patch bundle zip file",
+    )
+
+    inspect_bundle_parser = subparsers.add_parser(
+        "inspect-bundle",
+        help="Inspect a raw zip patch bundle before execution",
+    )
+    inspect_bundle_parser.description = (
+        "Inspect a raw zip patch bundle before execution."
+    )
+    inspect_bundle_parser.add_argument(
+        "bundle_zip_path",
+        help="Path to the raw patch bundle zip file",
+    )
+
+    check_bundle_parser = subparsers.add_parser(
+        "check-bundle",
+        help="Validate a raw PatchOps bundle zip without extracting it manually",
+    )
+    check_bundle_parser.description = (
+        "Validate a raw PatchOps bundle zip without extracting it manually."
+    )
+    check_bundle_parser.add_argument(
+        "bundle_zip_path",
+        help="Path to the PatchOps bundle zip file",
+    )
+    check_bundle_parser.add_argument(
+        "--profile",
+        default=None,
+        help="Optional profile hint carried in the check-bundle review payload",
+    )
+
 
     apply_parser = subparsers.add_parser("apply", help="Apply a manifest-driven patch")
     apply_parser.add_argument("manifest", help="Path to the manifest JSON file")
@@ -52,6 +119,17 @@ def build_parser() -> argparse.ArgumentParser:
     check_parser.description = "Validate a manifest and flag starter placeholders before apply or verify."
     check_parser.epilog = "Use this command to catch starter placeholders before apply or verify flows."
     check_parser.add_argument("manifest", help="Path to the manifest JSON file")
+    check_launcher_parser = subparsers.add_parser(
+        "check-launcher",
+        help="Audit a bundled PowerShell launcher for common risks",
+    )
+    check_launcher_parser.description = (
+        "Audit a bundled PowerShell launcher for common risks before execution."
+    )
+    check_launcher_parser.add_argument(
+        "launcher_path",
+        help="Path to the bundled PowerShell launcher",
+    )
 
     plan_parser = subparsers.add_parser("plan", help="Preview resolved manifest execution details")
     plan_parser.add_argument("manifest", help="Path to the manifest JSON file")
@@ -222,6 +300,30 @@ def build_parser() -> argparse.ArgumentParser:
     starter_parser.add_argument("--patch-name")
     starter_parser.add_argument("--wrapper-root")
 
+
+    run_package_parser = subparsers.add_parser(
+        "run-package",
+        help="Run a ChatGPT delivery package zip or extracted folder through PatchOps.",
+    )
+    run_package_parser.add_argument(
+        "source_path",
+        help="Path to a delivery zip or extracted delivery folder.",
+    )
+    run_package_parser.add_argument(
+        "--wrapper-root",
+        required=True,
+        help="PatchOps wrapper repo root.",
+    )
+    run_package_parser.add_argument(
+        "--mode",
+        choices=["apply", "verify"],
+        default="apply",
+    )
+    run_package_parser.add_argument("--profile", default=None)
+    run_package_parser.add_argument("--launcher-relative-path", default=None)
+    run_package_parser.add_argument("--report-path", default=None)
+    run_package_parser.add_argument("--powershell-exe", default=None)
+
     return parser
 
 
@@ -261,8 +363,31 @@ def _write_json_file(path_value: str | Path, payload: dict[str, Any]) -> Path:
 
 
 def main(argv: list[str] | None = None) -> int:
+    import sys as _patchops_sys
+    argv = list(_patchops_sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "run-package":
+        from patchops.package_runner import cli_main as _patchops_run_package_cli_main
+        return _patchops_run_package_cli_main(argv[1:])
+
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    if args.command == "apply-bundle":
+        try:
+            payload = apply_bundle_path(
+                args.bundle_zip_path,
+                wrapper_root=getattr(args, "bundle_wrapper_root", None),
+                extract_root=getattr(args, "bundle_extract_root", None),
+            )
+        except Exception as exc:
+            print(json.dumps({
+                "bundle_zip_path": str(args.bundle_zip_path),
+                "ok": False,
+                "error": str(exc),
+            }, indent=2))
+            return 1
+        print(json.dumps(payload, indent=2))
+        return int(payload["exit_code"])
 
     if args.command == "apply":
         result = apply_manifest(args.manifest, wrapper_project_root=args.wrapper_root)
@@ -315,6 +440,37 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(json.dumps(preview, indent=2))
         return 0
+
+
+
+    if args.command == "plan-bundle":
+        payload = plan_bundle_path(args.bundle_zip_path)
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "inspect-bundle":
+        payload = inspect_bundle_path(args.bundle_zip_path)
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "check-bundle":
+        raw_profile = getattr(args, "profile", None)
+        profile_name = None
+        if raw_profile is not None:
+            scrubbed = str(raw_profile).strip()
+            profile_name = scrubbed or None
+        payload = check_bundle_cli_payload(
+            args.bundle_zip_path,
+            profile_name=profile_name,
+        )
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
+
+
+    if args.command == "check-launcher":
+        payload = check_launcher_path(args.launcher_path)
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
 
     if args.command == "release-readiness":
         from patchops.readiness import (
@@ -519,4 +675,5 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

@@ -85,6 +85,7 @@ def test_full_output_section_preserves_stdout_and_stderr_labels_after_model_intr
     assert "[reporting_contracts][stderr]" in text
     assert "captured stderr" in text
 
+
 def test_render_report_command_output_section_preserves_visible_shape():
     result = _command_result(stdout="captured stdout", stderr="captured stderr")
 
@@ -121,6 +122,7 @@ def test_full_output_section_uses_shared_output_renderer(monkeypatch):
     assert "patched stdout" in text
     assert "[patched][stderr]" in text
     assert "patched stderr" in text
+
 
 def test_render_report_command_output_section_keeps_labels_when_stdout_empty():
     result = _command_result(stdout="", stderr="captured stderr")

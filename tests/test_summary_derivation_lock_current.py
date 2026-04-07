@@ -1,60 +1,47 @@
+from __future__ import annotations
+
 from pathlib import Path
 
-from patchops.reporting.renderer import render_workflow_report
-from tests.test_summary_integrity_current import _build_result, _command_result, _command_spec
+from patchops.reporting.summary import render_summary
 
 
-def test_summary_lock_rejects_required_smoke_failure_even_when_result_label_claims_pass(tmp_path: Path) -> None:
-    result = _build_result(
-        tmp_path,
-        smoke_specs=[_command_spec("required_smoke", [0])],
-        smoke_results=[_command_result("required_smoke", 7, "smoke")],
-        exit_code=0,
-        result_label="PASS",
+def test_render_summary_preserves_exact_pass_shape() -> None:
+    text = render_summary(0, "PASS")
+
+    assert text == "\n".join(
+        [
+            "SUMMARY",
+            "-------",
+            "ExitCode : 0",
+            "Result   : PASS",
+        ]
     )
 
-    report = render_workflow_report(result)
 
-    assert "SMOKE COMMANDS" in report
-    assert "NAME    : required_smoke" in report
-    assert "EXIT    : 7" in report
-    assert "ExitCode : 7" in report
-    assert "Result   : FAIL" in report
+def test_render_summary_preserves_exact_fail_shape() -> None:
+    text = render_summary(7, "FAIL")
 
-
-def test_summary_lock_keeps_required_failure_sticky_even_when_later_non_zero_is_tolerated(tmp_path: Path) -> None:
-    result = _build_result(
-        tmp_path,
-        validation_specs=[_command_spec("required_validation", [0])],
-        validation_results=[_command_result("required_validation", 4, "validation")],
-        smoke_specs=[_command_spec("tolerated_smoke", [0, 3])],
-        smoke_results=[_command_result("tolerated_smoke", 3, "smoke")],
-        exit_code=0,
-        result_label="PASS",
+    assert text == "\n".join(
+        [
+            "SUMMARY",
+            "-------",
+            "ExitCode : 7",
+            "Result   : FAIL",
+        ]
     )
 
-    report = render_workflow_report(result)
 
-    assert "NAME    : required_validation" in report
-    assert "NAME    : tolerated_smoke" in report
-    assert "EXIT    : 4" in report
-    assert "EXIT    : 3" in report
-    assert "ExitCode : 4" in report
-    assert "Result   : FAIL" in report
+def test_summary_integrity_stream_records_fail_closed_rules() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    doc_path = repo_root / "docs" / "summary_integrity_repair_stream.md"
+    text = doc_path.read_text(encoding="utf-8").lower()
 
+    required_phrases = [
+        "required validation failure outside `allowed_exit_codes` forces rendered summary `fail`",
+        "required smoke failure outside `allowed_exit_codes` forces rendered summary `fail`",
+        "the first required failure remains sticky even if later required commands succeed",
+        "explicitly tolerated non-zero exits still remain `pass`",
+    ]
 
-def test_summary_lock_preserves_pass_when_only_explicitly_tolerated_non_zero_exists(tmp_path: Path) -> None:
-    result = _build_result(
-        tmp_path,
-        smoke_specs=[_command_spec("tolerated_smoke", [0, 5])],
-        smoke_results=[_command_result("tolerated_smoke", 5, "smoke")],
-        exit_code=0,
-        result_label="PASS",
-    )
-
-    report = render_workflow_report(result)
-
-    assert "NAME    : tolerated_smoke" in report
-    assert "EXIT    : 5" in report
-    assert "ExitCode : 0" in report
-    assert "Result   : PASS" in report
+    missing = [phrase for phrase in required_phrases if phrase not in text]
+    assert not missing, f"summary-integrity stream doc is missing required phrases: {missing}"

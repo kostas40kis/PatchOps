@@ -1,26 +1,34 @@
-# Report rendering contract
+# Report Rendering Contract
 
 ## Purpose
 
-This maintenance note records the current report-rendering contract after the MP15 helper reuse repair.
+This document records the current maintained report-rendering truth for PatchOps after the
+report-helper cleanup wave. It is meant to be practical rather than speculative.
 
-## Maintained rule
+## Current maintained rules
 
-PatchOps now routes one additional workflow path through the shared report-helper model: command output rendering.
-The maintained contract is:
+1. PatchOps still ends every operator run with one canonical Desktop txt report.
+2. Header rendering should flow through the shared header helper rather than ad hoc assembly.
+3. Command-output rendering should flow through the shared report-output helper surfaces.
+4. Empty stdout or empty stderr should not hide the corresponding label.
+5. Summary rendering must remain fail-closed and must match required command evidence.
 
-- command-section data stays explicit and structured,
-- command text remains visible,
-- working directory is rendered as a string-facing field,
-- stdout and stderr stay separate report surfaces,
-- empty stdout or stderr still renders as an explicit section instead of disappearing,
-- PowerShell remains the thin operator boundary while Python owns reusable reporting helpers.
+## Shared helper surfaces
 
-## Why this matters
+The following helper-owned surfaces are part of the current maintained report-rendering path:
 
-This keeps the canonical report readable for operators, tests, and future LLM handoff without reopening the renderer architecture.
+- `render_report_header(...)`
+- `render_report_command_output_section(...)`
+- `render_command_output_section(...)`
+- `build_report_command_section(...)`
 
-## Maintenance guidance
+## Practical expectation
 
-Prefer narrow helper/model repairs over broad renderer rewrites.
-If report output structure drifts again, repair the shared helper contract first and rerun the maintained reporting and summary-truth tests before changing wider workflow code.
+When future maintenance work touches reporting, prefer narrow helper reuse over broad
+report rewrites. Preserve the current wording unless a test-backed contradiction requires
+a narrow repair.
+
+## Operator truth
+
+The canonical report is still the proof artifact for a run. Handoff surfaces, docs, and
+project packets explain context, but they do not replace the report.

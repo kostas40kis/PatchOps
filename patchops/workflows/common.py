@@ -6,7 +6,9 @@ from pathlib import Path
 
 from patchops.files.paths import ensure_directory
 from patchops.execution.failure_classifier import classify_command_failure
-from patchops.execution.process_runner import run_command
+from patchops.execution.process_runner import run_command_result
+from patchops.execution.result_model import ExecutionResult, normalize_execution_result
+from patchops.models import CommandResult
 
 
 MAX_REPORT_PATH_LENGTH = 220
@@ -56,17 +58,30 @@ def build_report_path(prefix: str, patch_name: str, report_dir: Path) -> Path:
     return fallback_dir / f"r_{digest}_{timestamp}.txt"
 
 
-def execute_command_group(commands, *, runtime_path, working_directory_root, phase: str):
-    results = []
-    for command in commands:
-        result = run_command(
+def execute_command_adapter(command, *, runtime_path, working_directory_root, phase: str) -> tuple[ExecutionResult, CommandResult, object | None]:
+    execution_result = normalize_execution_result(
+        run_command_result(
             command,
             runtime_path=runtime_path,
             working_directory_root=working_directory_root,
             phase=phase,
         )
-        results.append(result)
-        command_failure = classify_command_failure(result, command.allowed_exit_codes)
+    )
+    command_result = execution_result.to_command_result()
+    command_failure = classify_command_failure(command_result, command.allowed_exit_codes)
+    return execution_result, command_result, command_failure
+
+
+def execute_command_group(commands, *, runtime_path, working_directory_root, phase: str):
+    results = []
+    for command in commands:
+        _execution_result, command_result, command_failure = execute_command_adapter(
+            command,
+            runtime_path=runtime_path,
+            working_directory_root=working_directory_root,
+            phase=phase,
+        )
+        results.append(command_result)
         if command_failure is not None:
             return results, command_failure
     return results, None

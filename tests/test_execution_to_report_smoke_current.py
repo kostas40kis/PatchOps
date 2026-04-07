@@ -13,6 +13,24 @@ def _write_manifest(path: Path, payload: dict) -> Path:
     return path
 
 
+def _assert_report_preserves_execution_output(
+    report_text: str,
+    *,
+    command_name: str,
+    stdout_text: str,
+    stderr_text: str,
+) -> None:
+    assert "VALIDATION COMMANDS" in report_text
+    assert f"NAME    : {command_name}" in report_text
+    assert "EXIT    : 0" in report_text
+    assert f"[{command_name}][stdout]" in report_text
+    assert stdout_text in report_text
+    assert f"[{command_name}][stderr]" in report_text
+    assert stderr_text in report_text
+    assert "ExitCode : 0" in report_text
+    assert "Result   : PASS" in report_text
+
+
 def test_apply_manifest_carries_execution_output_into_report(tmp_path: Path) -> None:
     wrapper_root = Path(__file__).resolve().parents[1]
     target_root = tmp_path / "target_repo"
@@ -70,13 +88,12 @@ def test_apply_manifest_carries_execution_output_into_report(tmp_path: Path) -> 
     assert (target_root / "EXECUTION_TO_REPORT_APPLY_RESULT.txt").exists()
 
     report_text = result.report_path.read_text(encoding="utf-8")
-    assert "VALIDATION COMMANDS" in report_text
-    assert "FULL OUTPUT" in report_text
-    assert "validation_probe" in report_text
-    assert "apply smoke stdout" in report_text
-    assert "apply smoke stderr" in report_text
-    assert "ExitCode : 0" in report_text
-    assert "Result   : PASS" in report_text
+    _assert_report_preserves_execution_output(
+        report_text,
+        command_name="validation_probe",
+        stdout_text="apply smoke stdout",
+        stderr_text="apply smoke stderr",
+    )
 
 
 def test_verify_only_carries_execution_output_into_report(tmp_path: Path) -> None:
@@ -86,13 +103,23 @@ def test_verify_only_carries_execution_output_into_report(tmp_path: Path) -> Non
     target_root.mkdir()
     report_dir.mkdir()
 
+    existing_file = target_root / "EXECUTION_TO_REPORT_VERIFY_RESULT.txt"
+    existing_file.write_text("execution to report verify proof\n", encoding="utf-8")
+
     manifest = {
         "manifest_version": "1",
         "patch_name": "execution_to_report_verify_proof",
         "active_profile": "generic_python",
         "target_project_root": str(target_root).replace("\\", "/"),
         "backup_files": [],
-        "files_to_write": [],
+        "files_to_write": [
+            {
+                "path": "EXECUTION_TO_REPORT_VERIFY_RESULT.txt",
+                "content": "execution to report verify proof\n",
+                "content_path": None,
+                "encoding": "utf-8",
+            }
+        ],
         "validation_commands": [
             {
                 "name": "verify_probe",
@@ -116,7 +143,7 @@ def test_verify_only_carries_execution_output_into_report(tmp_path: Path) -> Non
             "report_name_prefix": "execution_to_report_verify_proof",
             "write_to_desktop": False,
         },
-        "tags": ["test", "execution", "report", "verify_only"],
+        "tags": ["test", "execution", "report", "verify_flow"],
         "notes": "Temporary manifest used by test_execution_to_report_smoke_current.",
     }
 
@@ -126,12 +153,12 @@ def test_verify_only_carries_execution_output_into_report(tmp_path: Path) -> Non
     assert result.result_label == "PASS"
     assert result.exit_code == 0
     assert result.report_path.exists()
+    assert existing_file.exists()
 
     report_text = result.report_path.read_text(encoding="utf-8")
-    assert "VALIDATION COMMANDS" in report_text
-    assert "FULL OUTPUT" in report_text
-    assert "verify_probe" in report_text
-    assert "verify smoke stdout" in report_text
-    assert "verify smoke stderr" in report_text
-    assert "ExitCode : 0" in report_text
-    assert "Result   : PASS" in report_text
+    _assert_report_preserves_execution_output(
+        report_text,
+        command_name="verify_probe",
+        stdout_text="verify smoke stdout",
+        stderr_text="verify smoke stderr",
+    )

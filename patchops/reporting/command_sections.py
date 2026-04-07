@@ -6,14 +6,12 @@ from typing import Callable, Iterable, Sequence
 
 from patchops.models import CommandResult
 
-
-SectionRule = Callable[[str], str]
+SectionRule = Callable[[str], str | None]
 
 
 class ComparablePathString(str):
-    def __new__(cls, value: str | Path | None):
-        text = "" if value is None else str(value)
-        return super().__new__(cls, text)
+    def __new__(cls, value: str | Path) -> "ComparablePathString":
+        return super().__new__(cls, str(value))
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Path):
@@ -152,15 +150,16 @@ class ReportCommandOutputSection:
         return self.title
 
     @property
-    def _command_section(self) -> ReportCommandSection:
+    def command_sections(self) -> list[ReportCommandSection]:
         if not self.results:
             raise ValueError("ReportCommandOutputSection must contain at least one result")
+        return build_report_command_sections(self.results, section_label=self.title)
+
+    @property
+    def _command_section(self) -> ReportCommandSection:
         if len(self.results) != 1:
             raise ValueError("Current report output helper expects exactly one result")
-        return build_report_command_section(
-            result=self.results[0],
-            section_label=self.title,
-        )
+        return self.command_sections[0]
 
     @property
     def command_name(self) -> str:
@@ -263,10 +262,11 @@ def _render_output_text(section: ReportCommandOutputSection) -> str:
         heading = section.rule(section.title)
         if heading:
             lines.extend(str(heading).splitlines())
-    lines.append(section.stdout_label)
-    lines.append(section.stdout if section.stdout else "")
-    lines.append(section.stderr_label)
-    lines.append(section.stderr if section.stderr else "")
+    for command_section in section.command_sections:
+        lines.append(command_section.stdout_label)
+        lines.append(command_section.stdout if command_section.stdout else "")
+        lines.append(command_section.stderr_label)
+        lines.append(command_section.stderr if command_section.stderr else "")
     return "\n".join(lines)
 
 

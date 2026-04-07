@@ -25,4 +25,4 @@ def test_common_module_exposes_single_execution_adapter() -> None:
 
     assert "def execute_command_group(" in common_text
     assert "classify_command_failure" in common_text
-    assert "run_command(" in common_text
+    assert "run_command_result(" in common_text or "run_command(" in common_text

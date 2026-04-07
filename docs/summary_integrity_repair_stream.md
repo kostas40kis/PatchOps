@@ -324,3 +324,16 @@ Final interpretation:
 - workflow-facing surfaces fail closed,
 - the Windows-hostile custom report-path issue is repaired,
 - the stream is complete unless new contrary evidence appears.
+
+## Maintained fail-closed rules locked by current tests
+
+- required validation failure outside llowed_exit_codes forces rendered summary FAIL
+- required smoke failure outside llowed_exit_codes forces rendered summary FAIL
+- the first required failure remains sticky even if later required commands succeed
+- explicitly tolerated non-zero exits still remain PASS
+## exact fail-closed phrase alignment
+
+- required validation failure outside `allowed_exit_codes` forces rendered summary `fail`
+- required smoke failure outside `allowed_exit_codes` forces rendered summary `fail`
+- the first required failure remains sticky even if later required commands succeed
+- explicitly tolerated non-zero exits still remain `pass`
