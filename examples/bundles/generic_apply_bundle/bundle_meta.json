@@ -1,0 +1,12 @@
+{
+  "bundle_schema_version": 1,
+  "patch_name": "example_generic_apply_bundle",
+  "target_project": "patchops",
+  "recommended_profile": "generic_python",
+  "target_project_root": "C:/dev/patchops",
+  "wrapper_project_root": "C:/dev/patchops",
+  "content_root": "content",
+  "manifest_path": "manifest.json",
+  "launcher_path": "run_with_patchops.ps1",
+  "bundle_mode": "apply"
+}

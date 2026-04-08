@@ -1,0 +1,48 @@
+{
+  "manifest_version": "1",
+  "patch_name": "example_generic_apply_bundle",
+  "active_profile": "generic_python",
+  "target_project_root": "C:/dev/patchops",
+  "backup_files": [
+    "docs/generic_apply_bundle.md"
+  ],
+  "files_to_write": [
+    {
+      "path": "docs/generic_apply_bundle.md",
+      "content": null,
+      "content_path": "content/docs/generic_apply_bundle.md",
+      "encoding": "utf-8"
+    }
+  ],
+  "validation_commands": [
+    {
+      "name": "generic_apply_bundle_validation",
+      "program": "py",
+      "args": [
+        "-c",
+        "print('example apply bundle validation placeholder')"
+      ],
+      "working_directory": ".",
+      "use_profile_runtime": false,
+      "allowed_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "smoke_commands": [],
+  "audit_commands": [],
+  "cleanup_commands": [],
+  "archive_commands": [],
+  "failure_policy": {},
+  "report_preferences": {
+    "report_dir": null,
+    "report_name_prefix": "example_generic_apply_bundle",
+    "write_to_desktop": true
+  },
+  "tags": [
+    "bundle",
+    "example",
+    "apply"
+  ],
+  "notes": "Maintained example apply bundle for the canonical single-launcher workflow."
+}

@@ -12,6 +12,14 @@ from patchops.examples_index import list_examples
 from patchops.manifest_checks import check_manifest_path
 from patchops.bundles.launcher_self_check import check_launcher_path
 from patchops.bundles.bundle_zip_check import check_bundle_zip
+from patchops.bundles.authoring import (
+    build_bundle_zip,
+    create_starter_bundle,
+    resolve_bundle_execution_metadata,
+    resolve_bundle_workflow_mode,
+    run_bundle_authoring_self_check,
+    run_bundle_doctor,
+)
 from patchops.manifest_loader import load_manifest
 from patchops.manifest_reference import build_manifest_schema_summary
 from patchops.manifest_templates import build_manifest_template
@@ -26,7 +34,7 @@ from patchops.workflows.wrapper_retry import execute_wrapper_only_retry
 from patchops.bundles.bundle_zip_inspect import inspect_bundle_path
 from patchops.bundles.bundle_zip_plan import plan_bundle_path
 from patchops.bundles.bundle_zip_apply import apply_bundle_path
-from patchops.bundle_review import check_bundle_cli_payload
+from patchops.bundles.cli_commands import run_verify_bundle_command
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="patchops")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -47,6 +55,22 @@ def build_parser() -> argparse.ArgumentParser:
         "--extract-root",
         dest="bundle_extract_root",
         help="Optional explicit extraction root for the bundle run",
+    )
+
+
+    verify_bundle_parser = subparsers.add_parser(
+        "verify-bundle",
+        help="Verify a raw zip patch bundle through the verify-only flow",
+    )
+    verify_bundle_parser.description = (
+        "Verify a raw zip patch bundle through the verify-only flow."
+    )
+    verify_bundle_parser.add_argument("bundle_zip_path", help="Path to the bundle zip file")
+    verify_bundle_parser.add_argument(
+        "--wrapper-root",
+        dest="bundle_wrapper_root",
+        required=True,
+        help="PatchOps wrapper repo root used for extracted bundle verification",
     )
 
 
@@ -76,21 +100,30 @@ def build_parser() -> argparse.ArgumentParser:
 
     check_bundle_parser = subparsers.add_parser(
         "check-bundle",
-        help="Validate a raw PatchOps bundle zip without extracting it manually",
+        help="Validate a PatchOps bundle root or raw bundle zip",
     )
     check_bundle_parser.description = (
-        "Validate a raw PatchOps bundle zip without extracting it manually."
+        "Validate a PatchOps bundle root or raw bundle zip before execution."
     )
     check_bundle_parser.add_argument(
-        "bundle_zip_path",
-        help="Path to the PatchOps bundle zip file",
-    )
-    check_bundle_parser.add_argument(
-        "--profile",
-        default=None,
-        help="Optional profile hint carried in the check-bundle review payload",
+        "bundle_path",
+        help="Path to the PatchOps bundle root directory or bundle zip file",
     )
 
+
+    bundle_entry_parser = subparsers.add_parser(
+    "bundle-entry",
+    help="Run a bundle root through metadata-driven apply or verify selection",
+)
+    bundle_entry_parser.description = (
+    "Run a checked bundle root through metadata-driven apply or verify selection."
+)
+    bundle_entry_parser.add_argument("bundle_root", help="Path to the bundle root directory")
+    bundle_entry_parser.add_argument(
+        "--wrapper-root",
+        default=None,
+        help="Override wrapper project root for the delegated manifest workflow",
+    )
 
     apply_parser = subparsers.add_parser("apply", help="Apply a manifest-driven patch")
     apply_parser.add_argument("manifest", help="Path to the manifest JSON file")
@@ -300,6 +333,79 @@ def build_parser() -> argparse.ArgumentParser:
     starter_parser.add_argument("--patch-name")
     starter_parser.add_argument("--wrapper-root")
 
+    make_bundle_parser = subparsers.add_parser(
+        "make-bundle",
+        help="Generate a canonical PatchOps bundle scaffold from Python-owned templates",
+    )
+    make_bundle_parser.description = (
+        "Generate a canonical PatchOps bundle scaffold that already matches the maintained single-launcher authoring contract."
+    )
+    make_bundle_parser.add_argument(
+        "bundle_root",
+        help="Path to the bundle root directory to create or refresh",
+    )
+    make_bundle_parser.add_argument(
+        "--mode",
+        choices=["apply", "verify", "proof"],
+        default="apply",
+        help="Starter bundle mode written into bundle_meta.json.",
+    )
+    make_bundle_parser.add_argument(
+        "--patch-name",
+        default="starter_bundle",
+        help="Patch name written into manifest.json and bundle_meta.json.",
+    )
+    make_bundle_parser.add_argument(
+        "--target-project",
+        default="patchops",
+        help="Human-readable target project label written into bundle_meta.json.",
+    )
+    make_bundle_parser.add_argument(
+        "--target-root",
+        default=None,
+        help="Target project root written into the starter manifest and bundle metadata.",
+    )
+    make_bundle_parser.add_argument(
+        "--profile",
+        default="generic_python",
+        help="Recommended PatchOps profile written into the generated bundle.",
+    )
+    make_bundle_parser.add_argument(
+        "--wrapper-root",
+        default=None,
+        help="Wrapper project root written into bundle metadata and used for launcher emission.",
+    )
+
+    build_bundle_parser = subparsers.add_parser(
+        "build-bundle",
+        help="Build a deterministic PatchOps bundle zip from a validated bundle root",
+    )
+    build_bundle_parser.description = (
+        "Build a deterministic PatchOps bundle zip from a validated bundle root."
+    )
+    build_bundle_parser.add_argument(
+        "bundle_root",
+        help="Path to the canonical PatchOps bundle root directory",
+    )
+    build_bundle_parser.add_argument(
+        "--output",
+        required=True,
+        help="Output .zip path for the built bundle archive.",
+    )
+
+
+    bundle_doctor_parser = subparsers.add_parser(
+        "bundle-doctor",
+        help="Diagnose PatchOps bundle authoring problems from one high-signal entrypoint",
+    )
+    bundle_doctor_parser.description = (
+        "Diagnose missing files, wrong root shape, launcher risks, content-path mismatches, and export mistakes for a bundle root or bundle zip."
+    )
+    bundle_doctor_parser.add_argument(
+        "bundle_path",
+        help="Path to the PatchOps bundle root directory or bundle zip file",
+    )
+
 
     run_package_parser = subparsers.add_parser(
         "run-package",
@@ -389,6 +495,25 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, indent=2))
         return int(payload["exit_code"])
 
+    if args.command == "verify-bundle":
+        try:
+            payload = run_verify_bundle_command(
+                args.bundle_zip_path,
+                getattr(args, "bundle_wrapper_root", None),
+            )
+        except Exception as exc:
+            print(json.dumps({
+                "bundle_zip_path": str(args.bundle_zip_path),
+                "ok": False,
+                "error": str(exc),
+            }, indent=2))
+            return 1
+        print(json.dumps(payload, indent=2))
+        exit_code = payload.get("exit_code")
+        if exit_code is None:
+            return 0 if payload.get("ok") else 1
+        return int(exit_code)
+
     if args.command == "apply":
         result = apply_manifest(args.manifest, wrapper_project_root=args.wrapper_root)
         print(_build_run_summary(result, args.manifest))
@@ -454,18 +579,22 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if payload["ok"] else 1
 
     if args.command == "check-bundle":
-        raw_profile = getattr(args, "profile", None)
-        profile_name = None
-        if raw_profile is not None:
-            scrubbed = str(raw_profile).strip()
-            profile_name = scrubbed or None
-        payload = check_bundle_cli_payload(
-            args.bundle_zip_path,
-            profile_name=profile_name,
-        )
+        bundle_path = Path(args.bundle_path)
+        if bundle_path.suffix.lower() == ".zip":
+            payload = check_bundle_zip(bundle_path)
+        else:
+            result = run_bundle_authoring_self_check(bundle_path)
+            payload = {
+                "bundle_root": str(result.bundle_root),
+                "exists": result.bundle_root.exists(),
+                "ok": result.is_valid,
+                "issue_count": result.issue_count,
+                "shape_issue_count": len(result.shape_messages),
+                "launcher_issue_count": len(result.launcher_messages),
+                "issues": [message.to_dict() for message in result.messages],
+            }
         print(json.dumps(payload, indent=2))
         return 0 if payload["ok"] else 1
-
 
     if args.command == "check-launcher":
         payload = check_launcher_path(args.launcher_path)
@@ -656,6 +785,85 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, indent=2))
         return 0
 
+
+    if args.command == "bundle-entry":
+        bundle_root = Path(args.bundle_root).resolve()
+        metadata = resolve_bundle_execution_metadata(bundle_root)
+        workflow_mode = resolve_bundle_workflow_mode(metadata)
+
+        commands = [
+            ["check-bundle", str(bundle_root)],
+            ["check", str(metadata.manifest_path)],
+            ["inspect", str(metadata.manifest_path)],
+            ["plan", str(metadata.manifest_path)],
+        ]
+        final_command = [workflow_mode, str(metadata.manifest_path)]
+        if args.wrapper_root:
+            final_command.extend(["--wrapper-root", args.wrapper_root])
+        commands.append(final_command)
+
+        for nested_argv in commands:
+            exit_code = main(nested_argv)
+            if exit_code != 0:
+                return exit_code
+        return 0
+    if args.command == "make-bundle":
+        wrapper_root = (
+            str(Path(args.wrapper_root).resolve())
+            if args.wrapper_root
+            else str(Path(__file__).resolve().parents[1])
+        )
+        target_root = args.target_root or wrapper_root
+        result = create_starter_bundle(
+            args.bundle_root,
+            patch_name=args.patch_name,
+            target_project=args.target_project,
+            target_project_root=target_root,
+            wrapper_project_root=wrapper_root,
+            recommended_profile=args.profile,
+            mode=args.mode,
+        )
+        self_check = run_bundle_authoring_self_check(result.bundle_root)
+        payload = {
+            "bundle_root": str(result.bundle_root),
+            "manifest_path": str(result.manifest_path),
+            "bundle_meta_path": str(result.bundle_meta_path),
+            "readme_path": str(result.readme_path),
+            "launcher_path": str(result.launcher_path),
+            "content_root": str(result.content_root),
+            "patch_name": args.patch_name,
+            "target_project": args.target_project,
+            "target_project_root": target_root,
+            "wrapper_project_root": wrapper_root,
+            "recommended_profile": args.profile,
+            "bundle_mode": args.mode,
+            "ok": self_check.is_valid,
+            "issue_count": self_check.issue_count,
+            "issues": [message.to_dict() for message in self_check.messages],
+        }
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "build-bundle":
+        result = build_bundle_zip(args.bundle_root, args.output)
+        payload = {
+            "bundle_root": str(result.bundle_root),
+            "output_zip": str(result.output_zip),
+            "root_folder_name": result.root_folder_name,
+            "member_count": result.member_count,
+            "ok": result.ok,
+            "issue_count": result.issue_count,
+            "issues": [message.to_dict() for message in result.issues],
+        }
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
+
+    if args.command == "bundle-doctor":
+        result = run_bundle_doctor(args.bundle_path)
+        payload = result.to_dict()
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
+
     if args.command == "starter":
         from patchops.project_packets import build_starter_manifest_for_intent
 
@@ -675,5 +883,7 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
 
 

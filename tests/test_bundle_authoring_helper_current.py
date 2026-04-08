@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 
 from patchops.bundles.authoring import create_starter_bundle
+from patchops.bundles.launcher_emitter import METADATA_DRIVEN_LAUNCHER_MODE, render_root_bundle_launcher
+from patchops.bundles.launcher_self_check import check_launcher_path
 
 
 def test_create_starter_bundle_writes_required_root_files(tmp_path: Path) -> None:
@@ -36,11 +38,18 @@ def test_create_starter_bundle_writes_required_root_files(tmp_path: Path) -> Non
     assert bundle_meta["manifest_path"] == "manifest.json"
     assert bundle_meta["launcher_path"] == "run_with_patchops.ps1"
     assert bundle_meta["content_root"] == "content"
+    assert bundle_meta["bundle_mode"] == "apply"
 
     launcher_text = result.launcher_path.read_text(encoding="utf-8")
-    assert launcher_text.startswith("& {")
-    assert "py -m patchops.cli check $manifestPath" in launcher_text
-    assert "py -m patchops.cli apply $manifestPath" in launcher_text
+    assert launcher_text.startswith("param(")
+    assert launcher_text == render_root_bundle_launcher(mode=METADATA_DRIVEN_LAUNCHER_MODE)
+    assert "py -m patchops.cli bundle-entry $bundleRoot --wrapper-root $WrapperRepoRoot" in launcher_text
+    assert "py -m patchops.cli apply $manifestPath" not in launcher_text
+    assert "py -m patchops.cli verify $manifestPath" not in launcher_text
+
+    payload = check_launcher_path(result.launcher_path)
+    assert payload["ok"] is True
+    assert payload["issue_count"] == 0
 
 
 def test_create_starter_bundle_supports_verify_mode_and_custom_profile(tmp_path: Path) -> None:
@@ -60,7 +69,11 @@ def test_create_starter_bundle_supports_verify_mode_and_custom_profile(tmp_path:
     bundle_meta = json.loads(result.bundle_meta_path.read_text(encoding="utf-8"))
     assert bundle_meta["wrapper_project_root"] == "C:/work/custom_wrapper"
     assert bundle_meta["recommended_profile"] == "generic_python_powershell"
+    assert bundle_meta["bundle_mode"] == "verify"
 
     launcher_text = result.launcher_path.read_text(encoding="utf-8")
-    assert "py -m patchops.cli verify $manifestPath" in launcher_text
+    assert launcher_text.startswith("param(")
+    assert launcher_text == render_root_bundle_launcher(mode=METADATA_DRIVEN_LAUNCHER_MODE, wrapper_project_root="C:/work/custom_wrapper")
+    assert "py -m patchops.cli bundle-entry $bundleRoot --wrapper-root $WrapperRepoRoot" in launcher_text
+    assert "py -m patchops.cli verify $manifestPath" not in launcher_text
     assert "py -m patchops.cli apply $manifestPath" not in launcher_text

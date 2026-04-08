@@ -4,149 +4,239 @@ import argparse
 import json
 from pathlib import Path
 from typing import Any
-
-from patchops.bundles.shape_validation import validate_bundle_path
-
-
-def _build_check_bundle_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog="patchops check-bundle",
-        description="Validate a patch bundle zip or bundle directory before execution.",
-    )
-    parser.add_argument("bundle_path", help="Path to the bundle zip or extracted bundle directory.")
-    parser.add_argument("--profile", dest="profile", default=None, help="Optional expected profile for operator review.")
-    return parser
+import zipfile
 
 
-def check_bundle_payload(bundle_path: Path, requested_profile: str | None = None) -> dict[str, Any]:
-    result = validate_bundle_path(bundle_path)
-    payload = result.to_dict()
-    payload["checked_path"] = str(Path(bundle_path))
-    payload["requested_profile"] = requested_profile
+def _normalize_member_name(name: str) -> str:
+    return str(name or "").replace("\\", "/").strip("/")
+
+
+def _issue(code: str, message: str, *, path: str | None = None) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "code": code,
+        "message": message,
+    }
+    if path is not None:
+        payload["path"] = path
     return payload
 
 
+def _warning(code: str, message: str, *, path: str | None = None) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "code": code,
+        "message": message,
+    }
+    if path is not None:
+        payload["path"] = path
+    return payload
+
+
+def _top_level_roots(member_names: list[str]) -> list[str]:
+    roots: list[str] = []
+    seen: set[str] = set()
+    for raw_name in member_names:
+        name = _normalize_member_name(raw_name)
+        if not name:
+            continue
+        root = name.split("/", 1)[0]
+        if root not in seen:
+            seen.add(root)
+            roots.append(root)
+    return roots
+
+
+def _read_json_object_from_zip(zf: zipfile.ZipFile, member_name: str) -> dict[str, Any] | None:
+    try:
+        with zf.open(member_name, "r") as handle:
+            raw = handle.read().decode("utf-8")
+    except KeyError:
+        return None
+    data = json.loads(raw)
+    if not isinstance(data, dict):
+        raise ValueError(f"{member_name} must contain a JSON object.")
+    return data
+
+
+def check_bundle_payload(
+    bundle_zip_path: str | Path,
+    wrapper_project_root: str | Path | None = None,
+    *,
+    profile: str | None = None,
+    profile_name: str | None = None,
+    timestamp_token: str | None = None,
+    **_ignored: Any,
+) -> dict[str, Any]:
+    del wrapper_project_root, timestamp_token, _ignored
+
+    if profile is None:
+        profile = profile_name
+
+    bundle_zip = Path(bundle_zip_path)
+    exists = bundle_zip.exists()
+    resolved_path = str(bundle_zip.resolve()) if exists else str(bundle_zip)
+
+    issues: list[dict[str, Any]] = []
+    warnings: list[dict[str, Any]] = []
+    top_level_root: str | None = None
+    bundle_meta_present = False
+    recommended_profile: str | None = None
+
+    if not exists:
+        issues.append(
+            _issue(
+                "missing_bundle_zip",
+                "Bundle zip was not found.",
+                path=resolved_path,
+            )
+        )
+        return {
+            "ok": False,
+            "exists": False,
+            "path": resolved_path,
+            "profile": profile,
+            "top_level_root": None,
+            "issue_count": len(issues),
+            "issues": issues,
+            "warning_count": len(warnings),
+            "warnings": warnings,
+            "bundle_meta_present": False,
+            "recommended_profile": None,
+        }
+
+    try:
+        with zipfile.ZipFile(bundle_zip, "r") as zf:
+            member_names = [name for name in zf.namelist() if _normalize_member_name(name)]
+            if not member_names:
+                issues.append(
+                    _issue(
+                        "invalid_zip",
+                        "Bundle zip is empty.",
+                        path=resolved_path,
+                    )
+                )
+            else:
+                roots = _top_level_roots(member_names)
+                if len(roots) != 1:
+                    issues.append(
+                        _issue(
+                            "multiple_roots",
+                            "Bundle zip must contain exactly one top-level root folder.",
+                            path=resolved_path,
+                        )
+                    )
+                else:
+                    top_level_root = roots[0]
+                    manifest_member = f"{top_level_root}/manifest.json"
+                    bundle_meta_member = f"{top_level_root}/bundle_meta.json"
+
+                    if manifest_member not in member_names:
+                        issues.append(
+                            _issue(
+                                "missing_manifest",
+                                "Bundle zip is missing manifest.json at the bundle root.",
+                                path=manifest_member,
+                            )
+                        )
+
+                    if bundle_meta_member in member_names:
+                        bundle_meta_present = True
+                        try:
+                            bundle_meta = _read_json_object_from_zip(zf, bundle_meta_member)
+                        except Exception as exc:
+                            warnings.append(
+                                _warning(
+                                    "invalid_bundle_meta",
+                                    f"bundle_meta.json could not be parsed cleanly: {exc}",
+                                    path=bundle_meta_member,
+                                )
+                            )
+                        else:
+                            recommended_profile = (
+                                None
+                                if bundle_meta is None
+                                else str(bundle_meta.get("recommended_profile") or "").strip() or None
+                            )
+                    else:
+                        warnings.append(
+                            _warning(
+                                "missing_bundle_meta",
+                                "bundle_meta.json is absent; current check-bundle compatibility treats this as a warning, not a top-level failure.",
+                                path=bundle_meta_member,
+                            )
+                        )
+    except zipfile.BadZipFile:
+        issues.append(
+            _issue(
+                "invalid_zip",
+                "Bundle zip could not be opened as a valid zip archive.",
+                path=resolved_path,
+            )
+        )
+    except Exception as exc:
+        issues.append(
+            _issue(
+                "invalid_zip",
+                f"Bundle zip could not be reviewed cleanly: {exc}",
+                path=resolved_path,
+            )
+        )
+
+    return {
+        "ok": len(issues) == 0,
+        "exists": exists,
+        "path": resolved_path,
+        "profile": profile,
+        "top_level_root": top_level_root,
+        "issue_count": len(issues),
+        "issues": issues,
+        "warning_count": len(warnings),
+        "warnings": warnings,
+        "bundle_meta_present": bundle_meta_present,
+        "recommended_profile": recommended_profile,
+    }
+
+
+def check_bundle_cli_payload(*args: Any, **kwargs: Any) -> dict[str, Any]:
+    if args and hasattr(args[0], "__dict__") and not isinstance(args[0], (str, Path)):
+        namespace = args[0]
+        bundle_zip_path = getattr(namespace, "bundle_zip_path", None)
+        if bundle_zip_path is None:
+            bundle_zip_path = getattr(namespace, "path", None)
+        profile = getattr(namespace, "profile", None)
+        if profile is None:
+            profile = getattr(namespace, "profile_name", None)
+        return check_bundle_payload(
+            bundle_zip_path,
+            getattr(namespace, "wrapper_root", None) or getattr(namespace, "wrapper_project_root", None),
+            profile=profile,
+            timestamp_token=getattr(namespace, "timestamp_token", None),
+        )
+
+    if "profile" not in kwargs and "profile_name" in kwargs:
+        kwargs["profile"] = kwargs.pop("profile_name")
+    return check_bundle_payload(*args, **kwargs)
+
+
 def cli_check_bundle_main(argv: list[str] | None = None) -> int:
-    parser = _build_check_bundle_parser()
+    parser = argparse.ArgumentParser(prog="patchops bundle_review")
+    parser.add_argument("bundle_zip_path")
+    parser.add_argument("--profile", default=None)
+    parser.add_argument("--wrapper-root", default=None)
+    parser.add_argument("--timestamp-token", default=None)
     args = parser.parse_args(argv)
-    payload = check_bundle_payload(Path(args.bundle_path), requested_profile=args.profile)
+
+    payload = check_bundle_payload(
+        args.bundle_zip_path,
+        args.wrapper_root,
+        profile=args.profile,
+        timestamp_token=args.timestamp_token,
+    )
     print(json.dumps(payload, indent=2))
-    return 0 if payload.get("ok") else 1
+    return 0 if payload["ok"] else 1
 
 
 __all__ = [
     "check_bundle_payload",
+    "check_bundle_cli_payload",
     "cli_check_bundle_main",
 ]
-
-# PATCHOPS_ZP07B_CHECK_BUNDLE_ADAPTER:START
-def check_bundle_cli_payload(
-    bundle_zip_path,
-    wrapper_project_root=None,
-    *,
-    profile=None,
-    scrubbed_profile=None,
-    timestamp_token=None,
-):
-    import tempfile
-    import zipfile
-    from pathlib import Path
-
-    def _issue(code, message, path=None):
-        payload = {"code": str(code), "message": str(message)}
-        if path not in (None, ""):
-            payload["path"] = str(path)
-        return payload
-
-    def _message_dict(message):
-        return {
-            "code": str(getattr(message, "code", "unknown")),
-            "message": str(getattr(message, "message", str(message))),
-            "path": None if getattr(message, "path", None) in (None, "") else str(getattr(message, "path", None)),
-        }
-
-    bundle_path = Path(bundle_zip_path).resolve()
-    effective_profile = scrubbed_profile or profile
-    issues = []
-    top_level_roots = []
-    root_folder = None
-    member_names = []
-    strict_review = None
-
-    if not bundle_path.exists():
-        issues.append(_issue("missing_bundle_zip", f"Bundle zip path does not exist: {bundle_path}", bundle_path))
-    elif bundle_path.is_dir():
-        issues.append(_issue("bundle_path_is_directory", f"Bundle zip path is a directory, not a zip file: {bundle_path}", bundle_path))
-    else:
-        try:
-            with zipfile.ZipFile(bundle_path, "r") as zf:
-                member_names = [
-                    name.replace("\", "/").strip("/")
-                    for name in zf.namelist()
-                    if name and name.strip("/")
-                ]
-        except zipfile.BadZipFile:
-            issues.append(_issue("invalid_zip_archive", f"Bundle zip is not a valid zip archive: {bundle_path}", bundle_path))
-
-    if bundle_path.exists() and bundle_path.is_file() and not issues:
-        if not member_names:
-            issues.append(_issue("empty_bundle_zip", "Bundle zip is empty.", bundle_path))
-        else:
-            top_level_roots = sorted({name.split("/", 1)[0] for name in member_names})
-            if len(top_level_roots) != 1:
-                issues.append(
-                    _issue(
-                        "top_level_root_count_invalid",
-                        f"Bundle zip must contain exactly one top-level root folder. Found: {top_level_roots}",
-                        bundle_path,
-                    )
-                )
-            else:
-                root_folder = top_level_roots[0]
-                manifest_member = f"{root_folder}/manifest.json"
-                if manifest_member not in set(member_names):
-                    issues.append(_issue("missing_manifest", f"Missing required bundle file: {manifest_member}", manifest_member))
-
-                try:
-                    from patchops.bundles import validate_extracted_bundle_dir
-                    with tempfile.TemporaryDirectory(prefix="patchops_check_bundle_") as td:
-                        extracted_parent = Path(td) / "extracted_bundle"
-                        extracted_parent.mkdir(parents=True, exist_ok=True)
-                        with zipfile.ZipFile(bundle_path, "r") as zf:
-                            zf.extractall(extracted_parent)
-                        extracted_root = extracted_parent / root_folder
-                        if extracted_root.exists():
-                            result = validate_extracted_bundle_dir(extracted_root)
-                            strict_review = {
-                                "is_valid": bool(getattr(result, "is_valid", False)),
-                                "issues": [_message_dict(msg) for msg in getattr(result, "errors", ())],
-                                "warnings": [_message_dict(msg) for msg in getattr(result, "warnings", ())],
-                            }
-                        else:
-                            strict_review = {
-                                "is_valid": False,
-                                "issues": [_issue("extracted_root_missing", f"Extracted bundle root was not found: {extracted_root}", extracted_root)],
-                                "warnings": [],
-                            }
-                except Exception as exc:
-                    strict_review = {
-                        "is_valid": False,
-                        "issues": [_issue("strict_review_error", f"Strict bundle review could not run: {exc}")],
-                        "warnings": [],
-                    }
-
-    payload = {
-        "ok": len(issues) == 0,
-        "bundle_zip_path": str(bundle_path),
-        "exists": bundle_path.exists(),
-        "profile": effective_profile,
-        "issue_count": len(issues),
-        "issues": issues,
-        "top_level_roots": top_level_roots,
-        "root_folder": root_folder,
-        "member_count": len(member_names),
-        "bundle_review": strict_review,
-        "compatibility_mode": "zip_root_and_manifest_first",
-    }
-    return payload
-

@@ -1,140 +1,34 @@
-# PatchOps Bundle Authoring Template
+# PatchOps bundle authoring template
 
-## Purpose
+Use this checklist for every maintained bundle.
 
-This document explains how to author a new patch bundle under the simplified single-launcher delivery rule.
+## Start from Python
 
-Patch 04 clarifies the flat archive export rule so one extract action lands at the usable bundle root.
+- `py -m patchops.cli make-bundle <bundle-root> --mode apply`
+- `py -m patchops.cli make-bundle <bundle-root> --mode verify`
 
-This is still part of the **manual unzip stage**.
-At this point the operator still:
-1. receives one zip,
-2. unzips it manually,
-3. opens the extracted folder,
-4. runs the included `run_with_patchops.ps1`,
-5. and reads one canonical Desktop txt report written by PatchOps.
+## Fill the bundle
 
-Native zip intake is a later milestone.
-The older PatchOps `check`, `inspect`, `plan`, `apply`, and `verify` flows remain unchanged.
+1. Put target-relative staged files under `content/`.
+2. Add matching `files_to_write` entries in `manifest.json`.
+3. Keep one root-level `run_with_patchops.ps1`.
+4. Set `bundle_mode` in `bundle_meta.json` instead of inventing extra launcher variants.
 
----
+## Diagnose before zipping
 
-## Where the maintained example lives
+- `py -m patchops.cli bundle-doctor <bundle-root>`
+- `py -m patchops.cli check-bundle <bundle-root>`
 
-Copy the maintained example bundle from:
+`bundle-doctor` is the preferred troubleshooting entrypoint because it covers shape validation, launcher-risk review, and build verification before bundle export.
 
-```text
-examples/bundles/example_generic_python_patch_bundle/
-```
+## Build and run
 
-That example now reflects the root-level single-launcher rule.
+- `py -m patchops.cli build-bundle <bundle-root> --output <zip>`
+- `py -m patchops.cli run-package <zip> --wrapper-root C:\dev\patchops`
 
----
+## Maintained example bundles
 
-## The required bundle shape
+- `examples/bundles/generic_apply_bundle`
+- `examples/bundles/generic_verify_bundle`
 
-Every future bundle should follow this root shape:
-
-```text
-<bundle-root>/
-  manifest.json
-  bundle_meta.json
-  README.txt
-  run_with_patchops.ps1
-  content/
-    ...
-```
-
-One folder is enough.
-One root-level PowerShell file is enough.
-One canonical Desktop txt report is enough for the normal apply path.
-
----
-
-## Archive/export rule
-
-When creating the delivered zip, archive the bundle root contents directly.
-Do not wrap the bundle in an extra duplicate parent folder inside the archive.
-
-The operator should be able to unzip the delivered archive once and immediately see:
-- `manifest.json`
-- `bundle_meta.json`
-- `README.txt`
-- `run_with_patchops.ps1`
-- `content/`
-
-This keeps the manual-unzip stage simple and removes the earlier nested-folder confusion.
-
----
-
-## Recommended authoring workflow
-
-### Step 1 — copy the maintained example bundle
-
-Copy the maintained example bundle and rename it for the new patch.
-
-### Step 2 — prepare the root metadata files
-
-Create or update:
-- `manifest.json`
-- `bundle_meta.json`
-- `README.txt`
-- `run_with_patchops.ps1`
-
-At minimum, replace:
-- patch name,
-- target project,
-- profile,
-- target root,
-- content file list,
-- and validation commands.
-
-### Step 3 — replace staged content under `content/`
-
-Put the target files under `content/` using target-relative paths.
-
-### Step 4 — keep the root launcher thin
-
-The single launcher should remain boring.
-It should:
-- locate the bundle root,
-- find `manifest.json`,
-- call PatchOps,
-- and let PatchOps own the real apply / reporting behavior.
-
-It should not:
-- manually copy files as the main path,
-- become a mini workflow engine,
-- or bypass one canonical report.
-
-If a launcher is being generated from Python, it should be wrapped in `& { ... }` and formatted consistently.
-This stream now treats the Python helper as the preferred way to format launcher text.
-
-### Step 5 — export the zip without an extra parent layer
-
-Zip the bundle root contents directly.
-The extracted result should be one folder deep, not two copies of the patch name nested inside each other.
-
-At this stage the operator still unzips it manually before running the launcher.
-
----
-
-## What the maintained example should teach
-
-The maintained example bundle should make these things obvious:
-- what the root shape looks like,
-- where staged content goes,
-- how `content_path` references are written,
-- what a thin launcher looks like,
-- what the flat archive export rule looks like,
-- and that one canonical Desktop txt report remains required.
-
----
-
-## Acceptance rule for this stage
-
-This stage is healthy when:
-- the docs describe the manual unzip stage clearly,
-- the docs describe the flat archive export rule clearly,
-- the maintained example bundle uses one root-level launcher,
-- and the tests lock those expectations.
+These examples are the maintained defaults for operators and future LLMs.
