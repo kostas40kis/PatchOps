@@ -1,21 +1,17 @@
-# PatchOps LLM usage notes
+# LLM usage
 
-For the standardized bundle workflow, future sessions should not improvise launcher structure or zip nesting.
+When authoring PatchOps bundles, follow the maintained default workflow exactly.
 
-## Use this flow
+## Required sequence
+- use `make-bundle` to scaffold,
+- edit `manifest.json`, `bundle_meta.json`, and `content/`,
+- diagnose with `check-bundle`, `inspect-bundle`, `plan-bundle`, and `bundle-doctor`,
+- build with `build-bundle`,
+- execute with `run-package`,
+- continue patch by patch from evidence in the canonical Desktop txt report.
 
-1. scaffold with `py -m patchops.cli make-bundle ...`
-2. edit `manifest.json`, `bundle_meta.json`, and `content/`
-3. diagnose with `py -m patchops.cli bundle-doctor <bundle-root>`
-4. build with `py -m patchops.cli build-bundle <bundle-root> --output <zip>`
-5. execute with `py -m patchops.cli run-package <zip> --wrapper-root C:\dev\patchops`
-6. continue patch by patch from the canonical Desktop txt report
-
-## Maintained examples
-
-Treat these as the maintained example bundles:
-
-- `examples/bundles/generic_apply_bundle`
-- `examples/bundles/generic_verify_bundle`
-
-They show the canonical one-launcher, metadata-driven mode workflow.
+## What not to do
+- Do not invent extra launcher variants.
+- Do not manually improvise zip structure.
+- Do not skip the bundle-doctor review step when diagnosing authoring problems.
+- Do not claim success without a report.

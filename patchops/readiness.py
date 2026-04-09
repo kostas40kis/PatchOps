@@ -76,6 +76,34 @@ REQUIRED_RELEASE_PROFILES = (
     "generic_python_powershell",
 )
 
+REQUIRED_BUNDLE_RELEASE_DOCS = (
+    "docs/bundle_contract_packet.md",
+    "docs/bundle_regression_gate.md",
+    "docs/bundle_smoke_gate.md",
+    "docs/self_hosted_bundle_proof.md",
+    "docs/bundle_release_readiness.md",
+)
+
+REQUIRED_BUNDLE_RELEASE_WORKFLOWS = (
+    "patchops/bundles/authoring.py",
+    "patchops/bundles/launcher_emitter.py",
+)
+
+REQUIRED_BUNDLE_RELEASE_TESTS = (
+    "tests/test_bundle_contract_packet_current.py",
+    "tests/test_bundle_manifest_regression_gate_current.py",
+    "tests/test_bundle_post_build_smoke_gate_current.py",
+    "tests/test_self_hosted_bundle_authoring_proof_current.py",
+)
+
+MAINTENANCE_GATE_REGRESSION_TESTS = (
+    "tests/test_bundle_manifest_regression_gate_current.py",
+)
+
+MAINTENANCE_GATE_SMOKE_TESTS = (
+    "tests/test_bundle_post_build_smoke_gate_current.py",
+)
+
 # Backward-compatible aliases from the earlier release-readiness surface.
 REQUIRED_RELEASE_READINESS_DOCS = REQUIRED_RELEASE_DOCS
 REQUIRED_RELEASE_READINESS_EXAMPLES = REQUIRED_RELEASE_EXAMPLES
@@ -108,12 +136,18 @@ class ReleaseReadinessSnapshot:
     release_launchers_ok: bool
     release_tests_ok: bool
     profiles_ok: bool
+    bundle_release_docs_ok: bool
+    bundle_release_workflows_ok: bool
+    bundle_release_tests_ok: bool
     missing_release_docs: tuple[str, ...]
     missing_release_examples: tuple[str, ...]
     missing_release_workflows: tuple[str, ...]
     missing_release_launchers: tuple[str, ...]
     missing_release_tests: tuple[str, ...]
     missing_profiles: tuple[str, ...]
+    missing_bundle_release_docs: tuple[str, ...]
+    missing_bundle_release_workflows: tuple[str, ...]
+    missing_bundle_release_tests: tuple[str, ...]
     issues: tuple[str, ...]
 
 
@@ -230,6 +264,15 @@ def build_release_readiness_snapshot(
         available_profiles,
         REQUIRED_RELEASE_PROFILES,
     )
+    missing_bundle_release_docs = _missing_paths(wrapper_root, REQUIRED_BUNDLE_RELEASE_DOCS)
+    missing_bundle_release_workflows = _missing_paths(
+        wrapper_root,
+        REQUIRED_BUNDLE_RELEASE_WORKFLOWS,
+    )
+    missing_bundle_release_tests = _missing_paths(
+        wrapper_root,
+        REQUIRED_BUNDLE_RELEASE_TESTS,
+    )
 
     release_docs_ok = not missing_release_docs
     release_examples_ok = not missing_release_examples
@@ -237,6 +280,9 @@ def build_release_readiness_snapshot(
     release_launchers_ok = not missing_release_launchers
     release_tests_ok = not missing_release_tests
     profiles_ok = not missing_profiles
+    bundle_release_docs_ok = not missing_bundle_release_docs
+    bundle_release_workflows_ok = not missing_bundle_release_workflows
+    bundle_release_tests_ok = not missing_bundle_release_tests
 
     issues: list[str] = []
     if not release_docs_ok:
@@ -251,6 +297,12 @@ def build_release_readiness_snapshot(
         issues.append("missing release tests")
     if not profiles_ok:
         issues.append("missing expected profiles")
+    if not bundle_release_docs_ok:
+        issues.append("missing bundle release docs")
+    if not bundle_release_workflows_ok:
+        issues.append("missing bundle release workflows")
+    if not bundle_release_tests_ok:
+        issues.append("missing bundle release tests")
     if core_tests_state == "unknown":
         issues.append("core test state not provided")
     elif core_tests_state == "not_green":
@@ -264,6 +316,9 @@ def build_release_readiness_snapshot(
             not release_launchers_ok,
             not release_tests_ok,
             not profiles_ok,
+            not bundle_release_docs_ok,
+            not bundle_release_workflows_ok,
+            not bundle_release_tests_ok,
         )
     )
 
@@ -283,12 +338,18 @@ def build_release_readiness_snapshot(
         release_launchers_ok=release_launchers_ok,
         release_tests_ok=release_tests_ok,
         profiles_ok=profiles_ok,
+        bundle_release_docs_ok=bundle_release_docs_ok,
+        bundle_release_workflows_ok=bundle_release_workflows_ok,
+        bundle_release_tests_ok=bundle_release_tests_ok,
         missing_release_docs=missing_release_docs,
         missing_release_examples=missing_release_examples,
         missing_release_workflows=missing_release_workflows,
         missing_release_launchers=missing_release_launchers,
         missing_release_tests=missing_release_tests,
         missing_profiles=missing_profiles,
+        missing_bundle_release_docs=missing_bundle_release_docs,
+        missing_bundle_release_workflows=missing_bundle_release_workflows,
+        missing_bundle_release_tests=missing_bundle_release_tests,
         issues=tuple(issues),
     )
 
@@ -306,6 +367,9 @@ def render_release_readiness_scope_lines(
         f"Launchers   : {'ok' if snapshot.release_launchers_ok else 'missing'}",
         f"Tests       : {'ok' if snapshot.release_tests_ok else 'missing'}",
         f"Profiles    : {'ok' if snapshot.profiles_ok else 'missing'}",
+        f"BundleDocs  : {'ok' if snapshot.bundle_release_docs_ok else 'missing'}",
+        f"BundleFlows : {'ok' if snapshot.bundle_release_workflows_ok else 'missing'}",
+        f"BundleTests : {'ok' if snapshot.bundle_release_tests_ok else 'missing'}",
         f"Issues      : {len(snapshot.issues)}",
     )
 
@@ -318,12 +382,19 @@ def release_readiness_as_dict(snapshot: ReleaseReadinessSnapshot) -> dict[str, o
     payload["required_release_launchers"] = REQUIRED_RELEASE_LAUNCHERS
     payload["required_release_tests"] = REQUIRED_RELEASE_TESTS
     payload["required_release_profiles"] = REQUIRED_RELEASE_PROFILES
+    payload["required_bundle_release_docs"] = REQUIRED_BUNDLE_RELEASE_DOCS
+    payload["required_bundle_release_workflows"] = REQUIRED_BUNDLE_RELEASE_WORKFLOWS
+    payload["required_bundle_release_tests"] = REQUIRED_BUNDLE_RELEASE_TESTS
     payload["scope_lines"] = list(render_release_readiness_scope_lines(snapshot))
     return payload
 
 
 def _items_or_none(items: tuple[str, ...]) -> tuple[str, ...]:
     return items if items else ("(none)",)
+
+
+def release_readiness_exit_code(snapshot: ReleaseReadinessSnapshot) -> int:
+    return 0 if snapshot.status != "not_ready" else 1
 
 
 def render_release_readiness_report_lines(
@@ -346,6 +417,9 @@ def render_release_readiness_report_lines(
         f"Launchers         : {'ok' if snapshot.release_launchers_ok else 'missing'}",
         f"Tests             : {'ok' if snapshot.release_tests_ok else 'missing'}",
         f"Profiles          : {'ok' if snapshot.profiles_ok else 'missing'}",
+        f"Bundle Docs       : {'ok' if snapshot.bundle_release_docs_ok else 'missing'}",
+        f"Bundle Workflows  : {'ok' if snapshot.bundle_release_workflows_ok else 'missing'}",
+        f"Bundle Tests      : {'ok' if snapshot.bundle_release_tests_ok else 'missing'}",
         f"Issues            : {len(snapshot.issues)}",
         "",
         "MISSING RELEASE DOCS",
@@ -372,6 +446,18 @@ def render_release_readiness_report_lines(
         "----------------",
         *_items_or_none(snapshot.missing_profiles),
         "",
+        "MISSING BUNDLE RELEASE DOCS",
+        "---------------------------",
+        *_items_or_none(snapshot.missing_bundle_release_docs),
+        "",
+        "MISSING BUNDLE RELEASE WORKFLOWS",
+        "--------------------------------",
+        *_items_or_none(snapshot.missing_bundle_release_workflows),
+        "",
+        "MISSING BUNDLE RELEASE TESTS",
+        "----------------------------",
+        *_items_or_none(snapshot.missing_bundle_release_tests),
+        "",
         "ISSUES",
         "------",
         *_items_or_none(snapshot.issues),
@@ -387,10 +473,14 @@ def render_release_readiness_report_lines(
         "py -m patchops.cli check <manifest>",
         "py -m patchops.cli inspect <manifest>",
         "py -m patchops.cli plan <manifest>",
+        "py -m patchops.cli bundle-doctor <bundle-root>",
+        "py -m patchops.cli build-bundle <bundle-root> <bundle.zip>",
+        "py -m patchops.cli release-readiness --core-tests-green",
         "",
         "NOTES",
         "-----",
         "This surface does not guess hidden state.",
+        "Bundle release gates lock the maintained bundle docs, workflows, and test surfaces into the same readiness story.",
         "Use --core-tests-green only when the green test state was already proven externally.",
     ]
     return tuple(lines)

@@ -1,24 +1,17 @@
 from __future__ import annotations
 
-from patchops.reporting.command_sections import ReportCommandOutputSection, render_report_command_output_section
-from patchops.failure_categories import normalize_failure_category
-from patchops.rerun_decisions import (
-    VERIFY_ONLY,
-    WRAPPER_ONLY_REPAIR,
-    should_recommend_verify_only,
-    should_recommend_wrapper_only_repair,
-)
-from patchops.reporting.metadata import build_report_header_metadata, render_report_header
-
 import inspect
 from dataclasses import asdict
 from pathlib import Path
 
 from patchops.models import BackupRecord, CommandResult, WorkflowResult, WriteRecord
 from patchops.reporting.command_sections import (
+    ReportCommandOutputSection,
     build_report_command_sections,
     render_report_command_output_section,
 )
+from patchops.reporting.continuation import build_failure_continuation_metadata
+from patchops.reporting.metadata import render_report_header
 from patchops.workflows.wrapper_retry import (
     WRAPPER_ONLY_RETRY_KIND,
     build_wrapper_only_retry_state,
@@ -39,6 +32,7 @@ def display_path(value: Path | None) -> str:
 
 def header_section(result: WorkflowResult) -> str:
     return render_report_header(result)
+
 
 def _build_wrapper_retry_state(result: WorkflowResult):
     manifest_payload = asdict(result.manifest)
@@ -76,19 +70,38 @@ def target_files_section(paths: list[Path]) -> str:
     return "\n".join(lines)
 
 
+def _backup_line(record: BackupRecord) -> str:
+    source = display_path(getattr(record, "source_path", None))
+    backup = display_path(getattr(record, "backup_path", None))
+    if source == "(none)":
+        source = display_path(getattr(record, "path", None))
+    if backup == "(none)":
+        backup = display_path(getattr(record, "destination_path", None))
+    status = str(getattr(record, "status", "") or "").upper()
+    if status == "MISSING":
+        return f"MISSING: {source}"
+    if backup == "(none)":
+        return f"BACKUP : {source}"
+    return f"BACKUP : {source} -> {backup}"
+
+
 def backup_section(records: list[BackupRecord]) -> str:
     lines = [_rule("BACKUP")]
     if not records:
         lines.append("(none)")
         return "\n".join(lines)
-    for record in records:
-        if record.existed and record.destination is not None:
-            lines.append(
-                f"BACKUP : {display_path(record.source)} -> {display_path(record.destination)}"
-            )
-        else:
-            lines.append(f"MISSING: {display_path(record.source)}")
+    lines.extend(_backup_line(record) for record in records)
     return "\n".join(lines)
+
+
+def _write_line(record: WriteRecord) -> str:
+    target = display_path(getattr(record, "target_path", None))
+    if target == "(none)":
+        target = display_path(getattr(record, "path", None))
+    status = str(getattr(record, "status", "") or "").upper()
+    if status and status not in {"WROTE", "WRITE"}:
+        return f"{status} : {target}"
+    return f"WROTE : {target}"
 
 
 def write_section(records: list[WriteRecord]) -> str:
@@ -96,7 +109,7 @@ def write_section(records: list[WriteRecord]) -> str:
     if not records:
         lines.append("(none)")
         return "\n".join(lines)
-    lines.extend(f"WROTE : {display_path(record.path)}" for record in records)
+    lines.extend(_write_line(record) for record in records)
     return "\n".join(lines)
 
 
@@ -105,71 +118,47 @@ def command_group_section(title: str, results: list[CommandResult]) -> str:
     if not results:
         lines.append("(none)")
         return "\n".join(lines)
-    for section in build_report_command_sections(results, section_label=title):
-        lines.append(f"NAME    : {section.command_name}")
-        lines.append(f"COMMAND : {section.command_text}")
-        lines.append(f"CWD     : {section.working_directory}")
-        lines.append(f"EXIT    : {section.exit_code}")
+
+    sections = build_report_command_sections(results, section_label=title)
+    for section in sections:
+        lines.extend(
+            [
+                f"NAME    : {section.command_name}",
+                f"COMMAND : {section.command_text}",
+                f"CWD     : {section.working_directory}",
+                f"EXIT    : {section.exit_code}",
+                "",
+            ]
+        )
+    while lines and lines[-1] == "":
+        lines.pop()
     return "\n".join(lines)
 
 
-
-def full_output_section(results, section_label: str = "FULL OUTPUT") -> str:
-    result_items = list(results)
-    if not result_items:
-        return ""
+def full_output_section(results: list[CommandResult], title: str) -> str:
+    if not results:
+        return "\n".join([_rule(title), "(none)"])
     section = ReportCommandOutputSection(
-        title=section_label,
-        results=result_items,
-        rule=lambda title: title,
+        title=title,
+        results=list(results),
+        rule=lambda section_title: section_title,
     )
-    return str(render_report_command_output_section(section))
+    return render_report_command_output_section(section)
 
-def _failure_category_label(result: WorkflowResult) -> str:
-    if result.failure is None:
-        return "none"
-    category = getattr(result.failure, "category", None)
-    if category is None:
-        return "none"
-    raw = getattr(category, "value", category)
-    return normalize_failure_category(raw)
-
-
-
-def _recommended_next_mode_label(result: WorkflowResult) -> str | None:
-    if result.failure is None:
-        return None
-    failure_class = _failure_category_label(result)
-    target_content_already_present = bool(getattr(result, "target_content_already_present", False))
-    writes_applied_by_wrapper = bool(getattr(result, "writes_applied_by_wrapper", False))
-    if should_recommend_verify_only(
-        failure_class=failure_class,
-        target_content_already_present=target_content_already_present,
-        writes_applied_by_wrapper=writes_applied_by_wrapper,
-    ):
-        return VERIFY_ONLY
-    if should_recommend_wrapper_only_repair(
-        failure_class=failure_class,
-        target_content_already_present=target_content_already_present,
-        writes_applied_by_wrapper=writes_applied_by_wrapper,
-    ):
-        return WRAPPER_ONLY_REPAIR
-    if failure_class == "target_project_failure":
-        return "content_repair"
-    return None
 
 def failure_section(result: WorkflowResult) -> str:
     lines = [_rule("FAILURE DETAILS")]
-    if result.failure is None:
+    metadata = build_failure_continuation_metadata(result)
+    if metadata is None:
         lines.append("(none)")
         return "\n".join(lines)
-    lines.append(f"Failure Class : {_failure_category_label(result)}")
-    lines.append(f"Failure Reason: {result.failure.message}")
-    recommended_next_mode = _recommended_next_mode_label(result)
-    if recommended_next_mode:
-        lines.append(f"Recommended Next Mode : {recommended_next_mode}")
-    lines.append(f"Category : {result.failure.category}")
-    lines.append(f"Message  : {result.failure.message}")
-    if result.failure.details:
-        lines.append(f"Details  : {result.failure.details}")
+
+    lines.append(f"Failure Class : {metadata.failure_class}")
+    lines.append(f"Failure Reason: {metadata.failure_reason}")
+    if metadata.recommended_next_mode:
+        lines.append(f"Recommended Next Mode : {metadata.recommended_next_mode}")
+    lines.append(f"Category : {metadata.category_display}")
+    lines.append(f"Message  : {metadata.message_display}")
+    if metadata.details_display:
+        lines.append(f"Details  : {metadata.details_display}")
     return "\n".join(lines)

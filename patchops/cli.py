@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
+import tempfile
+import zipfile
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
@@ -14,11 +17,13 @@ from patchops.bundles.launcher_self_check import check_launcher_path
 from patchops.bundles.bundle_zip_check import check_bundle_zip
 from patchops.bundles.authoring import (
     build_bundle_zip,
+    create_proof_bundle,
     create_starter_bundle,
     resolve_bundle_execution_metadata,
     resolve_bundle_workflow_mode,
     run_bundle_authoring_self_check,
     run_bundle_doctor,
+    run_bundle_execution_entry,
 )
 from patchops.manifest_loader import load_manifest
 from patchops.manifest_reference import build_manifest_schema_summary
@@ -34,7 +39,143 @@ from patchops.workflows.wrapper_retry import execute_wrapper_only_retry
 from patchops.bundles.bundle_zip_inspect import inspect_bundle_path
 from patchops.bundles.bundle_zip_plan import plan_bundle_path
 from patchops.bundles.bundle_zip_apply import apply_bundle_path
-from patchops.bundles.cli_commands import run_verify_bundle_command
+from patchops.bundles.cli_commands import (
+    run_inspect_bundle_command,
+    run_plan_bundle_command,
+    run_verify_bundle_command,
+)
+
+_REJECT_LAUNCHER_REVIEW_PATTERNS = (
+    "convertfrom-json",
+    "py -c",
+    "inline python",
+    "here-string",
+    "manual copy",
+    "copy-item",
+    "throw",
+    "missing",
+    "not found",
+    "syntax",
+    "parse",
+    "invalid",
+)
+
+
+def _launcher_issue_code_from_message(message: str, *, index: int) -> str:
+    cleaned = re.sub(r"[^a-z0-9]+", "_", message.lower()).strip("_")
+    if not cleaned:
+        cleaned = f"launcher_issue_{index}"
+    parts = [part for part in cleaned.split("_") if part]
+    stem = "_".join(parts[:6]) if parts else f"launcher_issue_{index}"
+    return stem or f"launcher_issue_{index}"
+
+
+def _launcher_review_status(issues: list[str]) -> str:
+    if not issues:
+        return "safe"
+    flattened = "\n".join(issues).lower()
+    if any(pattern in flattened for pattern in _REJECT_LAUNCHER_REVIEW_PATTERNS):
+        return "reject"
+    return "warning"
+
+
+def _build_launcher_review_payload(*, launcher_path: str | None, issues: list[str]) -> dict[str, Any]:
+    status = _launcher_review_status(issues)
+    normalized_issues = [
+        {
+            "code": _launcher_issue_code_from_message(message, index=index),
+            "message": message,
+            "path": launcher_path,
+        }
+        for index, message in enumerate(issues, start=1)
+    ]
+    return {
+        "status": status,
+        "launcher_path": launcher_path,
+        "issue_count": len(normalized_issues),
+        "issues": normalized_issues,
+    }
+
+
+def _read_root_launcher_review_from_directory(bundle_root: Path) -> dict[str, Any]:
+    root = Path(bundle_root).resolve()
+    launcher_path = root / "run_with_patchops.ps1"
+    if not launcher_path.is_file():
+        return _build_launcher_review_payload(
+            launcher_path=str(launcher_path),
+            issues=[f"Saved root launcher is missing: {launcher_path}"],
+        )
+    launcher_payload = check_launcher_path(launcher_path)
+    return _build_launcher_review_payload(
+        launcher_path=str(launcher_path),
+        issues=[str(item) for item in launcher_payload.get("issues") or []],
+    )
+
+
+def _read_root_launcher_review_from_zip(bundle_zip_path: Path) -> dict[str, Any]:
+    zip_path = Path(bundle_zip_path).resolve()
+    if not zip_path.exists():
+        return _build_launcher_review_payload(
+            launcher_path=None,
+            issues=[f"Bundle zip path does not exist: {zip_path}"],
+        )
+    if zip_path.is_dir():
+        return _build_launcher_review_payload(
+            launcher_path=None,
+            issues=[f"Bundle zip path is a directory, not a zip file: {zip_path}"],
+        )
+
+    try:
+        with zipfile.ZipFile(zip_path, "r") as archive:
+            member_names = [name for name in archive.namelist() if name and not name.endswith("/")]
+            roots = sorted({name.split("/", 1)[0] for name in member_names})
+            if len(roots) != 1:
+                return _build_launcher_review_payload(
+                    launcher_path=None,
+                    issues=[f"Bundle zip must contain exactly one top-level root folder. Found: {roots}"],
+                )
+
+            root = roots[0]
+            launcher_member = f"{root}/run_with_patchops.ps1"
+            if launcher_member not in member_names:
+                return _build_launcher_review_payload(
+                    launcher_path=launcher_member,
+                    issues=[f"Saved root launcher is missing from bundle zip: {launcher_member}"],
+                )
+
+            with tempfile.TemporaryDirectory(prefix="patchops_bundle_review_") as temp_dir:
+                archive.extractall(temp_dir)
+                launcher_path = Path(temp_dir) / launcher_member
+                launcher_payload = check_launcher_path(launcher_path)
+                return _build_launcher_review_payload(
+                    launcher_path=launcher_member,
+                    issues=[str(item) for item in launcher_payload.get("issues") or []],
+                )
+    except zipfile.BadZipFile:
+        return _build_launcher_review_payload(
+            launcher_path=None,
+            issues=[f"Bundle zip is not a valid zip archive: {zip_path}"],
+        )
+
+
+def _augment_bundle_review_payload(payload: dict[str, Any], *, bundle_path: Path) -> dict[str, Any]:
+    review = (
+        _read_root_launcher_review_from_zip(bundle_path)
+        if bundle_path.suffix.lower() == ".zip"
+        else _read_root_launcher_review_from_directory(bundle_path)
+    )
+
+    base_issue_count = int(payload.get("issue_count", len(payload.get("issues") or [])))
+    base_ok = bool(payload["ok"]) if "ok" in payload else True
+    payload["launcher_review"] = review
+    payload["launcher_status"] = review["status"]
+    payload["launcher_issue_count"] = review["issue_count"]
+    payload["launcher_issue_codes"] = [item["code"] for item in review["issues"]]
+    payload["issue_count"] = base_issue_count + review["issue_count"]
+    payload["ok"] = base_ok and review["status"] != "reject"
+    return payload
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="patchops")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -202,6 +343,96 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
     )
 
+    maintenance_gate_parser = subparsers.add_parser(
+        "maintenance-gate",
+        help="Run the maintained combined wrapper health gate",
+    )
+    maintenance_gate_parser.description = (
+        "Run the maintained combined wrapper health gate across regression, smoke, and release-readiness surfaces."
+    )
+    maintenance_gate_parser.add_argument(
+        "--wrapper-root",
+        help="Override wrapper project root",
+        default=None,
+    )
+    maintenance_gate_parser.add_argument(
+        "--profile",
+        help="Optional profile name to focus on",
+        default=None,
+    )
+    maintenance_gate_parser.add_argument(
+        "--core-tests-green",
+        action="store_true",
+        help="Mark core test state as green when it has already been proven externally.",
+    )
+    maintenance_gate_parser.add_argument(
+        "--report-path",
+        help="Optional path to write deterministic maintenance-gate evidence text.",
+        default=None,
+    )
+
+    emit_operator_script_parser = subparsers.add_parser(
+        "emit-operator-script",
+        help="Emit a maintained operator helper script from Python-owned templates",
+    )
+    emit_operator_script_parser.description = (
+        "Emit a maintained operator helper script so common PowerShell helper actions reuse one repo-owned template instead of ad hoc shell authoring."
+    )
+    emit_operator_script_parser.add_argument(
+        "script_kind",
+        choices=["run-package-zip", "maintenance-gate"],
+        help="Operator helper script kind to emit.",
+    )
+    emit_operator_script_parser.add_argument(
+        "output_path",
+        help="Output .ps1 path for the emitted operator helper script.",
+    )
+    emit_operator_script_parser.add_argument(
+        "--wrapper-root",
+        help="Wrapper repo root embedded into the emitted script.",
+        default=None,
+    )
+    emit_operator_script_parser.add_argument(
+        "--bundle-zip-path",
+        help="Default bundle zip path embedded into the run-package helper script.",
+        default=r"D:\patch_bundle.zip",
+    )
+
+
+    bootstrap_repair_parser = subparsers.add_parser(
+        "bootstrap-repair",
+        help="Apply a narrow bootstrap recovery payload when normal CLI bootability is degraded",
+    )
+    bootstrap_repair_parser.description = (
+        "Apply a narrow bootstrap recovery payload so a few known files can be restored and py_compile-checked before normal PatchOps use resumes."
+    )
+    bootstrap_repair_parser.add_argument(
+        "payload_root",
+        help="Directory containing replacement files in target-relative shape.",
+    )
+    bootstrap_repair_parser.add_argument(
+        "--target-root",
+        default=None,
+        help="Target project root to repair. Defaults to the wrapper root.",
+    )
+    bootstrap_repair_parser.add_argument(
+        "--path",
+        action="append",
+        required=True,
+        help="Relative file path to restore from the payload root. May be supplied more than once.",
+    )
+    bootstrap_repair_parser.add_argument(
+        "--py-compile-path",
+        action="append",
+        default=[],
+        help="Relative Python file path to validate with py_compile after restore. May be supplied more than once.",
+    )
+    bootstrap_repair_parser.add_argument(
+        "--backup-root",
+        default=None,
+        help="Optional explicit backup root. Defaults under target_root/data/runtime/bootstrap_repairs/.",
+    )
+
     profiles_parser = subparsers.add_parser("profiles", help="List available profiles and their defaults")
     profiles_parser.add_argument("--name", help="Return only one profile summary", default=None)
     profiles_parser.add_argument("--wrapper-root", help="Override wrapper project root", default=None)
@@ -215,7 +446,7 @@ def build_parser() -> argparse.ArgumentParser:
     template_parser.add_argument("--wrapper-root", help="Override wrapper project root", default=None)
 
     doctor_parser = subparsers.add_parser("doctor", help="Inspect environment and profile readiness")
-    doctor_parser.description = "Inspect environment and profile readiness before template, check, plan, apply, verify, wrapper-retry, or release-readiness."
+    doctor_parser.description = "Inspect environment and profile readiness before template, check, plan, apply, verify, wrapper-retry, release-readiness, or maintenance-gate."
     doctor_parser.add_argument("--profile", default="trader", help="Profile name to inspect")
     doctor_parser.add_argument("--target-root", default=None, help="Optional target project root override")
 
@@ -371,6 +602,49 @@ def build_parser() -> argparse.ArgumentParser:
         help="Recommended PatchOps profile written into the generated bundle.",
     )
     make_bundle_parser.add_argument(
+        "--wrapper-root",
+        default=None,
+        help="Wrapper project root written into bundle metadata and used for launcher emission.",
+    )
+
+    make_proof_bundle_parser = subparsers.add_parser(
+        "make-proof-bundle",
+        help="Generate a known-good PatchOps proof bundle for apply, verify, or launcher-risk surfaces",
+    )
+    make_proof_bundle_parser.description = (
+        "Generate a known-good PatchOps proof bundle so operators and LLMs can reuse maintained proof shapes instead of improvising them."
+    )
+    make_proof_bundle_parser.add_argument(
+        "bundle_root",
+        help="Path to the proof bundle root directory to create or refresh",
+    )
+    make_proof_bundle_parser.add_argument(
+        "--kind",
+        choices=["apply", "verify", "launcher-risk"],
+        required=True,
+        help="Proof bundle kind to generate.",
+    )
+    make_proof_bundle_parser.add_argument(
+        "--patch-name",
+        default=None,
+        help="Optional patch name override written into the generated proof bundle.",
+    )
+    make_proof_bundle_parser.add_argument(
+        "--target-project",
+        default="patchops",
+        help="Human-readable target project label written into bundle metadata.",
+    )
+    make_proof_bundle_parser.add_argument(
+        "--target-root",
+        default=None,
+        help="Target project root written into the generated proof bundle.",
+    )
+    make_proof_bundle_parser.add_argument(
+        "--profile",
+        default="generic_python",
+        help="Recommended PatchOps profile written into the generated proof bundle.",
+    )
+    make_proof_bundle_parser.add_argument(
         "--wrapper-root",
         default=None,
         help="Wrapper project root written into bundle metadata and used for launcher emission.",
@@ -569,12 +843,16 @@ def main(argv: list[str] | None = None) -> int:
 
 
     if args.command == "plan-bundle":
-        payload = plan_bundle_path(args.bundle_zip_path)
+        wrapper_root = Path(__file__).resolve().parents[1]
+        payload = run_plan_bundle_command(args.bundle_zip_path, wrapper_root)
+        payload = _augment_bundle_review_payload(payload, bundle_path=Path(args.bundle_zip_path))
         print(json.dumps(payload, indent=2))
         return 0 if payload["ok"] else 1
 
     if args.command == "inspect-bundle":
-        payload = inspect_bundle_path(args.bundle_zip_path)
+        wrapper_root = Path(__file__).resolve().parents[1]
+        payload = run_inspect_bundle_command(args.bundle_zip_path, wrapper_root)
+        payload = _augment_bundle_review_payload(payload, bundle_path=Path(args.bundle_zip_path))
         print(json.dumps(payload, indent=2))
         return 0 if payload["ok"] else 1
 
@@ -590,9 +868,9 @@ def main(argv: list[str] | None = None) -> int:
                 "ok": result.is_valid,
                 "issue_count": result.issue_count,
                 "shape_issue_count": len(result.shape_messages),
-                "launcher_issue_count": len(result.launcher_messages),
                 "issues": [message.to_dict() for message in result.messages],
             }
+        payload = _augment_bundle_review_payload(payload, bundle_path=bundle_path)
         print(json.dumps(payload, indent=2))
         return 0 if payload["ok"] else 1
 
@@ -648,6 +926,95 @@ def main(argv: list[str] | None = None) -> int:
 
         print(json.dumps(payload, indent=2))
         return 0 if payload["status"] != "not_ready" else 1
+
+    if args.command == "maintenance-gate":
+        from patchops.maintenance_gate import (
+            build_maintenance_gate_snapshot,
+            maintenance_gate_as_dict,
+            render_maintenance_gate_report_lines,
+            write_maintenance_gate_report,
+        )
+
+        wrapper_root = (
+            Path(args.wrapper_root).resolve()
+            if args.wrapper_root
+            else Path(__file__).resolve().parents[1]
+        )
+        profile_summaries = list_profile_summaries(wrapper_project_root=wrapper_root)
+        available_profiles = [item["name"] for item in profile_summaries]
+        core_tests_state = "green" if args.core_tests_green else "unknown"
+
+        snapshot = build_maintenance_gate_snapshot(
+            wrapper_root,
+            available_profiles=available_profiles,
+            core_tests_state=core_tests_state,
+        )
+        payload = maintenance_gate_as_dict(snapshot)
+        payload["wrapper_project_root"] = str(wrapper_root)
+        payload["focused_profile"] = args.profile
+        payload["profile_summaries"] = (
+            [get_profile_summary(args.profile, wrapper_project_root=wrapper_root)]
+            if args.profile
+            else profile_summaries
+        )
+        payload["report_lines"] = list(
+            render_maintenance_gate_report_lines(
+                snapshot,
+                wrapper_project_root=wrapper_root,
+                focused_profile=args.profile,
+            )
+        )
+
+        if args.report_path:
+            payload["report_path"] = write_maintenance_gate_report(
+                args.report_path,
+                snapshot,
+                wrapper_project_root=wrapper_root,
+                focused_profile=args.profile,
+            )
+
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["status"] != "not_ready" else 1
+
+    if args.command == "emit-operator-script":
+        from patchops.operator_scripts import emit_operator_script, render_operator_script
+
+        wrapper_root = (
+            str(Path(args.wrapper_root).resolve())
+            if args.wrapper_root
+            else str(Path(__file__).resolve().parents[1])
+        )
+        result = emit_operator_script(
+            args.output_path,
+            script_kind=args.script_kind,
+            wrapper_project_root=wrapper_root,
+            default_bundle_zip_path=args.bundle_zip_path,
+        )
+        script_text = Path(result.output_path).read_text(encoding="utf-8")
+        payload = result.to_dict()
+        payload["script_text"] = script_text
+        payload["line_count"] = len(script_text.splitlines())
+        payload["bundle_zip_path"] = args.bundle_zip_path
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
+
+
+    if args.command == "bootstrap-repair":
+        from patchops.bootstrap_repair import apply_bootstrap_repair
+
+        wrapper_root = Path(args.target_root).resolve() if args.target_root else Path(__file__).resolve().parents[1]
+        result = apply_bootstrap_repair(
+            args.payload_root,
+            wrapper_root,
+            list(args.path or []),
+            backup_root=args.backup_root,
+            py_compile_paths=list(args.py_compile_path or []),
+        )
+        payload = result.to_dict()
+        payload["mode"] = "bootstrap_repair"
+        payload["wrapper_project_root"] = str(wrapper_root)
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
 
     if args.command == "profiles":
         if args.name:
@@ -787,26 +1154,13 @@ def main(argv: list[str] | None = None) -> int:
 
 
     if args.command == "bundle-entry":
-        bundle_root = Path(args.bundle_root).resolve()
-        metadata = resolve_bundle_execution_metadata(bundle_root)
-        workflow_mode = resolve_bundle_workflow_mode(metadata)
-
-        commands = [
-            ["check-bundle", str(bundle_root)],
-            ["check", str(metadata.manifest_path)],
-            ["inspect", str(metadata.manifest_path)],
-            ["plan", str(metadata.manifest_path)],
-        ]
-        final_command = [workflow_mode, str(metadata.manifest_path)]
-        if args.wrapper_root:
-            final_command.extend(["--wrapper-root", args.wrapper_root])
-        commands.append(final_command)
-
-        for nested_argv in commands:
-            exit_code = main(nested_argv)
-            if exit_code != 0:
-                return exit_code
-        return 0
+        result = run_bundle_execution_entry(
+            Path(args.bundle_root).resolve(),
+            wrapper_root=args.wrapper_root,
+            command_runner=main,
+        )
+        print(json.dumps(result.to_dict(), indent=2))
+        return result.exit_code
     if args.command == "make-bundle":
         wrapper_root = (
             str(Path(args.wrapper_root).resolve())
@@ -843,6 +1197,26 @@ def main(argv: list[str] | None = None) -> int:
         }
         print(json.dumps(payload, indent=2))
         return 0 if payload["ok"] else 1
+
+    if args.command == "make-proof-bundle":
+        wrapper_root = (
+            str(Path(args.wrapper_root).resolve())
+            if args.wrapper_root
+            else str(Path(__file__).resolve().parents[1])
+        )
+        target_root = args.target_root or wrapper_root
+        patch_name = args.patch_name or f"proof_{str(args.kind).strip().lower().replace('-', '_')}_bundle"
+        result = create_proof_bundle(
+            args.bundle_root,
+            kind=args.kind,
+            patch_name=patch_name,
+            target_project=args.target_project,
+            target_project_root=target_root,
+            wrapper_project_root=wrapper_root,
+            recommended_profile=args.profile,
+        )
+        print(json.dumps(result.to_dict(), indent=2))
+        return 0 if result.ok else 1
 
     if args.command == "build-bundle":
         result = build_bundle_zip(args.bundle_root, args.output)
@@ -883,7 +1257,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-
-
-

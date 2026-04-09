@@ -22,6 +22,7 @@ EXPECTED_SUBCOMMANDS = {
     "recommend-profile",
     "starter",
     "make-bundle",
+    "make-proof-bundle",
     "build-bundle",
     "bundle-doctor",
     "bundle-entry",
@@ -34,6 +35,9 @@ EXPECTED_SUBCOMMANDS = {
     "plan-bundle",
     "apply-bundle",
     "verify-bundle",
+    "maintenance-gate",
+    "emit-operator-script",
+    "bootstrap-repair",
     "run-package",
 }
 
@@ -51,4 +55,4 @@ def test_exact_cli_subcommand_set_remains_explicit() -> None:
 
 
 def test_exact_cli_subcommand_count_remains_stable() -> None:
-    assert len(EXPECTED_SUBCOMMANDS) == 29
+    assert len(EXPECTED_SUBCOMMANDS) == 33

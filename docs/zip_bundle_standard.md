@@ -1,9 +1,16 @@
 # PatchOps zip bundle standard
 
-The maintained bundle workflow now uses one canonical root layout and one canonical root launcher.
+The maintained bundle workflow now uses one canonical root layout and one canonical saved launcher.
 
-## Canonical layout
+## Canonical flow
+1. Scaffold a bundle from Python with `py -m patchops.cli make-bundle ...`.
+2. Edit `manifest.json`, `bundle_meta.json`, and the files under `content/`.
+3. Run `py -m patchops.cli bundle-doctor <bundle-root>` as the preferred troubleshooting entrypoint.
+4. Build the zip with `py -m patchops.cli build-bundle <bundle-root> <bundle.zip>`.
+5. Run the zip with `py -m patchops.cli run-package <bundle.zip> --wrapper-root "C:\dev\patchops"`.
+6. Read one canonical Desktop txt report and continue patch by patch from evidence.
 
+## Canonical tree
 ```text
 <bundle-root>/
   manifest.json
@@ -14,28 +21,22 @@ The maintained bundle workflow now uses one canonical root layout and one canoni
     ...
 ```
 
-## Maintained workflow
+## Launcher rule
+- `run_with_patchops.ps1` is the only maintained saved launcher.
+- The saved launcher is a thin compatibility shim.
+- Apply versus verify selection is metadata-driven.
+- Do not hand-author multiple launcher variants for the normal maintained path.
 
-1. `py -m patchops.cli make-bundle <bundle-root> --mode apply|verify|proof`
-2. Edit `manifest.json`, `bundle_meta.json`, and staged files under `content/`.
-3. `py -m patchops.cli bundle-doctor <bundle-root>`
-4. `py -m patchops.cli build-bundle <bundle-root> --output <zip>`
-5. `py -m patchops.cli run-package <zip> --wrapper-root C:\dev\patchops`
+## Review surfaces
+- `check-bundle` validates the bundle contract.
+- `inspect-bundle` previews the resolved bundle information.
+- `plan-bundle` previews write targets without writing.
+- `bundle-doctor` is the preferred troubleshooting entrypoint because it combines shape validation, launcher review, and build verification.
 
-`bundle-doctor` is the preferred troubleshooting entrypoint for bundle authoring problems because it combines shape validation, launcher-risk review, and build verification in one Python-owned check before you build or run the zip.
-
-## Maintained examples
-
-The maintained examples now live under:
-
-- `examples/bundles/generic_apply_bundle`
-- `examples/bundles/generic_verify_bundle`
-
-Both examples keep:
-
-- one root-level `run_with_patchops.ps1`
-- metadata-driven mode selection through `bundle_mode`
-- staged content under `content/`
-- a bundle shape that passes self-check and deterministic zip export
-
-Do not treat older multi-launcher layouts as the maintained default.
+## Default maintained workflow from Patch 12 onward
+The standardized bundle process is now proven self-hosted:
+- scaffold from Python,
+- diagnose with bundle checks,
+- build the zip from Python,
+- run the zip through `run-package`,
+- read one canonical report.

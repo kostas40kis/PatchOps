@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .launcher_builder import build_patchops_bundle_launcher
+from .launcher_formatter import normalize_powershell_launcher_text
 from .launcher_self_check import check_launcher_path
 
 
@@ -42,31 +43,35 @@ def resolve_root_bundle_launcher_path(bundle_root_or_launcher_path: str | Path) 
     return candidate / ROOT_BUNDLE_LAUNCHER_NAME
 
 
-def _render_metadata_driven_root_bundle_launcher(*, wrapper_project_root: str) -> str:
+def _render_metadata_driven_root_bundle_launcher(
+    *,
+    wrapper_project_root: str,
+    safe_wrapper_mode: str = "never",
+) -> str:
     script = textwrap.dedent(
-        f'''\
+        """\
 param(
-    [string]$WrapperRepoRoot = "{wrapper_project_root}"
+    [string]$WrapperRepoRoot = "__WRAPPER_PROJECT_ROOT__"
 )
 
 $ErrorActionPreference = "Stop"
 
 $bundleRoot = Split-Path -Parent $PSCommandPath
 $bundleMetaPath = Join-Path $bundleRoot "bundle_meta.json"
+if (-not (Test-Path -LiteralPath $WrapperRepoRoot)) {
+    throw ("Wrapper repo root not found: {0}" -f $WrapperRepoRoot)
+}
 
-if (-not (Test-Path -LiteralPath $WrapperRepoRoot)) {{
-    throw ("Wrapper repo root not found: {{0}}" -f $WrapperRepoRoot)
-}}
-
-if (-not (Test-Path -LiteralPath $bundleMetaPath)) {{
-    throw ("bundle_meta.json not found: {{0}}" -f $bundleMetaPath)
-}}
+if (-not (Test-Path -LiteralPath $bundleMetaPath)) {
+    throw ("bundle_meta.json not found: {0}" -f $bundleMetaPath)
+}
 
 Set-Location $WrapperRepoRoot
 py -m patchops.cli bundle-entry $bundleRoot --wrapper-root $WrapperRepoRoot
-'''
+exit $LASTEXITCODE
+""".replace("__WRAPPER_PROJECT_ROOT__", wrapper_project_root)
     )
-    return script.replace("\r\n", "\n").replace("\r", "\n").rstrip("\n") + "\n"
+    return normalize_powershell_launcher_text(script, safe_wrapper_mode=safe_wrapper_mode)
 
 
 def render_root_bundle_launcher(
@@ -77,11 +82,17 @@ def render_root_bundle_launcher(
 ) -> str:
     lowered = str(mode or METADATA_DRIVEN_LAUNCHER_MODE).strip().lower()
     if lowered == METADATA_DRIVEN_LAUNCHER_MODE:
-        return _render_metadata_driven_root_bundle_launcher(wrapper_project_root=wrapper_project_root)
-    return build_patchops_bundle_launcher(
-        wrapper_project_root=wrapper_project_root,
-        mode=lowered,
-        launcher_directory_relative_to_bundle_root=False,
+        return _render_metadata_driven_root_bundle_launcher(
+            wrapper_project_root=wrapper_project_root,
+            safe_wrapper_mode=safe_wrapper_mode,
+        )
+    return normalize_powershell_launcher_text(
+        build_patchops_bundle_launcher(
+            wrapper_project_root=wrapper_project_root,
+            mode=lowered,
+            launcher_directory_relative_to_bundle_root=False,
+            safe_wrapper_mode=safe_wrapper_mode,
+        ),
         safe_wrapper_mode=safe_wrapper_mode,
     )
 

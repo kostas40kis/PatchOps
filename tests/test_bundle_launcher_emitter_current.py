@@ -19,8 +19,10 @@ def test_render_root_bundle_launcher_preserves_saved_script_file_shape() -> None
     assert not script.startswith("& {")
     assert "[string]$WrapperRepoRoot" in script
     assert "$bundleRoot = Split-Path -Parent $PSCommandPath" in script
-    assert 'Join-Path $bundleRoot "bundle_meta.json"' in script
+    assert '$bundleMetaPath = Join-Path $bundleRoot "bundle_meta.json"' in script
+    assert 'throw ("bundle_meta.json not found: {0}" -f $bundleMetaPath)' in script
     assert "py -m patchops.cli bundle-entry $bundleRoot --wrapper-root $WrapperRepoRoot" in script
+    assert "exit $LASTEXITCODE" in script
     assert "py -m patchops.cli apply $manifestPath" not in script
     assert "py -m patchops.cli verify $manifestPath" not in script
     assert script.endswith("\n")
@@ -41,6 +43,9 @@ def test_emit_root_bundle_launcher_writes_canonical_filename_and_round_trips_thr
     launcher_text = result.launcher_path.read_text(encoding="utf-8")
     assert launcher_text.startswith("param(")
     assert "py -m patchops.cli bundle-entry $bundleRoot --wrapper-root $WrapperRepoRoot" in launcher_text
+    assert '$bundleMetaPath = Join-Path $bundleRoot "bundle_meta.json"' in launcher_text
+    assert "bundle_meta.json not found" in launcher_text
+    assert "exit $LASTEXITCODE" in launcher_text
     assert "py -m patchops.cli verify $manifestPath" not in launcher_text
     assert "py -m patchops.cli apply $manifestPath" not in launcher_text
 

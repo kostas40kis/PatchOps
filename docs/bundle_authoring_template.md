@@ -1,34 +1,24 @@
-# PatchOps bundle authoring template
+# Bundle authoring template
 
-Use this checklist for every maintained bundle.
+Use this workflow for normal maintained PatchOps bundles.
 
-## Start from Python
+## Operator workflow
+1. Create a starter bundle with `py -m patchops.cli make-bundle ...`.
+2. Fill in `manifest.json`, `bundle_meta.json`, and `content/`.
+3. Run `py -m patchops.cli check-bundle <bundle-root>`.
+4. Run `py -m patchops.cli inspect-bundle <bundle-root>`.
+5. Run `py -m patchops.cli plan-bundle <bundle-root>`.
+6. Run `py -m patchops.cli bundle-doctor <bundle-root>` as the preferred troubleshooting entrypoint.
+7. Build the zip with `py -m patchops.cli build-bundle <bundle-root> <bundle.zip>`.
+8. Execute the zip with `py -m patchops.cli run-package <bundle.zip> --wrapper-root "C:\dev\patchops"`.
+9. Upload the canonical Desktop txt report and continue patch by patch from evidence.
 
-- `py -m patchops.cli make-bundle <bundle-root> --mode apply`
-- `py -m patchops.cli make-bundle <bundle-root> --mode verify`
+## Why bundle-doctor comes first for diagnosis
+`bundle-doctor` is the preferred troubleshooting entrypoint because it combines shape validation, launcher review, and build verification in one place before you spend time rerunning a broken zip.
 
-## Fill the bundle
-
-1. Put target-relative staged files under `content/`.
-2. Add matching `files_to_write` entries in `manifest.json`.
-3. Keep one root-level `run_with_patchops.ps1`.
-4. Set `bundle_mode` in `bundle_meta.json` instead of inventing extra launcher variants.
-
-## Diagnose before zipping
-
-- `py -m patchops.cli bundle-doctor <bundle-root>`
-- `py -m patchops.cli check-bundle <bundle-root>`
-
-`bundle-doctor` is the preferred troubleshooting entrypoint because it covers shape validation, launcher-risk review, and build verification before bundle export.
-
-## Build and run
-
-- `py -m patchops.cli build-bundle <bundle-root> --output <zip>`
-- `py -m patchops.cli run-package <zip> --wrapper-root C:\dev\patchops`
-
-## Maintained example bundles
-
-- `examples/bundles/generic_apply_bundle`
-- `examples/bundles/generic_verify_bundle`
-
-These examples are the maintained defaults for operators and future LLMs.
+## What to keep true
+- One root-level `run_with_patchops.ps1`.
+- One canonical report.
+- PowerShell stays thin and operator-facing.
+- Reusable behavior stays in Python.
+- Do not guess bundle layout by hand.

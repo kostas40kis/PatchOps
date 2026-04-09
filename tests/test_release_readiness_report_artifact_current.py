@@ -34,6 +34,12 @@ def test_release_readiness_report_artifact_matches_current_contract(tmp_path: Pa
     assert "Status            : green" in report_text
     assert "Core Tests        : green" in report_text
     assert "Tests             : ok" in report_text
+    assert "Bundle Docs       : ok" in report_text
+    assert "Bundle Workflows  : ok" in report_text
+    assert "Bundle Tests      : ok" in report_text
+    assert "MISSING BUNDLE RELEASE DOCS" in report_text
+    assert "MISSING BUNDLE RELEASE WORKFLOWS" in report_text
+    assert "MISSING BUNDLE RELEASE TESTS" in report_text
     assert "NOTES" in report_text
     assert report_text.endswith(
         "Use --core-tests-green only when the green test state was already proven externally.\n"

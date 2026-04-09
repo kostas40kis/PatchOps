@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from patchops.models import WorkflowResult
+from patchops.models import CommandResult, WorkflowResult
 from patchops.result_integrity import derive_effective_summary_fields
 from patchops.reporting.sections import (
     backup_section,
@@ -13,6 +13,16 @@ from patchops.reporting.sections import (
     write_section,
 )
 from patchops.reporting.summary import render_summary
+
+
+def _rule(title: str) -> str:
+    return f"\n{title}\n{'-' * len(title)}"
+
+
+def _safe_output_section(results: list[CommandResult], title: str) -> str:
+    if not results:
+        return "\n".join([_rule(title), "(none)"])
+    return full_output_section(results, title)
 
 
 def render_workflow_report(result: WorkflowResult) -> str:
@@ -28,17 +38,16 @@ def render_workflow_report(result: WorkflowResult) -> str:
         backup_section(result.backup_records),
         write_section(result.write_records),
         command_group_section("VALIDATION COMMANDS", result.validation_results),
-        full_output_section(result.validation_results, "FULL OUTPUT"),
+        _safe_output_section(result.validation_results, "FULL OUTPUT"),
         command_group_section("SMOKE COMMANDS", result.smoke_results),
-        full_output_section(result.smoke_results, "SMOKE OUTPUT"),
+        _safe_output_section(result.smoke_results, "SMOKE OUTPUT"),
         command_group_section("AUDIT COMMANDS", result.audit_results),
-        full_output_section(result.audit_results, "AUDIT OUTPUT"),
+        _safe_output_section(result.audit_results, "AUDIT OUTPUT"),
         command_group_section("CLEANUP COMMANDS", result.cleanup_results),
-        full_output_section(result.cleanup_results, "CLEANUP OUTPUT"),
+        _safe_output_section(result.cleanup_results, "CLEANUP OUTPUT"),
         command_group_section("ARCHIVE COMMANDS", result.archive_results),
-        full_output_section(result.archive_results, "ARCHIVE OUTPUT"),
+        _safe_output_section(result.archive_results, "ARCHIVE OUTPUT"),
         failure_section(result),
         render_summary(int(effective["exit_code"]), str(effective["result_label"])),
     ]
     return "\n\n".join(section for section in sections if section)
-

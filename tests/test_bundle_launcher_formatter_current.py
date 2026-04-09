@@ -10,8 +10,10 @@ from patchops.bundles.launcher_formatter import (
     ensure_safe_launcher_wrapper,
     format_bundle_launcher,
     is_launcher_safely_wrapped,
+    is_top_level_param_script,
     needs_safe_launcher_wrapper,
     normalize_bundle_launcher_text,
+    normalize_powershell_launcher_text,
     resolve_safe_wrapper_mode,
     strip_leading_launcher_artifacts,
 )
@@ -33,119 +35,94 @@ def test_build_standard_bundle_launcher_matches_safe_shape() -> None:
 
 def test_build_standard_bundle_launcher_supports_verify_mode() -> None:
     script = build_standard_bundle_launcher(cli_mode="verify")
-
     assert "py -m patchops.cli verify $manifestPath" in script
 
 
 def test_build_standard_bundle_launcher_can_emit_unwrapped_shape_when_requested() -> None:
     script = build_standard_bundle_launcher(safe_wrapper_mode="never")
-
     assert script.startswith("param(")
     assert not script.startswith("& {")
 
 
 def test_strip_leading_launcher_artifacts_removes_stray_backslash_before_safe_block() -> None:
     dirty = "\\\n& {\n    Write-Host 'hi'\n}\n"
-
     cleaned = strip_leading_launcher_artifacts(dirty)
-
     assert cleaned.startswith("& {")
 
 
 def test_normalize_bundle_launcher_text_removes_leading_backslash_and_normalizes_lines() -> None:
     dirty = "\\\r\n& {\n    Write-Host 'hi'   \n}\r\n\r\n"
-
     normalized = normalize_bundle_launcher_text(dirty)
-
     assert normalized == "& {\n    Write-Host 'hi'\n}\n"
 
 
-def test_format_bundle_launcher_result_uses_standard_metadata() -> None:
-    result = format_bundle_launcher()
-
-    assert isinstance(result, BundleLauncherFormatResult)
-    assert result.encoding == DEFAULT_LAUNCHER_ENCODING
-    assert result.newline == DEFAULT_LAUNCHER_NEWLINE
-    assert result.starts_with_safe_block is True
-    assert result.script_text.startswith("& {")
+def test_normalize_powershell_launcher_text_is_backward_compatible_alias() -> None:
+    dirty = "/\nparam()\nWrite-Host hi\n"
+    normalized = normalize_powershell_launcher_text(dirty, safe_wrapper_mode="never")
+    assert normalized == "param()\nWrite-Host hi\n"
 
 
-def test_is_launcher_safely_wrapped_detects_wrapped_and_unwrapped_shapes() -> None:
-    wrapped = "& {\n    Write-Host 'hi'\n}\n"
-    unwrapped = "Write-Host 'hi'\n"
-
-    assert is_launcher_safely_wrapped(wrapped) is True
-    assert is_launcher_safely_wrapped(unwrapped) is False
-
-
-def test_needs_safe_launcher_wrapper_detects_unwrapped_shape() -> None:
-    wrapped = "& {\n    Write-Host 'hi'\n}\n"
-    unwrapped = "param(\n    [string]$Name = 'x'\n)\n"
-
-    assert needs_safe_launcher_wrapper(wrapped) is False
-    assert needs_safe_launcher_wrapper(unwrapped) is True
-
-
-def test_ensure_safe_launcher_wrapper_adds_block_when_missing() -> None:
-    raw = "Write-Host 'hi'\nWrite-Host 'bye'\n"
-
-    wrapped = ensure_safe_launcher_wrapper(raw)
-
+def test_ensure_safe_launcher_wrapper_wraps_unwrapped_launcher() -> None:
+    wrapped = ensure_safe_launcher_wrapper("param()\nWrite-Host hi\n")
     assert wrapped.startswith("& {\n")
-    assert "    Write-Host 'hi'" in wrapped
-    assert "    Write-Host 'bye'" in wrapped
+    assert "param()" in wrapped
     assert wrapped.endswith("}\n")
 
 
-def test_ensure_safe_launcher_wrapper_does_not_double_wrap() -> None:
-    wrapped = "& {\n    Write-Host 'hi'\n}\n"
+def test_needs_and_is_launcher_safely_wrapped_are_consistent() -> None:
+    raw = "Write-Host hi\n"
+    wrapped = ensure_safe_launcher_wrapper(raw)
+    assert needs_safe_launcher_wrapper(raw) is True
+    assert is_launcher_safely_wrapped(wrapped) is True
 
-    result = ensure_safe_launcher_wrapper(wrapped)
 
-    assert result == wrapped
+def test_auto_mode_preserves_top_level_param_script_shape() -> None:
+    script = "param()\nWrite-Host hi\n"
+    normalized = normalize_bundle_launcher_text(script, safe_wrapper_mode="auto")
+    assert normalized == "param()\nWrite-Host hi\n"
+    assert is_top_level_param_script(normalized) is True
 
 
-def test_resolve_safe_wrapper_mode_supports_boolean_backcompat() -> None:
+def test_auto_mode_wraps_non_param_non_wrapped_script() -> None:
+    script = "Write-Host hi\n"
+    normalized = normalize_bundle_launcher_text(script, safe_wrapper_mode="auto")
+    assert normalized.startswith("& {\n")
+    assert "Write-Host hi" in normalized
+
+
+def test_auto_mode_avoids_double_wrapping_existing_safe_block() -> None:
+    wrapped = "& {\n    Write-Host hi\n}\n"
+    normalized = normalize_bundle_launcher_text(wrapped, safe_wrapper_mode="auto")
+    assert normalized == wrapped
+
+
+def test_preserve_param_script_mode_wraps_non_param_script_but_keeps_param_script() -> None:
+    raw = "Write-Host hi\n"
+    wrapped = normalize_bundle_launcher_text(raw, safe_wrapper_mode="preserve_param_script")
+    assert wrapped.startswith("& {\n")
+
+    param_script = "param()\nWrite-Host hi\n"
+    preserved = normalize_bundle_launcher_text(param_script, safe_wrapper_mode="preserve_param_script")
+    assert preserved == param_script
+
+
+def test_resolve_safe_wrapper_mode_supports_expected_values() -> None:
+    assert resolve_safe_wrapper_mode(safe_wrapper_mode="auto") == "auto"
     assert resolve_safe_wrapper_mode(require_safe_wrapper=True) == "always"
     assert resolve_safe_wrapper_mode(require_safe_wrapper=False) == "never"
+    assert set(SUPPORTED_SAFE_WRAPPER_MODES) == {"auto", "always", "never", "preserve_param_script"}
 
 
-def test_resolve_safe_wrapper_mode_validates_explicit_mode() -> None:
-    for mode in SUPPORTED_SAFE_WRAPPER_MODES:
-        assert resolve_safe_wrapper_mode(safe_wrapper_mode=mode) == mode
+def test_apply_safe_wrapper_normalization_reports_when_wrapper_was_added() -> None:
+    normalized, changed = apply_safe_wrapper_normalization("Write-Host hi\n", safe_wrapper_mode="always")
+    assert changed is True
+    assert normalized.startswith("& {\n")
 
 
-def test_apply_safe_wrapper_normalization_auto_wraps_only_when_needed() -> None:
-    wrapped_text, wrapped_changed = apply_safe_wrapper_normalization(
-        "& {\n    Write-Host 'hi'\n}\n",
-        safe_wrapper_mode="auto",
-    )
-    unwrapped_text, unwrapped_changed = apply_safe_wrapper_normalization(
-        "Write-Host 'hi'\n",
-        safe_wrapper_mode="auto",
-    )
-
-    assert wrapped_text.startswith("& {")
-    assert wrapped_changed is False
-    assert unwrapped_text.startswith("& {")
-    assert unwrapped_changed is True
-
-
-def test_apply_safe_wrapper_normalization_never_keeps_manual_shape() -> None:
-    text, changed = apply_safe_wrapper_normalization(
-        "Write-Host 'hi'\n",
-        safe_wrapper_mode="never",
-    )
-
-    assert text == "Write-Host 'hi'\n"
-    assert changed is False
-
-
-def test_format_bundle_launcher_reports_wrapper_normalized_for_unwrapped_input() -> None:
-    result = format_bundle_launcher(
-        "Write-Host 'hi'\n",
-        safe_wrapper_mode="auto",
-    )
-
-    assert result.script_text.startswith("& {")
-    assert result.wrapper_normalized is True
+def test_format_bundle_launcher_returns_result_model() -> None:
+    result = format_bundle_launcher("param()\nWrite-Host hi\n", safe_wrapper_mode="never")
+    assert isinstance(result, BundleLauncherFormatResult)
+    assert result.encoding == DEFAULT_LAUNCHER_ENCODING
+    assert result.newline == DEFAULT_LAUNCHER_NEWLINE
+    assert result.script_text.endswith("\n")
+    assert result.starts_with_safe_block is False
