@@ -179,3 +179,77 @@ def test_run_package_utc_stamp_uses_timezone_aware_utc() -> None:
 
     assert "datetime.utcnow(" not in source
     assert "datetime.now(UTC)" in source
+
+
+def test_run_package_fails_when_fatal_syntaxerror_stderr_exists_without_inner_report(tmp_path: Path) -> None:
+    bundle_root = _write_bundle(tmp_path)
+    desktop_dir = tmp_path / "Desktop"
+    outer_report = desktop_dir / "outer_syntaxerror.txt"
+    desktop_dir.mkdir()
+
+    def fake_runner(command: list[str], cwd: Path) -> ProcessCapture:
+        return ProcessCapture(
+            command=command,
+            working_directory=str(cwd),
+            exit_code=0,
+            stdout="launcher looked successful\n",
+            stderr="SyntaxError: invalid syntax\n",
+        )
+
+    result = run_delivery_package(
+        bundle_root,
+        wrapper_root=tmp_path,
+        report_path=outer_report,
+        desktop_dir=desktop_dir,
+        runner=fake_runner,
+    )
+
+    assert result.ok is False
+    assert result.exit_code == 1
+    assert result.failure_category == "package_authoring_failure"
+    assert result.inner_report_path is None
+    assert result.outer_report_path == str(outer_report.resolve())
+
+    report_text = outer_report.read_text(encoding="utf-8")
+    assert "Result              : FAIL" in report_text
+    assert "Failure Category    : package_authoring_failure" in report_text
+    assert "Inner Report Path   : (not detected)" in report_text
+    assert "SyntaxError: invalid syntax" in report_text
+    assert "Fatal launcher stderr was detected without a real inner report; treating run-package outcome as FAIL." in report_text
+
+
+def test_run_package_fails_when_modulenotfound_stderr_exists_without_inner_report(tmp_path: Path) -> None:
+    bundle_root = _write_bundle(tmp_path)
+    desktop_dir = tmp_path / "Desktop"
+    outer_report = desktop_dir / "outer_module_not_found.txt"
+    desktop_dir.mkdir()
+
+    def fake_runner(command: list[str], cwd: Path) -> ProcessCapture:
+        return ProcessCapture(
+            command=command,
+            working_directory=str(cwd),
+            exit_code=0,
+            stdout="launcher looked successful\n",
+            stderr="ModuleNotFoundError: No module named 'patchops'\n",
+        )
+
+    result = run_delivery_package(
+        bundle_root,
+        wrapper_root=tmp_path,
+        report_path=outer_report,
+        desktop_dir=desktop_dir,
+        runner=fake_runner,
+    )
+
+    assert result.ok is False
+    assert result.exit_code == 1
+    assert result.failure_category == "wrapper_failure"
+    assert result.inner_report_path is None
+    assert result.outer_report_path == str(outer_report.resolve())
+
+    report_text = outer_report.read_text(encoding="utf-8")
+    assert "Result              : FAIL" in report_text
+    assert "Failure Category    : wrapper_failure" in report_text
+    assert "Inner Report Path   : (not detected)" in report_text
+    assert "ModuleNotFoundError: No module named 'patchops'" in report_text
+    assert "Fatal launcher stderr was detected without a real inner report; treating run-package outcome as FAIL." in report_text

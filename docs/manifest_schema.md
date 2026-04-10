@@ -1,170 +1,47 @@
-# Manifest schema and version policy
+# Manifest schema
 
-This document explains the maintained PatchOps manifest contract and the current manifest version policy.
+## Purpose
 
-## Current version posture
+The manifest is the execution contract for a PatchOps run.
+It describes what files will be written, what validations will run, and how the report should be produced.
 
-PatchOps currently authors and accepts manifest version `1` only.
+## Core review loop
 
-That means:
-- the current authoring target is `1`,
-- the current supported manifest versions list contains only `1`,
-- future versions must be added intentionally in code and docs,
-- unsupported versions should fail closed with a readable `ManifestError`.
+For manifest-driven work, the safe review sequence remains:
 
-## Why this exists
+- `check`
+- `inspect`
+- `plan`
 
-Stage 2 needs manifest evolution to be easier to reason about for both humans and future LLMs.
+Only after that should a normal flow continue to `apply` or `verify`.
 
-The goal is not to add speculative migration machinery too early.
-The goal is to make the current contract explicit and stable while preserving the already-proven authoring patterns.
+## Important manifest areas
 
-## Current top-level fields
+### File staging
+Each file entry should resolve to a target-relative `path` and a `content_path` inside the patch bundle or patch content tree.
 
-Required:
-- `manifest_version`
-- `patch_name`
-- `active_profile`
+### Validation commands
+Validation commands should be explicit, narrow, and truthful.
+Use them to prove the touched layer first, then keep the broader regression set healthy.
 
-Optional:
-- `target_project_root`
-- `backup_files`
-- `files_to_write`
-- `validation_commands`
-- `smoke_commands`
-- `audit_commands`
-- `cleanup_commands`
-- `archive_commands`
-- `failure_policy`
-- `report_preferences`
-- `tags`
-- `notes`
+### Report preferences
+Report preferences should still preserve one canonical Desktop txt report per run.
 
-## files_to_write entries
+### Backup and write behavior
+PatchOps remains responsible for deterministic writing, backup recording, and report evidence of what changed.
 
-Each `files_to_write` entry may contain:
-- `path`
-- `content`
-- `content_path`
-- `encoding`
+### Tags and notes
+Tags and notes are useful for operator context, but they do not replace manifests, reports, or tests.
 
-Use `content` when the manifest should hold the payload inline.
+## Practical rules
 
-Use `content_path` when the manifest should point at a separate text artifact that contains the payload to be written.
+- Keep manifests narrow.
+- Prefer additive maintenance work over redesign.
+- Keep PowerShell out of reusable workflow logic.
+- Let Python-owned surfaces do the heavy lifting.
+- Treat `check`, `inspect`, and `plan` as the first trust-building layer.
 
-A `files_to_write` entry must provide exactly one of:
-- `content`
-- `content_path`
+## Bundle relation
 
-Do not set both at the same time.
-
-`content_path` should be treated as a maintained authoring surface rather than a legacy edge case.
-It exists so larger or cleaner payloads can live beside the manifest instead of being embedded inline.
-
-Relative `content_path` values should be authored as wrapper-relative paths from the wrapper project root.
-
-PatchOps now resolves a relative `content_path` against the wrapper project root first.
-If that wrapper-root candidate does not exist, PatchOps falls back to manifest-local resolution so older nested-manifest flows still work.
-The maintained authoring rule is still wrapper-relative, and the manifest-local behavior should be treated as compatibility fallback rather than the primary contract.
-
-See:
-- `examples/generic_content_path_patch.json`
-- `examples/content/generic_content_path_note.txt`
-
-## Command groups
-
-### validation_commands
-
-This is the main pass/fail gate for the patch.
-
-Each command entry may include:
-- `name`
-- `program`
-- `args`
-- `working_directory`
-- `use_profile_runtime`
-- `allowed_exit_codes`
-
-Use `allowed_exit_codes` when a non-zero process result is expected and should be treated as acceptable evidence rather than a patch failure.
-
-See:
-- `examples/generic_allowed_exit_patch.json`
-
-### smoke_commands
-
-Use `smoke_commands` for lightweight secondary checks that help prove expected shape or basic operability after the main validation step.
-
-### audit_commands
-
-Use `audit_commands` for extra diagnostics or evidence-generation steps that should appear in the report without becoming the main gate.
-
-### cleanup_commands
-
-Use `cleanup_commands` for explicit cleanup steps that should be visible in the canonical report.
-
-### archive_commands
-
-Use `archive_commands` for explicit archival or export steps that should be visible in the canonical report.
-
-## Command-group authoring guidance
-
-Use the extra command groups when they improve clarity, not by default.
-
-- Prefer `validation_commands` for the main gate.
-- Add `smoke_commands` when a fast secondary proof is useful.
-- Add `audit_commands` when the report should include diagnostics.
-- Add `cleanup_commands` when temporary artifacts should be removed in a reported way.
-- Add `archive_commands` when the patch intentionally creates preserved outputs or handoff artifacts.
-
-Maintained command-group examples:
-- `examples/generic_smoke_audit_patch.json`
-- `examples/generic_cleanup_archive_patch.json`
-
-## Report preferences
-
-`report_preferences` may contain:
-- `report_dir`
-- `report_name_prefix`
-- `write_to_desktop`
-
-These settings control where the canonical single report is written and how it is named.
-
-## Version policy rules
-
-1. `manifest_version` is a string field.
-2. Version `1` is the only supported value right now.
-3. Unsupported versions must fail clearly.
-4. Future versions require:
-   - validator updates,
-   - schema/reference updates,
-   - docs updates,
-   - tests that prove new behavior intentionally.
-
-## Unsupported version behavior
-
-Expected style:
-- mention the unsupported value,
-- mention the supported versions,
-- mention the current authoring target,
-- say that future versions require explicit migration and validator support.
-
-## Recommended operator use
-
-For authoring and repair work:
-
-```powershell
-py -m patchops.cli schema
-py -m patchops.cli template --profile trader --mode apply --patch-name trader_stage1_template
-py -m patchops.cli check <manifest>
-py -m patchops.cli inspect <manifest>
-py -m patchops.cli plan <manifest>
-```
-
-## Why future LLMs should care
-
-A future LLM should not guess whether `manifest_version` is decorative.
-
-It is part of the explicit contract.
-
-A future LLM should also not guess whether `content_path`, `allowed_exit_codes`, or maintained example references are still part of the supported authoring surface.
-They are part of the maintained manifest guidance and should remain documented until intentionally removed with matching code, docs, and tests.
+A zip bundle is the carrier.
+The manifest remains the execution contract inside that bundle.

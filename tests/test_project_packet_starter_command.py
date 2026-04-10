@@ -21,4 +21,4 @@ def test_starter_command_prints_json(capsys) -> None:
     assert payload["intent"] == "documentation_patch"
     assert payload["manifest"]["active_profile"] == "generic_python"
     assert payload["manifest"]["target_project_root"] == r"C:\dev\demo"
-    assert payload["starter_examples"] == ["examples/generic_python_doc_patch.json"]
+    assert payload["starter_examples"] == ["examples/generic_python_patch.json"]

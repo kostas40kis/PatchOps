@@ -27,6 +27,7 @@ PYTHON_ONLY_HELPER_COMMANDS = {
     "starter",
     "init-project-doc",
     "refresh-project-doc",
+    "setup-windows-env",
 }
 
 EXPECTED_OPERATOR_SURFACE = LAUNCHER_BACKED_COMMANDS | PYTHON_ONLY_HELPER_COMMANDS
@@ -53,5 +54,5 @@ def test_operator_surface_partitions_cover_current_operator_map() -> None:
 
 def test_operator_surface_partition_size_stays_explicit() -> None:
     assert len(LAUNCHER_BACKED_COMMANDS) == 13
-    assert len(PYTHON_ONLY_HELPER_COMMANDS) == 5
-    assert len(EXPECTED_OPERATOR_SURFACE) == 18
+    assert len(PYTHON_ONLY_HELPER_COMMANDS) == 6
+    assert len(EXPECTED_OPERATOR_SURFACE) == 19

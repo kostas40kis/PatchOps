@@ -10,7 +10,7 @@ def test_build_starter_manifest_for_documentation_patch() -> None:
         target_root=r"C:\dev\demo",
     )
     assert payload["intent"] == "documentation_patch"
-    assert payload["starter_examples"] == ["examples/generic_python_doc_patch.json"]
+    assert payload["starter_examples"] == ["examples/generic_python_patch.json"]
     assert payload["manifest"]["active_profile"] == "generic_python"
     assert payload["manifest"]["target_project_root"] == r"C:\dev\demo"
     assert payload["manifest"]["tags"] == ["starter", "documentation_patch"]

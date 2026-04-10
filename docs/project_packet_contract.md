@@ -1,157 +1,67 @@
 # Project packet contract
 
-This document defines the contract for every maintained **project packet** inside PatchOps.
+## Purpose
 
-PatchOps remains **project-agnostic**.
-A project packet is the maintained target-facing contract that helps PatchOps stay project-agnostic while still making onboarding faster and less interpretive.
+A project packet is the maintained target-facing document that tells an operator or LLM how to work on one target repo through PatchOps without rebuilding context from scattered reports.
 
-Project packets live under `docs/projects/`.
-The canonical target-specific location is:
+A packet is a **target contract**, not a replacement for manifests, reports, or handoff files.
 
-`docs/projects/<project_name>.md`
+Use project packets to keep these things explicit:
 
-A project packet does not replace profiles, manifests, reports, or handoff.
-It complements them.
+- target project identity
+- target root and wrapper root
+- selected profile
+- what must remain outside PatchOps
+- recommended command surfaces
+- current mutable development status
+- next recommended action
 
-## Required structure
+## Official packet location
 
-Every maintained project packet should make the following structure explicit:
+Maintained target packets live under `docs/projects/`.
 
-### Stable layer
+Current maintained examples include:
 
-The stable layer should explain:
+- `docs/projects/trader.md`
+- `docs/projects/wrapper_self_hosted.md`
 
-- what the target project is,
-- expected roots,
-- expected runtime,
-- selected profile,
-- what must remain outside PatchOps,
-- recommended examples and starter posture.
+## Required packet sections
 
-### Mutable layer
+Every maintained packet should make the following easy to find:
 
-The mutable layer should explain:
+1. target identity
+2. target roots and expected runtime
+3. selected profile and why it is correct
+4. what PatchOps owns
+5. what must remain outside PatchOps
+6. recommended examples and command surfaces
+7. current maintenance posture or phase guidance
+8. mutable status fields such as latest passed patch and next recommended action
 
-- current phase,
-- current objective,
-- latest passed patch,
-- latest attempted patch,
-- blockers,
-- next recommended action.
+## What a packet must not become
 
-## Boundary rules
+A project packet must not become:
 
-PatchOps should remain project-agnostic.
-That means project-specific rules belong in project packets, profiles, manifests, and target repos rather than inside generic PatchOps core logic.
+- target business logic
+- a replacement for manifests
+- a replacement for canonical reports
+- a replacement for handoff files
+- a reason to move reusable workflow logic back into PowerShell
 
-A project packet must stay explicit about how it differs from:
+## Relationship to other maintained surfaces
 
-- profiles,
-- manifests,
-- reports,
-- handoff files.
+Use the packet together with:
 
-## Minimum validity test for a project packet
+- `README.md`
+- `docs/project_status.md`
+- `docs/llm_usage.md`
+- `docs/operator_quickstart.md`
+- `handoff/current_handoff.md`
+- `handoff/current_handoff.json`
+- canonical Desktop txt reports
 
-A future LLM should be able to create a valid project packet from this contract without guessing:
+## Maintenance rule
 
-- where the file belongs,
-- what sections are mandatory,
-- what belongs in the stable layer,
-- what belongs in the mutable layer,
-- how the packet differs from profiles,
-- how the packet differs from manifests,
-- how the packet differs from reports,
-- how the packet differs from handoff files.
+Refresh the packet when a meaningful report-producing run changes the maintained story for a target.
 
-If those distinctions are not clear, the packet is not yet valid.
-
-## Bottom line
-
-A project packet is the maintained target-facing contract inside PatchOps.
-
-It exists to make target onboarding faster, safer, and less interpretive while preserving the architecture that PatchOps already established.
-
-The intended system remains:
-
-- generic docs teach PatchOps,
-- project packets teach one target project,
-- manifests tell PatchOps what to do now,
-- reports prove what happened,
-- handoff files tell the next LLM how to continue from the latest run.
-
-<!-- PATCHOPS_PATCH90_CONTRACT:START -->
-## Update discipline contract
-
-Every maintained project packet should keep the distinction between stable and mutable sections explicit.
-
-Stable sections usually include:
-
-- purpose,
-- target root,
-- expected runtime,
-- selected profile,
-- boundary rules,
-- development phases,
-- validation philosophy,
-- report expectations.
-
-Mutable sections usually include:
-
-- current state,
-- latest passed patch,
-- latest attempted patch,
-- blockers,
-- next recommended action,
-- latest report reference when relevant.
-
-For a brand-new target project, create the packet before the first manifest.
-
-For an already-running PatchOps effort, use handoff first and refresh the relevant project packet only after validated progress.
-
-A project packet must not replace manifests, reports, or handoff files.
-<!-- PATCHOPS_PATCH90_CONTRACT:END -->
-
-<!-- PATCHOPS_F7_FINAL_DOC_STOP_PROJECT_PACKET_CONTRACT:START -->
-## Final project-packet contract reminder
-
-A project packet is the maintained target-facing contract inside PatchOps.
-
-### Stable layer
-
-The stable layer should explain:
-
-- what the target project is,
-- expected roots,
-- expected runtime,
-- selected profile,
-- what must remain outside PatchOps,
-- recommended examples and starter posture.
-
-### Mutable layer
-
-The mutable layer should explain:
-
-- current phase,
-- current objective,
-- latest passed patch,
-- latest attempted patch,
-- blockers,
-- next recommended action.
-
-### Boundary reminder
-
-A project packet does not replace:
-
-- profiles,
-- manifests,
-- reports,
-- handoff files.
-
-It complements them by making target onboarding faster and less interpretive.
-<!-- PATCHOPS_F7_FINAL_DOC_STOP_PROJECT_PACKET_CONTRACT:END -->
-
-powershell remains thin
-python owns reusable
-profiles remain the executable abstraction
-handoff remains the continuation surface
+Keep packets narrow, explicit, and maintenance-oriented.

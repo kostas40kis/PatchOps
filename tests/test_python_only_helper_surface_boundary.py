@@ -15,6 +15,7 @@ PYTHON_ONLY_HELPER_COMMANDS = {
     "starter",
     "init-project-doc",
     "refresh-project-doc",
+    "setup-windows-env",
 }
 
 FORBIDDEN_LAUNCHERS = {
@@ -23,6 +24,7 @@ FORBIDDEN_LAUNCHERS = {
     "Invoke-PatchStarter.ps1",
     "Invoke-PatchInitProjectDoc.ps1",
     "Invoke-PatchRefreshProjectDoc.ps1",
+    "Invoke-PatchSetupWindowsEnv.ps1",
 }
 
 

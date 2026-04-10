@@ -323,6 +323,30 @@ def _normalize_inner_failure_category(summary: InnerReportSummary) -> str:
     return raw.replace(" ", "_")
 
 
+def _contains_fatal_launcher_stderr(stderr: str) -> bool:
+    text = (stderr or "").lower()
+    if not text.strip():
+        return False
+    fatal_markers = (
+        "syntaxerror",
+        "modulenotfounderror",
+        "importerror",
+        "traceback (most recent call last)",
+        "parsererror",
+    )
+    return any(marker in text for marker in fatal_markers)
+
+
+def _failure_category_for_fatal_launcher_stderr(stderr: str) -> str:
+    text = (stderr or "").lower()
+    if "syntaxerror" in text or "parsererror" in text:
+        return "package_authoring_failure"
+    if "modulenotfounderror" in text or "importerror" in text:
+        return "wrapper_failure"
+    if "traceback (most recent call last)" in text:
+        return "wrapper_failure"
+    return DEFAULT_FAILURE_CATEGORY
+
 def _resolve_effective_outcome(*, capture: ProcessCapture, inner_summary: InnerReportSummary, notes: list[str]) -> tuple[bool, int, str]:
     capture_ok = capture.exit_code == 0
     effective_ok = capture_ok
@@ -337,19 +361,137 @@ def _resolve_effective_outcome(*, capture: ProcessCapture, inner_summary: InnerR
             failure_category = _normalize_inner_failure_category(inner_summary) or "target_content_failure"
         elif not failure_category:
             failure_category = _normalize_inner_failure_category(inner_summary) or DEFAULT_FAILURE_CATEGORY
+
+    if inner_summary.result is None and _contains_fatal_launcher_stderr(capture.stderr):
+        effective_ok = False
+        effective_exit_code = capture.exit_code if capture.exit_code not in (None, 0) else 1
+        failure_category = _failure_category_for_fatal_launcher_stderr(capture.stderr)
+        notes.append(
+            "Fatal launcher stderr was detected without a real inner report; treating run-package outcome as FAIL."
+        )
+
     return effective_ok, effective_exit_code, failure_category
+
+
+
+
+def _should_run_bundle_preflight(bundle_root: Path) -> bool:
+    manifest_path = bundle_root / "manifest.json"
+    content_root = bundle_root / "content"
+    bundle_meta_path = bundle_root / "bundle_meta.json"
+    if not manifest_path.exists() or not content_root.exists():
+        return False
+
+    try:
+        manifest_preview = json.loads(_read_text_file(manifest_path))
+    except Exception:
+        manifest_preview = {}
+    if isinstance(manifest_preview, dict) and manifest_preview.get("files_to_write"):
+        return True
+
+    if bundle_meta_path.exists():
+        try:
+            bundle_meta_preview = json.loads(_read_text_file(bundle_meta_path))
+        except Exception:
+            bundle_meta_preview = {}
+        if isinstance(bundle_meta_preview, dict) and {
+            "bundle_schema_version",
+            "patch_name",
+            "target_project",
+            "recommended_profile",
+            "target_project_root",
+            "wrapper_project_root",
+        }.issubset(bundle_meta_preview.keys()):
+            return True
+
+    return False
+
+
+def _preflight_bundle_root(bundle_root: Path) -> None:
+    from patchops.bundles.validator import validate_extracted_bundle_dir
+
+    validation = validate_extracted_bundle_dir(bundle_root)
+    if validation.is_valid:
+        return
+
+    rendered_errors: list[str] = []
+    for item in validation.errors:
+        detail = f"[{item.code}] {item.message}"
+        if item.path:
+            detail += f" ({item.path})"
+        rendered_errors.append(detail)
+
+    raise ValueError(
+        "Bundle preflight failed before launcher execution:\n" + "\n".join(rendered_errors)
+    )
+
+def _classify_setup_failure_message(message: str) -> str:
+    text = (message or "").lower()
+    if not text.strip():
+        return DEFAULT_FAILURE_CATEGORY
+
+    environment_markers = (
+        "powershell was not found",
+        "powershell is not recognized",
+        "python was not found",
+        "the system cannot find the path specified",
+        "the system cannot find the file specified",
+        "win32exception",
+    )
+    if any(marker in text for marker in environment_markers):
+        return "environment_failure"
+
+    if "no such file or directory" in text and any(
+        marker in text for marker in ("python", "powershell", "pwsh", ".exe")
+    ):
+        return "environment_failure"
+
+    if "modulenotfounderror" in text or "importerror" in text:
+        return "wrapper_failure"
+
+    if "bundle preflight failed before launcher execution" in text:
+        if any(
+            marker in text
+            for marker in (
+                "generated_python_syntax_invalid",
+                "bundle_meta_invalid",
+                "missing_staged_file",
+                "missing_content_directory",
+                "missing_content_path",
+                "content_path_missing",
+                "launcher_is_missing_the_standard_py",
+                "prep_helper",
+            )
+        ):
+            return "package_authoring_failure"
+
+    if any(
+        marker in text
+        for marker in (
+            "syntaxerror",
+            "parsererror",
+            "invalid json primitive",
+            "cannot bind argument",
+            "cannot call a method on a null-valued expression",
+            "add-sectionheader",
+        )
+    ):
+        return "package_authoring_failure"
+
+    return "package_authoring_failure"
+
 
 def _classify_failure(*, setup_error: Exception | None, capture: ProcessCapture | None) -> str:
     if setup_error is not None:
-        message = f"{type(setup_error).__name__}: {setup_error}".lower()
-        if "powershell" in message and ("not found" in message or "no such file" in message):
-            return "environment_failure"
-        return "package_authoring_failure"
+        message = f"{type(setup_error).__name__}: {setup_error}"
+        return _classify_setup_failure_message(message)
     if capture is None:
         return DEFAULT_FAILURE_CATEGORY
     combined = "\n".join([capture.stdout, capture.stderr]).lower()
     if any(marker in combined for marker in ("powershell is not recognized", "python was not found", "no such file or directory", "the system cannot find the path specified")):
         return "environment_failure"
+    if any(marker in combined for marker in ("modulenotfounderror", "importerror")):
+        return "wrapper_failure"
     if any(marker in combined for marker in ("syntaxerror", "parsererror", "this runner must be executed from the saved .ps1 file", "invalid json primitive", "cannot bind argument", "cannot call a method on a null-valued expression", "add-sectionheader")):
         return "package_authoring_failure"
     if capture.exit_code != 0 and any(marker in combined for marker in ("failed", "assertionerror", "traceback", "collected", "pytest", "error:", "failures")):
@@ -480,6 +622,11 @@ def run_delivery_package(source_path: Path, *, wrapper_root: Path, mode: str = "
         bundle_meta = _load_bundle_meta(bundle_root)
         if bundle_meta:
             notes.append("bundle_meta.json detected and consulted during launcher discovery.")
+        if _should_run_bundle_preflight(bundle_root):
+            _preflight_bundle_root(bundle_root)
+            notes.append("Bundle preflight passed before launcher invocation.")
+        else:
+            notes.append("Bundle preflight skipped because the bundle does not advertise the canonical staged-authoring contract.")
         launcher_path = _discover_launcher(bundle_root, mode=mode, bundle_meta=bundle_meta, launcher_relative_path=launcher_relative_path)
         command = _build_launcher_command(launcher_path=launcher_path, wrapper_root=wrapper_root, bundle_root=bundle_root, source_path=source_path, mode=mode, profile=profile, powershell_exe=powershell_exe)
         active_runner = runner or _default_runner
@@ -497,13 +644,14 @@ def run_delivery_package(source_path: Path, *, wrapper_root: Path, mode: str = "
     return result
 
 
-_MISSING_DRIVE_PREFIX = re.compile(r"^:[\\/]")
+def _validate_cli_path_text(label, value):
+    import re
+    from pathlib import Path
 
-def _validate_cli_path_text(label: str, value: str) -> Path:
     text = (value or "").strip()
     if not text:
         raise ValueError(f"{label} is required.")
-    if _MISSING_DRIVE_PREFIX.match(text):
+    if re.match(r"^:[\/]", text):
         raise ValueError(
             f"{label} looks like a Windows path but is missing its drive letter: {text!r}. "
             'Use a full path like "C:\\dev\\patchops".'
@@ -511,8 +659,15 @@ def _validate_cli_path_text(label: str, value: str) -> Path:
     return Path(text)
 
 
-def cli_main(argv: Sequence[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(prog="patchops run-package", description="Run a ChatGPT delivery package zip or extracted folder through PatchOps.")
+def cli_main(argv=None):
+    import argparse
+    import json
+    from dataclasses import asdict
+
+    parser = argparse.ArgumentParser(
+        prog="patchops run-package",
+        description="Run a ChatGPT delivery package zip or extracted delivery folder through PatchOps.",
+    )
     parser.add_argument("source_path", help="Path to a delivery zip or extracted delivery folder.")
     parser.add_argument("--wrapper-root", required=True, help="PatchOps wrapper repo root.")
     parser.add_argument("--mode", choices=["apply", "verify"], default="apply")
@@ -529,9 +684,16 @@ def cli_main(argv: Sequence[str] | None = None) -> int:
         desktop_dir = _validate_cli_path_text("desktop_dir", args.desktop_dir) if args.desktop_dir else None
     except ValueError as exc:
         parser.exit(2, f"patchops run-package: error: {exc}\n")
-    result = run_delivery_package(source_path, wrapper_root=wrapper_root, mode=args.mode, profile=args.profile, launcher_relative_path=args.launcher_relative_path, report_path=report_path, powershell_exe=args.powershell_exe, desktop_dir=desktop_dir)
+
+    result = run_delivery_package(
+        source_path,
+        wrapper_root=wrapper_root,
+        mode=args.mode,
+        profile=args.profile,
+        launcher_relative_path=args.launcher_relative_path,
+        report_path=report_path,
+        powershell_exe=args.powershell_exe,
+        desktop_dir=desktop_dir,
+    )
     print(json.dumps(asdict(result), indent=2))
     return int(result.exit_code if result.exit_code else 0)
-
-
-

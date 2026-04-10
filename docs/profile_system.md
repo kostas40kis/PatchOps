@@ -1,96 +1,49 @@
-# Profile System
+# Profile system
 
-Profiles isolate target-repo assumptions from the PatchOps core.
+## Purpose
 
-## Stage 1 profiles
+Profiles let PatchOps adapt execution behavior to a target repository without moving target-side business logic into the wrapper core.
 
-- `trader`
-- `generic_python`
-- `generic_python_powershell`
+The profile system stays narrow:
 
-## A profile can define
+- profile choice is execution configuration,
+- docs and packets remain the human-facing contract,
+- target repos still own target behavior.
 
-- default target root
-- runtime path resolution
-- backup root convention
-- report prefix
-- evidence discipline defaults
-- profile notes for humans and future LLMs
+## Current maintained profile posture
 
-## Why profiles exist
+For PatchOps acting as its own current target, the selected profile remains `generic_python`.
 
-The wrapper must stay generic.
+That is still the correct self-hosted maintenance choice because:
 
-Target repos differ in:
+- PatchOps is still a normal Python repository from the wrapper's point of view,
+- self-hosted work should exercise the generic wrapper surfaces,
+- PowerShell should remain thin,
+- reusable logic should remain Python-owned.
 
-- expected root location
-- virtual environment layout
-- report naming preference
-- backup-root convention
-- common runtime assumptions
+## Practical profile rule
 
-Those differences belong in profiles rather than being hardcoded into the execution core.
+Start with the smallest correct profile and widen only when the target actually needs it.
 
-## Profile discovery command
+That means:
 
-PatchOps now exposes a first-class profile discovery command:
+- prefer `generic_python` when a normal Python repo is enough,
+- use a more specific profile only when the target really requires it,
+- keep the wrapper project-agnostic even when PatchOps patches itself.
 
-```powershell
-py -m patchops.cli profiles
-py -m patchops.cli profiles --name trader
-```
+## Operator expectations
 
-The output is JSON so it is easy for:
+Before a risky run:
 
-- humans to inspect
-- future LLMs to consume
-- documentation to quote precisely
+- choose the smallest correct profile,
+- run `check`, `inspect`, and `plan`,
+- read the canonical report instead of guessing from terminal output.
 
-The thin PowerShell launcher is:
+## What profiles should not do
 
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\powershell\Invoke-PatchProfiles.ps1
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\powershell\Invoke-PatchProfiles.ps1 -Name trader
-```
+Profiles should not become a place to hide:
 
-## Rule
-
-Trader is the first profile, not the identity of the system.
-The core must remain project-agnostic.
-
-<!-- PATCHOPS_PATCH41_MIXED_PROFILE:START -->
-## Mixed Python/PowerShell profile
-
-Patch 41 hardens the `generic_python_powershell` profile as the conservative mixed-repo option.
-
-Use this profile when a target repo has both:
-
-- Python-driven validation or helper flows,
-- and PowerShell scripts that still need to stay outside the wrapper core.
-
-The intent is to broaden reuse without changing the core architecture shape.
-
-The mixed profile should stay explicit about:
-
-- mixed markers (`python`, `powershell`),
-- conservative runtime candidates,
-- and the rule that shell behavior remains a profile concern rather than a new generic core abstraction.
-<!-- PATCHOPS_PATCH41_MIXED_PROFILE:END -->
-
-<!-- PATCHOPS_PATCH84_PROFILE_SYSTEM_HELPERS:START -->
-## Project-packet helper relationship to profiles
-
-Profiles remain the executable abstraction.
-The onboarding helpers do not replace profile choice; they make it more explicit and faster.
-
-Current helper surfaces:
-- `recommend-profile --target-root ...`
-- `starter --profile ... --intent ...`
-
-Correct relationship:
-- profile = executable target assumptions
-- project packet = maintained target-facing contract
-- starter helper = conservative first-manifest scaffold tied to patch class
-
-When in doubt, choose the smallest correct profile and the narrowest starter intent.
-<!-- PATCHOPS_PATCH84_PROFILE_SYSTEM_HELPERS:END -->
+- target-side strategy,
+- target-side operational policy,
+- broad PowerShell workflow logic,
+- redesign work that belongs in the target repo.

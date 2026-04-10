@@ -116,7 +116,7 @@ def render_wrapper_only_retry_scope_lines(
         "Scope    : wrapper-only retry",
         f"Mode     : {state.mode}",
         f"Kind     : {state.retry_kind}",
-        "Writes   : skipped",
+        "Writes Skipped : yes",
         "Intent   : recover evidence/reporting after likely wrapper failure",
         f"Reason   : {state.reason}",
         f"Explicit : {'yes' if state.explicit_retry_required else 'no'}",

@@ -1,0 +1,16 @@
+# Self-hosted proof lock
+
+This artifact records the current self-hosted proof story for PatchOps patching PatchOps.
+
+The proof contract for this stage is:
+- the maintained wrapper path is used through run-package,
+- canonical report truth remains explicit,
+- the inner report remains the authoritative execution artifact,
+- file-write origin remains wrapper_owned_write_engine,
+- the delegated maintained path remains check-bundle -> check -> inspect -> plan -> apply,
+- self-hosted continuation remains readable for future handoff use.
+
+This note is a narrow proof artifact, not a documentation-phase rewrite.
+
+
+This bundle also repairs the bundle_meta contract so preflight can reach the maintained self-hosted apply path.

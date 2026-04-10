@@ -1,0 +1,95 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from patchops.package_runner import run_delivery_package
+
+
+def _write_bundle(root: Path) -> Path:
+    bundle_root = root / "demo_bundle"
+    (bundle_root / "content" / "docs").mkdir(parents=True)
+    (bundle_root / "content" / "docs" / "example.md").write_text("# example\n", encoding="utf-8")
+    (bundle_root / "manifest.json").write_text(
+        json.dumps(
+            {
+                "manifest_version": "1",
+                "patch_name": "p38a_bundle_prep_helper_simplification_syntax_repair",
+                "active_profile": "generic_python",
+                "target_project_root": "C:/dev/patchops",
+                "files_to_write": [
+                    {
+                        "path": "docs/example.md",
+                        "content": None,
+                        "content_path": "content/docs/example.md",
+                        "encoding": "utf-8",
+                    }
+                ],
+                "validation_commands": [],
+                "smoke_commands": [],
+                "audit_commands": [],
+                "cleanup_commands": [],
+                "archive_commands": [],
+                "failure_policy": {},
+                "report_preferences": {
+                    "report_dir": None,
+                    "report_name_prefix": "p38a_bundle_prep_helper_simplification_syntax_repair",
+                    "write_to_desktop": True,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (bundle_root / "bundle_meta.json").write_text(
+        json.dumps(
+            {
+                "bundle_schema_version": 1,
+                "patch_name": "p38a_bundle_prep_helper_simplification_syntax_repair",
+                "target_project": "patchops",
+                "recommended_profile": "generic_python",
+                "target_project_root": r"C:\dev\patchops",
+                "wrapper_project_root": r"C:\dev\patchops",
+                "content_root": "content",
+                "manifest_path": "manifest.json",
+                "launcher_path": "run_with_patchops.ps1",
+            }
+        ),
+        encoding="utf-8",
+    )
+    (bundle_root / "run_with_patchops.ps1").write_text(
+        "param([string]$WrapperRepoRoot)\nWrite-Host 'launcher should not start during failed preflight'\n",
+        encoding="utf-8",
+    )
+    return bundle_root
+
+
+def test_run_package_fails_before_launcher_when_mixed_language_prep_helpers_exist(tmp_path: Path) -> None:
+    bundle_root = _write_bundle(tmp_path)
+    desktop_dir = tmp_path / "Desktop"
+    desktop_dir.mkdir()
+    outer_report = desktop_dir / "mixed_language_helpers.txt"
+
+    (bundle_root / "prepare_patch.py").write_text("def build_patch() -> str:\n    return 'ok'\n", encoding="utf-8")
+    (bundle_root / "prepare_patch.ps1").write_text("param([string]$Value)\nWrite-Output $Value\n", encoding="utf-8")
+
+    runner_called = False
+
+    def fake_runner(command: list[str], cwd: Path):
+        nonlocal runner_called
+        runner_called = True
+        raise AssertionError("launcher should not be invoked when mixed-language prep helpers are present")
+
+    result = run_delivery_package(
+        bundle_root,
+        wrapper_root=tmp_path,
+        report_path=outer_report,
+        desktop_dir=desktop_dir,
+        runner=fake_runner,
+    )
+
+    assert runner_called is False
+    assert result.ok is False
+    assert result.failure_category == "package_authoring_failure"
+    assert "mixed_prep_helper_languages_forbidden" in result.stderr
+    assert "powershell_prep_helper_forbidden" in result.stderr
+    assert outer_report.exists()

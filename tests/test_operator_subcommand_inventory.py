@@ -23,6 +23,7 @@ OPERATOR_SUBCOMMANDS = {
     "starter",
     "init-project-doc",
     "refresh-project-doc",
+    "setup-windows-env",
     "release-readiness",
 }
 

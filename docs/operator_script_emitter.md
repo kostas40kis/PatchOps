@@ -1,30 +1,43 @@
 # Operator script emitter
 
 ## Purpose
-PatchOps can now emit maintained operator helper scripts from Python-owned templates so common helper actions do not drift back into ad hoc PowerShell.
 
-## Supported script kinds
+`emit-operator-script` is the maintained repo-owned way to generate thin, operator-facing PowerShell helpers for supported PatchOps actions.
+
+The emitted output is a **repo-owned template** generated from maintained Python code, not an ad hoc hand-authored script and not a second workflow engine.
+
+## Why this surface exists
+
+This surface exists so common operator helpers can be produced from one maintained source instead of being recopied and slowly drifting back into old quoting, compatibility, launcher-shape, and operator ergonomics bugs.
+
+Treat the emitted helper as a **copy/paste-safe** operator surface generated from a maintained **compatibility shim**, not as a place to rebuild wrapper logic by hand.
+
+## Current maintained emitted-script examples
+
+Supported examples include thin helpers for:
+
 - `run-package-zip`
 - `maintenance-gate`
 
-## Why this exists
-Recent real usage showed that one-off scripts can reintroduce old bugs such as stale command surfaces, quoting mistakes, and `ArgumentList` compatibility problems.
+**Keep PowerShell thin.**
 
-## Compatibility rule
-Generated process-launch helpers must remain compatible with **Windows PowerShell 5.1**:
-- use `ArgumentList` when that property exists on `ProcessStartInfo`
-- otherwise fall back to the classic `Arguments` string
+**Keep reusable mechanics in Python.**
 
-This rule is locked in the emitted script text and in tests.
+The intelligence remains in Python and the generated script stays thin.
 
-## Examples
-Emit a run-package helper script:
+## Windows compatibility rule
 
-`py -m patchops.cli emit-operator-script run-package-zip C:\Users\Public\run_patch_bundle.ps1 --wrapper-root "C:\dev\patchops" --bundle-zip-path "D:\patch_bundle.zip"`
+Generated scripts must remain compatible with **Windows PowerShell 5.1**.
 
-Emit a maintenance gate helper script:
+That means process-launch helpers must support older hosts where `ArgumentList` may be unavailable:
+- use `ArgumentList` when the property exists,
+- otherwise fall back to `Arguments`.
 
-`py -m patchops.cli emit-operator-script maintenance-gate C:\Users\Public\run_patchops_maintenance_gate.ps1 --wrapper-root "C:\dev\patchops"`
+The doc keeps the exact `ArgumentList` and `Arguments` terms here because that compatibility rule is part of the supported contract.
 
-## Design rule
-The emitted script is a thin operator-facing shim. The intelligence stays in Python and the generated script comes from one repo-owned template.
+## Guardrails
+
+- Treat the emitted helper as a maintained operator shim, not as target-project logic.
+- Do not let emitted scripts become a second apply engine.
+- Keep operator output grounded in the maintained command surface.
+- Prefer the repo-owned template over one-off pasteable rewrites when a supported emitted helper already exists.

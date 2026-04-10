@@ -772,8 +772,8 @@ def recommend_profile_for_target(*, target_root: str, wrapper_project_root=None)
         )
         runtime_path = None
         starter_examples = [
-            'examples/generic_python_verify_patch.json',
-            'examples/generic_python_doc_patch.json',
+            'examples/generic_verify_patch.json',
+            'examples/generic_python_patch.json',
         ]
 
     return {
@@ -809,11 +809,11 @@ def _starter_examples_for_intent(profile_name: str, intent: str) -> list[str]:
     trader = profile_name == "trader"
     mapping = {
         "code_patch": ["examples/trader_code_patch.json"] if trader else ["examples/generic_python_patch.json"],
-        "documentation_patch": ["examples/trader_doc_patch.json"] if trader else ["examples/generic_python_doc_patch.json"],
-        "validation_patch": ["examples/trader_verify_patch.json"] if trader else ["examples/generic_python_verify_patch.json"],
-        "verify_only": ["examples/trader_verify_patch.json"] if trader else ["examples/generic_python_verify_patch.json"],
-        "cleanup_patch": ["examples/generic_python_doc_patch.json"],
-        "archive_patch": ["examples/generic_python_doc_patch.json"],
+        "documentation_patch": ["examples/trader_doc_patch.json"] if trader else ["examples/generic_python_patch.json"],
+        "validation_patch": ["examples/trader_verify_patch.json"] if trader else ["examples/generic_verify_patch.json"],
+        "verify_only": ["examples/trader_verify_patch.json"] if trader else ["examples/generic_verify_patch.json"],
+        "cleanup_patch": ["examples/generic_cleanup_archive_patch.json"],
+        "archive_patch": ["examples/generic_cleanup_archive_patch.json"],
     }
     return mapping[intent]
 

@@ -1,40 +1,44 @@
 # Bootstrap repair
 
 ## Purpose
-`bootstrap-repair` is a narrow recovery surface for the specific case where normal PatchOps use is blocked by a small file-level break such as a syntax error or import-chain break.
 
-This is **not** a second apply engine. In plain terms, this surface is not a second apply engine.
-It is a maintenance helper for restoring one or a few known file paths, optionally validating those repaired Python files with `py_compile`, and then returning the operator to the normal PatchOps workflow.
+`bootstrap-repair` is the narrow maintained recovery surface for the case where the
+normal PatchOps CLI import chain is too broken to rely on ordinary repair flow.
 
-## Preferred direct recovery entrypoint
-Use the direct module when you do not trust the full `patchops.cli` import chain:
+You can reach it either as:
 
-`py -m patchops.bootstrap_repair C:\temp\bootstrap_payload --target-root "C:\dev\patchops" --path patchops\operator_scripts.py --py-compile-path patchops\operator_scripts.py`
+- `py -m patchops.bootstrap_repair`
+- `py -m patchops.cli bootstrap-repair`
 
-## CLI convenience entrypoint
-If the normal CLI is still bootable, the repo also exposes a matching command surface:
+## Scope
 
-`py -m patchops.cli bootstrap-repair C:\temp\bootstrap_payload --target-root "C:\dev\patchops" --path patchops\operator_scripts.py --py-compile-path patchops\operator_scripts.py`
+This is not a second apply engine.
 
-## Payload shape
-The payload root should contain replacement files in target-relative shape.
+It is a minimal recovery tool for restoring one or a few known file paths, validating
+Python syntax, and getting the repo back to the point where the normal PatchOps workflow
+is usable again.
 
-Example payload:
+## When to use it
 
-```text
-C:\temp\bootstrap_payload\
-  patchops\operator_scripts.py
-```
+Use bootstrap repair only when the normal PatchOps CLI import chain is too broken, for example:
 
-## What the helper does
-1. restores the requested relative file paths from the payload root,
-2. backs up any pre-existing target files under `data/runtime/bootstrap_repairs/...`,
-3. optionally runs `py_compile` against the repaired Python file paths,
-4. prints one machine-readable JSON payload,
-5. tells the operator to return to the normal PatchOps workflow.
+- a partially broken import chain
+- a damaged helper file that stops `py -m patchops.cli ...` from booting
+- a narrow known-file restoration case where the repo must become bootable first
 
-## Scope guardrails
-- Keep the restored path set intentionally small.
-- Prefer this only for bootability repair, not routine patch application.
-- Return to the maintained PatchOps flow as soon as recovery succeeds.
-- Treat this surface as exceptional and narrow.
+## Recovery posture
+
+The recovery path should stay exceptional and narrow.
+
+- repair only the minimum files needed to restore bootability
+- validate syntax before returning to normal flow
+- return to the maintained PatchOps flow as soon as recovery succeeds
+- treat recovery as a bridge back to the real workflow, not as a replacement for it
+
+## After recovery
+
+Return to the normal `check` / `inspect` / `plan` / `apply` / `verify` flow as soon as the
+repo is bootable again.
+
+The correct long-term path is still the maintained PatchOps command surface, not the
+bootstrap helper itself.

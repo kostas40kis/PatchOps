@@ -1,17 +1,35 @@
-# LLM usage
+# PatchOps LLM Usage
 
-When authoring PatchOps bundles, follow the maintained default workflow exactly.
+## Working style
 
-## Required sequence
-- use `make-bundle` to scaffold,
-- edit `manifest.json`, `bundle_meta.json`, and `content/`,
-- diagnose with `check-bundle`, `inspect-bundle`, `plan-bundle`, and `bundle-doctor`,
-- build with `build-bundle`,
-- execute with `run-package`,
-- continue patch by patch from evidence in the canonical Desktop txt report.
+LLMs working on PatchOps should follow these rules:
 
-## What not to do
-- Do not invent extra launcher variants.
-- Do not manually improvise zip structure.
-- Do not skip the bundle-doctor review step when diagnosing authoring problems.
-- Do not claim success without a report.
+- keep thin PowerShell,
+- keep reusable mechanics in Python,
+- preserve one canonical truth,
+- prefer narrow truthful repairs,
+- and read the current report before claiming success.
+
+## Maintained surfaces
+
+When describing maintained surfaces, preserve the command inventory:
+
+- `check`
+- `inspect`
+- `plan`
+- `apply`
+- `verify`
+- `check-bundle`
+- `run-package`
+
+## Reporting contract
+
+A suspicious-success blocker is part of the maintained reporting contract. Fatal setup or launcher failure with missing trustworthy inner evidence must not be summarized as PASS.
+
+## Development order
+
+Use a code-first / docs-last process:
+- code patches first,
+- proof gates second,
+- documentation refresh after the proof stop,
+- documentation contract locks after the refresh.

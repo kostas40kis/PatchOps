@@ -1,6 +1,6 @@
 # Documentation Reading Order
 
-This file is the smallest navigation map for PatchOps.
+This file is the smallest navigation map for PatchOps after the published Patch 28A state.
 
 ## If you are a human operator
 
@@ -10,6 +10,7 @@ Read in this order:
 2. `docs/project_status.md`
 3. `docs/operator_quickstart.md`
 4. `docs/failure_repair_guide.md`
+5. `docs/post_publish_snapshot.md` if you need the published-state recap
 
 ## If you are resuming already-running work
 
@@ -39,7 +40,8 @@ Use these after the first-read surfaces:
 - `docs/examples.md`
 - `docs/profile_system.md`
 - `docs/manifest_schema.md`
-- `docs/powershell_runner_guardrails.md`
+- `docs/root_launcher_shape_contract.md`
+- `docs/github_publish_helper.md`
 - `docs/common_mistakes_and_guardrails.md`
 
 ## Historical material

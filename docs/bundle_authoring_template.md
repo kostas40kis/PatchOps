@@ -1,24 +1,31 @@
 # Bundle authoring template
 
-Use this workflow for normal maintained PatchOps bundles.
+## Purpose
 
-## Operator workflow
-1. Create a starter bundle with `py -m patchops.cli make-bundle ...`.
-2. Fill in `manifest.json`, `bundle_meta.json`, and `content/`.
-3. Run `py -m patchops.cli check-bundle <bundle-root>`.
-4. Run `py -m patchops.cli inspect-bundle <bundle-root>`.
-5. Run `py -m patchops.cli plan-bundle <bundle-root>`.
-6. Run `py -m patchops.cli bundle-doctor <bundle-root>` as the preferred troubleshooting entrypoint.
-7. Build the zip with `py -m patchops.cli build-bundle <bundle-root> <bundle.zip>`.
-8. Execute the zip with `py -m patchops.cli run-package <bundle.zip> --wrapper-root "C:\dev\patchops"`.
-9. Upload the canonical Desktop txt report and continue patch by patch from evidence.
+This template is the maintained authoring checklist for a new PatchOps bundle.
 
-## Why bundle-doctor comes first for diagnosis
-`bundle-doctor` is the preferred troubleshooting entrypoint because it combines shape validation, launcher review, and build verification in one place before you spend time rerunning a broken zip.
+## Exact files to create
 
-## What to keep true
-- One root-level `run_with_patchops.ps1`.
-- One canonical report.
-- PowerShell stays thin and operator-facing.
-- Reusable behavior stays in Python.
-- Do not guess bundle layout by hand.
+- `manifest.json`
+- `bundle_meta.json`
+- `README.txt`
+- `run_with_patchops.ps1`
+- `content/`
+
+## Authoring checklist
+
+1. Generate the bundle from Python when possible.
+2. Stage target-relative files under `content/`.
+3. Fill `manifest.json` writes and validation commands.
+4. Keep `bundle_meta.json` aligned with the bundle root.
+5. Keep `run_with_patchops.ps1` as the single saved root launcher.
+6. Run `check-bundle`, `inspect-bundle`, `plan-bundle`, and `bundle-doctor`.
+7. Build the zip.
+8. Run the built zip through `run-package`.
+9. Continue from the canonical Desktop txt report.
+
+## Launcher guidance
+
+The saved root launcher should stay boring.
+It should remain a compatibility shim that delegates to `bundle-entry`.
+Do not widen it into a second workflow engine.

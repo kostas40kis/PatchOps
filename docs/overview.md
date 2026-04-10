@@ -1,68 +1,76 @@
-# PatchOps Overview
+# Overview
 
-PatchOps is a reusable harness for applying, validating, and evidencing patches across repositories.
+## Purpose
 
-## Core boundary
+PatchOps is a standalone wrapper / harness / patch-execution toolkit.
+It owns how change is reviewed, applied, verified, reported, retried, and handed off.
 
-Target repositories own:
+Simple boundary:
 
-- architecture
-- business logic
-- tests
-- policies
-- domain semantics
+- **PatchOps = how change is applied and evidenced**
+- **target repo = what the change actually is**
 
-PatchOps owns:
+PatchOps remains project-agnostic.
+It should not absorb target-project business logic.
 
-- manifest-driven execution
-- profile resolution
-- backup mechanics
-- deterministic file writing
-- validation command execution
-- stdout/stderr capture
-- deterministic report rendering
-- failure classification
-- verify-only reruns
+## Current maintained posture
 
-## Stage 1 architecture
+PatchOps is in maintenance mode after the completed zip-first and Python-heavier streams.
+The repository now has a maintained raw zip workflow, repo-owned operator helper surfaces, narrow bootstrap repair support, a repo-owned GitHub publish helper, and a canonical root launcher shape contract.
 
-Python core:
+Current practical rule set:
 
-- `patchops/manifest_loader.py` and `patchops/manifest_validator.py`
-- `patchops/profiles/`
-- `patchops/files/`
-- `patchops/execution/`
-- `patchops/reporting/`
-- `patchops/workflows/`
+- keep PowerShell thin,
+- keep reusable mechanics in Python,
+- preserve one canonical Desktop txt report,
+- prefer narrow repair over redesign,
+- use handoff for already-running work.
 
-Thin PowerShell surface:
+## Core maintained surfaces
 
-- `powershell/Invoke-PatchManifest.ps1`
-- `powershell/Invoke-PatchVerify.ps1`
+Classic manifest workflow remains real:
 
-## Stage 1 objective
+- `check`
+- `inspect`
+- `plan`
+- `apply`
+- `verify`
 
-Produce a first useful version that can:
+Bundle workflow remains additive:
 
-1. load a manifest
-2. resolve a profile
-3. back up affected files
-4. write files
-5. run validation commands
-6. capture stdout/stderr
-7. emit one canonical report
-8. distinguish wrapper failure from target-project failure
-9. support verify-only reruns
+- `check-bundle`
+- `run-package`
+- bundle-entry from the bundled root launcher
+- launcher review and bundle shape review
 
-## Internal execution path note
+Operator-facing maintenance helpers also now exist for:
 
-For internal command execution, PatchOps should prefer the Python-owned execution path instead of reintroducing ad hoc subprocess loops inside individual workflow files or PowerShell patch bodies.
+- emitted operator scripts,
+- maintenance-gate execution,
+- bootstrap repair when the normal CLI import chain is too broken,
+- repo-owned GitHub publish flow,
+- published-state snapshot and documentation refresh packets.
 
-The preferred internal path is:
+## Reading order
 
-- `patchops.execution.process_runner.run_command_result(...)` for direct execution,
-- `patchops.execution.result_model.normalize_execution_result(...)` for reusable normalization,
-- `ExecutionResult` as the reusable internal result shape,
-- and the shared workflow adapter in `patchops.workflows.common` instead of workflow-local subprocess handling.
+For first-read surfaces, start with:
 
-Contributors should treat `patchops.execution.process_runner` and `patchops.execution.result_model` as the maintained execution surfaces and avoid adding new ad hoc execution helpers in docs examples, workflow files, or one-off PowerShell runners unless current repo evidence proves a narrow exception is required.
+1. `README.md`
+2. `docs/operator_quickstart.md`
+3. `docs/llm_usage.md`
+
+Then use these deep-reference documents when you need more exact detail:
+
+- `docs/examples.md`
+- `docs/profile_system.md`
+- `docs/manifest_schema.md`
+- `docs/compatibility_notes.md`
+
+## Evidence discipline
+
+A patch is green only when:
+
+- the relevant tests pass,
+- the canonical report says PASS,
+- the claimed scope matches the real change,
+- and the repo is healthier, not merely different.

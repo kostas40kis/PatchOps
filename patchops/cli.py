@@ -380,7 +380,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     emit_operator_script_parser.add_argument(
         "script_kind",
-        choices=["run-package-zip", "maintenance-gate"],
+        choices=["run-package-zip", "maintenance-gate", "patchops-entry-ps1"],
         help="Operator helper script kind to emit.",
     )
     emit_operator_script_parser.add_argument(
@@ -396,6 +396,34 @@ def build_parser() -> argparse.ArgumentParser:
         "--bundle-zip-path",
         help="Default bundle zip path embedded into the run-package helper script.",
         default=r"D:\patch_bundle.zip",
+    )
+
+    setup_windows_env_parser = subparsers.add_parser(
+        "setup-windows-env",
+        help="Create the maintained Windows PatchOps environment variables and report directories",
+    )
+    setup_windows_env_parser.description = (
+        "Create the maintained Windows PatchOps environment variables, bin path, and per-project report directories without widening PowerShell into a second workflow engine."
+    )
+    setup_windows_env_parser.add_argument(
+        "--wrapper-root",
+        help="Override wrapper project root embedded into PATCHOPS_WRAPPER_ROOT.",
+        default=None,
+    )
+    setup_windows_env_parser.add_argument(
+        "--reports-root",
+        help="Optional explicit reports root. Defaults to Desktop\\PatchOpsReports under the current user profile.",
+        default=None,
+    )
+    setup_windows_env_parser.add_argument(
+        "--bin-root",
+        help="Optional explicit bin root to append to PATH. Defaults to %%USERPROFILE%%\\bin\\PatchOps.",
+        default=None,
+    )
+    setup_windows_env_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the planned environment changes without persisting them.",
     )
 
 
@@ -997,6 +1025,49 @@ def main(argv: list[str] | None = None) -> int:
         payload["bundle_zip_path"] = args.bundle_zip_path
         print(json.dumps(payload, indent=2))
         return 0 if payload["ok"] else 1
+
+    if args.command == "setup-windows-env":
+        from patchops.windows_env_setup import (
+            apply_windows_env_setup,
+            build_windows_env_setup_plan,
+            read_windows_user_path,
+            windows_env_setup_as_dict,
+        )
+
+        wrapper_root = (
+            Path(args.wrapper_root).resolve()
+            if args.wrapper_root
+            else Path(__file__).resolve().parents[1]
+        )
+        existing_user_path = read_windows_user_path()
+        plan = build_windows_env_setup_plan(
+            wrapper_project_root=wrapper_root,
+            reports_root=args.reports_root,
+            bin_root=args.bin_root,
+            existing_user_path=existing_user_path,
+        )
+        payload = windows_env_setup_as_dict(plan)
+        payload["dry_run"] = bool(args.dry_run)
+
+        if args.dry_run:
+            payload["ok"] = True
+            payload["applied"] = False
+            print(json.dumps(payload, indent=2))
+            return 0
+
+        try:
+            apply_payload = apply_windows_env_setup(plan)
+            payload.update(apply_payload)
+            payload["ok"] = True
+            payload["applied"] = True
+            print(json.dumps(payload, indent=2))
+            return 0
+        except Exception as exc:
+            payload["ok"] = False
+            payload["applied"] = False
+            payload["error"] = f"{type(exc).__name__}: {exc}"
+            print(json.dumps(payload, indent=2))
+            return 1
 
 
     if args.command == "bootstrap-repair":
