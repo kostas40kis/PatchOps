@@ -1,4 +1,126 @@
+
+
 from __future__ import annotations
+def _normalize_run_package_report_artifact(
+    report_path: object,
+    run_result: object,
+    source_path: object | None,
+    requested_report_path: object | None,
+) -> None:
+    if not report_path:
+        return
+
+    try:
+        actual_written_path = Path(str(report_path)).resolve()
+    except Exception:
+        return
+
+    if not actual_written_path.exists():
+        return
+
+    raw_text = actual_written_path.read_text(encoding="utf-8")
+    normalized = raw_text.replace("\r\n", "\n")
+
+    inner_report_path = getattr(run_result, "inner_report_path", None)
+
+    requested_path_obj = None
+    inner_path_obj = None
+    try:
+        if requested_report_path:
+            requested_path_obj = Path(str(requested_report_path)).resolve()
+    except Exception:
+        requested_path_obj = None
+
+    try:
+        if inner_report_path:
+            inner_path_obj = Path(str(inner_report_path)).resolve()
+    except Exception:
+        inner_path_obj = None
+
+    merged_single_artifact = (
+        requested_path_obj is not None
+        and inner_path_obj is not None
+        and actual_written_path == inner_path_obj
+    )
+
+    desired_title = (
+        "PATCHOPS RUN-PACKAGE CANONICAL REPORT"
+        if merged_single_artifact
+        else "PATCHOPS RUN-PACKAGE OUTER REPORT"
+    )
+    desired_result_prefix = (
+        "Result               :"
+        if merged_single_artifact
+        else "Result              :"
+    )
+    desired_result_value = "PASS" if getattr(run_result, "ok", False) else "FAIL"
+
+    rows = normalized.split("\n")
+    if not rows:
+        rows = [desired_title]
+    elif rows[0].startswith("PATCHOPS RUN-PACKAGE "):
+        rows[0] = desired_title
+    else:
+        rows.insert(0, desired_title)
+
+    def replace_first(prefix_start: str, new_line: str) -> None:
+        for idx, row in enumerate(rows):
+            if row.startswith(prefix_start):
+                rows[idx] = new_line
+                return
+
+    def insert_after(prefix_start: str, new_line: str) -> None:
+        if new_line in rows:
+            return
+        for idx, row in enumerate(rows):
+            if row.startswith(prefix_start):
+                rows.insert(idx + 1, new_line)
+                return
+
+    replace_first("Result", f"{desired_result_prefix} {desired_result_value}")
+
+    source_path_text = "(unknown)"
+    if source_path is not None:
+        try:
+            source_path_text = str(Path(str(source_path)).resolve())
+        except Exception:
+            source_path_text = str(source_path)
+
+    inner_report_text = "(not detected)"
+    if inner_report_path:
+        try:
+            inner_report_text = str(Path(str(inner_report_path)).resolve())
+        except Exception:
+            inner_report_text = str(inner_report_path)
+
+    launcher_path_value = getattr(run_result, "launcher_path", None)
+    launcher_path_text = "(unknown)"
+    if launcher_path_value:
+        try:
+            launcher_path_text = str(Path(str(launcher_path_value)).resolve())
+        except Exception:
+            launcher_path_text = str(launcher_path_value)
+
+    inner_report_found = "True" if inner_report_path else "False"
+
+    insert_after("Failure Category", f"Source Path         : {source_path_text}")
+    insert_after("Source Path         :", f"Source Kind         : {getattr(run_result, 'source_kind', None) or '(unknown)'}")
+    insert_after("Source Kind         :", f"Extracted Path      : {getattr(run_result, 'extracted_path', None) or '(not applicable)'}")
+    insert_after("Extracted Path      :", f"Bundle Root         : {getattr(run_result, 'bundle_root', None) or '(unknown)'}")
+    insert_after("Bundle Root         :", f"Launcher Path       : {launcher_path_text}")
+
+    insert_after("Launcher Cwd", f"Inner Report Path   : {inner_report_text}")
+    insert_after("Inner Report Path   :", f"InnerReportFound   : {inner_report_found}")
+    insert_after("InnerReportFound   :", f"Inner Result        : {getattr(run_result, 'inner_result', None) or '(not detected)'}")
+    insert_after("Inner Result        :", f"Inner Exit Code     : {getattr(run_result, 'inner_exit_code', None) if getattr(run_result, 'inner_exit_code', None) is not None else '(not detected)'}")
+    insert_after("Inner Exit Code     :", f"Inner Failure       : {getattr(run_result, 'inner_failure_category', None) or '(none)'}")
+    insert_after("Inner Failure       :", f"Outer Report Path   : {getattr(run_result, 'outer_report_path', None) or '(unknown)'}")
+    insert_after("Outer Report Path   :", f"Exit Code           : {getattr(run_result, 'exit_code', None) if getattr(run_result, 'exit_code', None) is not None else '(unknown)'}")
+
+    new_text = "\n".join(rows)
+    if new_text != raw_text.replace("\r\n", "\n"):
+        actual_written_path.write_text(new_text, encoding="utf-8", newline="")
+
 
 import argparse
 import json
@@ -11,6 +133,26 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Callable, Iterable, Sequence
+import sys
+import pathlib
+
+
+def _looks_like_windows_missing_drive_path(value: str | None) -> bool:
+    if value is None:
+        return False
+    raw = str(value).strip()
+    return raw.startswith(":\\") or raw.startswith(":/")
+
+def _extract_option_value_from_argv(argv: list[str], option_name: str) -> str | None:
+    for index, token in enumerate(argv):
+        if token == option_name:
+            if index + 1 < len(argv):
+                return argv[index + 1]
+            return None
+        prefix = option_name + "="
+        if isinstance(token, str) and token.startswith(prefix):
+            return token[len(prefix):]
+    return None
 
 DEFAULT_FAILURE_CATEGORY = "ambiguous_evidence"
 
@@ -522,9 +664,9 @@ def _render_report(result: PackageRunResult) -> str:
 
 def _render_canonical_combined_report(*, result: PackageRunResult, inner_report_text: str, canonical_report_path: Path, requested_outer_report_path: Path) -> str:
     lines = [
-        "PATCHOPS RUN-PACKAGE CANONICAL REPORT",
+        "PATCHOPS RUN-PACKAGE OUTER REPORT",
         "====================================",
-        f"Result               : {'PASS' if result.ok else 'FAIL'}",
+        f"Result              : {'PASS' if result.ok else 'FAIL'}",
         f"Failure Category     : {result.failure_category or '(none)'}",
         f"Canonical Report Path: {canonical_report_path}",
         f"Requested Outer Path : {requested_outer_report_path}",
@@ -592,6 +734,7 @@ def _write_single_canonical_report(result: PackageRunResult, *, requested_outer_
     return outer_path
 
 def run_delivery_package(source_path: Path, *, wrapper_root: Path, mode: str = "apply", profile: str | None = None, launcher_relative_path: str | None = None, report_path: Path | None = None, powershell_exe: str | None = None, desktop_dir: Path | None = None, runner: Callable[[list[str], Path], Any] | None = None) -> PackageRunResult:
+    requested_report_path_input = report_path
     source_path = source_path.resolve()
     wrapper_root = wrapper_root.resolve()
     desktop = _desktop_dir(desktop_dir)
@@ -641,6 +784,18 @@ def run_delivery_package(source_path: Path, *, wrapper_root: Path, mode: str = "
             bundle_root = source_path.parent if source_path.exists() else wrapper_root
         result = PackageRunResult(ok=False, source_path=str(source_path), source_kind="zip" if source_path.suffix.lower() == ".zip" else "folder", extracted_path=None if extraction_root is None else str(extraction_root), bundle_root=str(bundle_root), launcher_path=str(launcher_path or "(not discovered)"), launcher_command=["(package setup failed before launcher invocation)"], launcher_working_directory=str(bundle_root), exit_code=1, stdout="", stderr=f"{type(exc).__name__}: {exc}", inner_report_path=None, inner_result=None, inner_exit_code=None, inner_failure_category=None, outer_report_path=str(report_path), failure_category=failure_category, notes=notes + ["Launcher invocation did not start."])
     _write_single_canonical_report(result, requested_outer_report_path=report_path)
+    _normalize_run_package_report_artifact(
+        getattr(result, 'outer_report_path', None),
+        result,
+        locals().get('source_path'),
+    requested_report_path_input,
+    )
+    _normalize_run_package_report_artifact(
+        getattr(result, 'outer_report_path', None),
+        result,
+        locals().get('source_path'),
+    requested_report_path_input,
+    )
     return result
 
 
@@ -660,6 +815,20 @@ def _validate_cli_path_text(label, value):
 
 
 def cli_main(argv=None):
+    raw_argv = list(argv or [])
+    if raw_argv and isinstance(raw_argv[0], str) and _looks_like_windows_missing_drive_path(raw_argv[0]):
+        sys.stderr.write(
+            f"source_path looks like a Windows path but is missing its drive letter: {raw_argv[0]}. Working directory: {Path.cwd()}\n"
+        )
+        raise SystemExit(2)
+
+    wrapper_root_raw = _extract_option_value_from_argv(raw_argv, "--wrapper-root")
+    if _looks_like_windows_missing_drive_path(wrapper_root_raw):
+        sys.stderr.write(
+            f"wrapper_root looks like a Windows path but is missing its drive letter: {wrapper_root_raw}. Working directory: {Path.cwd()}\n"
+        )
+        raise SystemExit(2)
+
     import argparse
     import json
     from dataclasses import asdict
