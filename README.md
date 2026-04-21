@@ -1,39 +1,60 @@
 # PatchOps
 
-PatchOps is a standalone wrapper and patch-execution toolkit for applying, verifying, packaging, and evidencing changes without turning the wrapper into target-project business logic.
+PatchOps is a standalone wrapper / harness project for applying, verifying, packaging, and evidencing changes.
 
-## Current operating contract
+## Final maintenance posture
 
-- PatchOps remains the wrapper, not target-project logic.
-- PowerShell stays thin and operator-facing.
-- Reusable workflow mechanics should live in Python.
-- Every normal run should resolve to one canonical truth in one canonical report.
-- Suspicious-success patterns are blocked rather than reported as success.
-- Development stays code-first and documentation-last.
+PatchOps is in a maintenance / additive-improvement posture.
+Historical zip-first and Python-heavier completion as architecture context remain useful, but the live frontier must still be read from the latest truthful report and handoff.
 
-## Maintained command inventory
+This README closes the frontier discrepancy by treating historical stream-completion summaries as context only.
+The post-Patch-29 recovery stream is now green through the accepted recovery frontier regression gate only when the canonical report says so.
+The final pre-documentation proof stop is the point after which the docs may be refreshed.
+Consolidation status remains visible here because older Stage 1 / pre-Stage 2 history still matters as context.
 
-The maintained command inventory includes:
+## Read these files in this order:
 
-- `check`
-- `inspect`
-- `plan`
-- `apply`
-- `verify`
-- `check-bundle`
-- `run-package`
+1. `handoff/current_handoff.md`
+2. `docs/project_status.md`
+3. `docs/operator_quickstart.md`
+4. `docs/llm_usage.md`
+5. `docs/examples.md`
 
-Bundle-native behavior is additive and should not silently break classic manifest-driven flows.
+If PatchOps work is already in progress, start from handoff/current_handoff.md first.
+If the repo is being taken over fresh, also read docs/project_packet_contract.md and docs/project_packet_workflow.md.
 
-## Canonical report truth rules
+## Current truth rules
 
-PatchOps preserves one canonical truth rule:
+- Keep one canonical Desktop txt report.
+- Treat the canonical report as the truth surface for each run.
+- Keep PowerShell thin and operator-facing.
+- Keep reusable mechanics in Python.
+- suspicious-run support exists as a conservative reading aid.
+- verification-only reruns and wrapper-only repair remain distinct flows.
 
-- fatal setup or launcher failure must not resolve to PASS,
-- missing inner-report evidence must not be hidden by a green outer artifact,
-- suspicious-success patterns must be blocked,
-- and the canonical report must match the effective result.
+## Handoff and source bundle surfaces
 
-## Future-LLM continuity
+- `handoff/current_handoff.md`
+- `handoff/final_future_llm_source_bundle.txt`
 
-The maintained future-LLM upload artifact and source bundle should describe the real modular package layout rather than stale flat-file assumptions.
+The preferred history-compression artifact is `handoff/final_future_llm_source_bundle.txt`.
+That artifact and the source bundle should describe the real modular package layout rather than stale flat-file assumptions.
+
+## Profile and example note
+
+### Generic Python + PowerShell profile examples
+
+Use the maintained examples and adapt them:
+- `examples/trader_code_patch.json`
+- `examples/trader_first_verify_patch.json`
+- `examples/generic_python_patch.json`
+- `examples/trader_first_doc_patch.json`
+- `examples/generic_verify_patch.json`
+
+Patch 26, Patch 29, and later recovery wording should be interpreted carefully: Patch 29 was unresolved and required the recovery stream.
+
+Historical zip-first and Python-heavier completion as architecture context should be treated as background only, not current frontier proof. Patch 29 was unresolved and required the later recovery stream.
+
+handoff/final_future_llm_source_bundle.txt is the durable future-llm upload artifact.
+
+Use the durable future-LLM upload artifact together with the current modular-package snapshot.

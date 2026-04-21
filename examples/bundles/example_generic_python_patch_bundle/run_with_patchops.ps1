@@ -4,17 +4,18 @@
     )
 
     $ErrorActionPreference = 'Stop'
-    Set-StrictMode -Version Latest
 
-    $bundleRoot = $PSScriptRoot
+    $bundleRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+    $manifestPath = Join-Path $bundleRoot 'manifest.json'
 
-    if (-not (Test-Path -LiteralPath $WrapperRepoRoot)) {
-        throw ("Wrapper repo root not found: {0}" -f $WrapperRepoRoot)
+    if (-not (Test-Path -LiteralPath $manifestPath)) {
+        throw "Bundle manifest not found: $manifestPath"
     }
 
-    Push-Location -LiteralPath $WrapperRepoRoot
+    Push-Location $WrapperRepoRoot
     try {
-        & py -m patchops.cli run-package $bundleRoot --wrapper-root $WrapperRepoRoot
+        py -m patchops.cli apply $manifestPath --wrapper-root $WrapperRepoRoot
+        exit $LASTEXITCODE
     }
     finally {
         Pop-Location

@@ -772,7 +772,7 @@ def recommend_profile_for_target(*, target_root: str, wrapper_project_root=None)
         )
         runtime_path = None
         starter_examples = [
-            'examples/generic_verify_patch.json',
+            'examples/generic_python_verify_patch.json',
             'examples/generic_python_patch.json',
         ]
 

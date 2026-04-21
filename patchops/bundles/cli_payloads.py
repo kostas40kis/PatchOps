@@ -154,6 +154,7 @@ def bundle_inspect_result_as_dict(result: Any) -> dict[str, Any]:
     metadata = _bundle_metadata(result)
     extraction = _bundle_extraction(result)
     resolved_layout = _bundle_resolved_layout(result)
+    issues = _issues_from_result(result)
     write_targets = _tuple_strings(
         getattr(result, "write_targets", getattr(result, "target_paths", ()) or ())
     )
@@ -161,6 +162,7 @@ def bundle_inspect_result_as_dict(result: Any) -> dict[str, Any]:
         getattr(result, "validation_commands", getattr(result, "validation_command_names", ()) or ())
     )
     payload = {
+        "ok": len(issues) == 0,
         "patch_name": getattr(result, "patch_name", getattr(metadata, "patch_name", None)),
         "recommended_profile": getattr(
             result,
@@ -186,6 +188,8 @@ def bundle_inspect_result_as_dict(result: Any) -> dict[str, Any]:
         "write_targets": list(write_targets),
         "validation_command_count": len(validation_commands),
         "validation_commands": list(validation_commands),
+        "issue_count": len(issues),
+        "issues": list(issues),
     }
     payload["report_chain"] = bundle_report_chain_as_dict(result)
     return payload
@@ -195,12 +199,14 @@ def bundle_plan_result_as_dict(result: Any) -> dict[str, Any]:
     metadata = _bundle_metadata(result)
     extraction = _bundle_extraction(result)
     resolved_layout = _bundle_resolved_layout(result)
+    issues = _issues_from_result(result)
     write_targets = _tuple_strings(getattr(result, "write_targets", ()) or ())
     validation_values = getattr(result, "validation_commands", None)
     if validation_values is None:
         validation_values = getattr(result, "validation_command_names", ()) or ()
     validation_commands = _validation_command_payloads(validation_values)
     payload = {
+        "ok": len(issues) == 0,
         "patch_name": getattr(result, "patch_name", getattr(metadata, "patch_name", None)),
         "recommended_profile": getattr(
             result,
@@ -228,6 +234,8 @@ def bundle_plan_result_as_dict(result: Any) -> dict[str, Any]:
         "validation_commands": list(validation_commands),
         "target_project_root": _stringify_path(getattr(result, "target_project_root", None)),
         "report_path_preview": _stringify_path(getattr(result, "report_path_preview", None)),
+        "issue_count": len(issues),
+        "issues": list(issues),
     }
     payload["report_chain"] = bundle_report_chain_as_dict(result)
     return payload

@@ -97,18 +97,37 @@ def _build_launcher_review_payload(*, launcher_path: str | None, issues: list[st
     }
 
 
-def _read_root_launcher_review_from_directory(bundle_root: Path) -> dict[str, Any]:
+def _candidate_bundle_launcher_paths_for_directory(bundle_root: Path) -> list[Path]:
     root = Path(bundle_root).resolve()
-    launcher_path = root / "run_with_patchops.ps1"
-    if not launcher_path.is_file():
-        return _build_launcher_review_payload(
-            launcher_path=str(launcher_path),
-            issues=[f"Saved root launcher is missing: {launcher_path}"],
-        )
-    launcher_payload = check_launcher_path(launcher_path)
+    return [
+        root / "run_with_patchops.ps1",
+        root / "launchers" / "apply_with_patchops.ps1",
+        root / "launchers" / "verify_with_patchops.ps1",
+    ]
+
+
+def _candidate_bundle_launcher_members(root: str) -> list[str]:
+    return [
+        f"{root}/run_with_patchops.ps1",
+        f"{root}/launchers/apply_with_patchops.ps1",
+        f"{root}/launchers/verify_with_patchops.ps1",
+    ]
+
+
+def _read_root_launcher_review_from_directory(bundle_root: Path) -> dict[str, Any]:
+    candidates = _candidate_bundle_launcher_paths_for_directory(bundle_root)
+    for launcher_path in candidates:
+        if launcher_path.is_file():
+            launcher_payload = check_launcher_path(launcher_path)
+            return _build_launcher_review_payload(
+                launcher_path=str(launcher_path),
+                issues=[str(item) for item in launcher_payload.get("issues") or []],
+            )
     return _build_launcher_review_payload(
-        launcher_path=str(launcher_path),
-        issues=[str(item) for item in launcher_payload.get("issues") or []],
+        launcher_path=str(candidates[0]),
+        issues=[
+            "Saved bundle launcher is missing. Looked for: " + ", ".join(str(path) for path in candidates)
+        ],
     )
 
 
@@ -136,11 +155,14 @@ def _read_root_launcher_review_from_zip(bundle_zip_path: Path) -> dict[str, Any]
                 )
 
             root = roots[0]
-            launcher_member = f"{root}/run_with_patchops.ps1"
-            if launcher_member not in member_names:
+            candidates = _candidate_bundle_launcher_members(root)
+            launcher_member = next((candidate for candidate in candidates if candidate in member_names), None)
+            if launcher_member is None:
                 return _build_launcher_review_payload(
-                    launcher_path=launcher_member,
-                    issues=[f"Saved root launcher is missing from bundle zip: {launcher_member}"],
+                    launcher_path=candidates[0],
+                    issues=[
+                        "Saved bundle launcher is missing from bundle zip. Looked for: " + ", ".join(candidates)
+                    ],
                 )
 
             with tempfile.TemporaryDirectory(prefix="patchops_bundle_review_") as temp_dir:
@@ -165,14 +187,20 @@ def _augment_bundle_review_payload(payload: dict[str, Any], *, bundle_path: Path
         else _read_root_launcher_review_from_directory(bundle_path)
     )
 
-    base_issue_count = int(payload.get("issue_count", len(payload.get("issues") or [])))
-    base_ok = bool(payload["ok"]) if "ok" in payload else True
+    base_issues = [str(item) for item in (payload.get("issues") or [])]
+    launcher_messages = [str(item.get("message", "")) for item in review.get("issues", []) if str(item.get("message", ""))]
+    combined_issues = list(base_issues)
+    for message in launcher_messages:
+        if message not in combined_issues:
+            combined_issues.append(message)
+
     payload["launcher_review"] = review
     payload["launcher_status"] = review["status"]
     payload["launcher_issue_count"] = review["issue_count"]
     payload["launcher_issue_codes"] = [item["code"] for item in review["issues"]]
-    payload["issue_count"] = base_issue_count + review["issue_count"]
-    payload["ok"] = base_ok and review["status"] != "reject"
+    payload["issues"] = combined_issues
+    payload["issue_count"] = len(combined_issues)
+    payload["ok"] = len(combined_issues) == 0
     return payload
 
 
@@ -241,17 +269,19 @@ def build_parser() -> argparse.ArgumentParser:
 
     check_bundle_parser = subparsers.add_parser(
         "check-bundle",
-        help="Validate a PatchOps bundle root or raw bundle zip",
-    )
-    check_bundle_parser.description = (
-        "Validate a PatchOps bundle root or raw bundle zip before execution."
+        help="Validate a PatchOps bundle root or raw bundle zip before execution.",
+        description="Validate a PatchOps bundle root or raw bundle zip before execution.",
     )
     check_bundle_parser.add_argument(
         "bundle_path",
+        metavar="bundle_zip_path",
         help="Path to the PatchOps bundle root directory or bundle zip file",
     )
-
-
+    check_bundle_parser.add_argument(
+        "--profile",
+        dest="profile",
+        help="Optional requested profile for bundle validation output",
+    )
     bundle_entry_parser = subparsers.add_parser(
     "bundle-entry",
     help="Run a bundle root through metadata-driven apply or verify selection",
@@ -484,6 +514,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     schema_parser = subparsers.add_parser("schema", help="Print manifest field reference and starter guidance")
     schema_parser.description = "Print a stable manifest field reference and starter guidance for PatchOps manifests."
+
 
     export_handoff_parser = subparsers.add_parser(
         "export-handoff",
@@ -780,6 +811,38 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
+    # PATCHOPS_B2E_COMPAT_START
+    if args.command == "inspect-bundle":
+        from patchops.bundles.legacy_bundle_review import inspect_bundle_cli_payload_compat
+        _bundle_source = getattr(args, "bundle_zip_path", None) or getattr(args, "bundle_path", None) or getattr(args, "source_path", None)
+        _compat_payload = inspect_bundle_cli_payload_compat(_bundle_source)
+        if _compat_payload is not None:
+            import json as _json
+            print(_json.dumps(_compat_payload, indent=2))
+            return 0 if bool(_compat_payload.get("ok", False)) else 1
+
+    if args.command == "plan-bundle":
+        from patchops.bundles.legacy_bundle_review import plan_bundle_cli_payload_compat
+        _bundle_source = getattr(args, "bundle_zip_path", None) or getattr(args, "bundle_path", None) or getattr(args, "source_path", None)
+        _compat_payload = plan_bundle_cli_payload_compat(_bundle_source)
+        if _compat_payload is not None:
+            import json as _json
+            print(_json.dumps(_compat_payload, indent=2))
+            return 0 if bool(_compat_payload.get("ok", False)) else 1
+
+    if args.command == "check-bundle":
+        from patchops.bundles.legacy_bundle_review import check_bundle_cli_payload_compat
+        _bundle_source = getattr(args, "bundle_path", None) or getattr(args, "bundle_zip_path", None) or getattr(args, "source_path", None)
+        _compat_payload = check_bundle_cli_payload_compat(_bundle_source, profile_name=getattr(args, "profile", None))
+        if _compat_payload is not None:
+            import json as _json
+            print(_json.dumps(_compat_payload, indent=2))
+            return 0 if bool(_compat_payload.get("ok", False)) else 1
+    # PATCHOPS_B2E_COMPAT_END
+
+
+
+
     if args.command == "apply-bundle":
         try:
             payload = apply_bundle_path(
@@ -883,35 +946,69 @@ def main(argv: list[str] | None = None) -> int:
         payload = _augment_bundle_review_payload(payload, bundle_path=Path(args.bundle_zip_path))
         print(json.dumps(payload, indent=2))
         return 0 if payload["ok"] else 1
-
     if args.command == "check-bundle":
-        bundle_path = Path(args.bundle_path)
-        if bundle_path.suffix.lower() == ".zip":
-            payload = check_bundle_zip(bundle_path)
-        else:
-            result = run_bundle_authoring_self_check(bundle_path)
-            payload = {
-                "bundle_root": str(result.bundle_root),
-                "exists": result.bundle_root.exists(),
-                "ok": result.is_valid,
-                "issue_count": result.issue_count,
-                "shape_issue_count": len(result.shape_messages),
-                "issues": [message.to_dict() for message in result.messages],
-            }
-        payload = _augment_bundle_review_payload(payload, bundle_path=bundle_path)
-        print(json.dumps(payload, indent=2))
+        from patchops.bundle_review import check_bundle_payload as _check_bundle_payload
+
+        payload = _check_bundle_payload(
+            Path(args.bundle_path),
+            requested_profile=getattr(args, "profile", None),
+        )
+        command_payload = dict(payload)
+        command_payload["issues"] = [
+            issue.get("message", str(issue)) if isinstance(issue, dict) else str(issue)
+            for issue in payload.get("issues", [])
+        ]
+        command_payload["issue_count"] = len(command_payload["issues"])
+        print(json.dumps(command_payload, indent=2))
         return 0 if payload["ok"] else 1
+
+    if args.command == "profiles":
+        try:
+            payload = (
+                get_profile_summary(args.name, wrapper_project_root=args.wrapper_root)
+                if args.name
+                else list_profile_summaries(wrapper_project_root=args.wrapper_root)
+            )
+        except ValueError as exc:
+            print(json.dumps({
+                "ok": False,
+                "error": str(exc),
+                "profile_name": args.name,
+            }, indent=2))
+            return 1
+        print(json.dumps(payload, indent=2))
+        return 0
+
+    if args.command == "doctor":
+        payload = run_doctor(profile_name=args.profile, target_root=args.target_root)
+        print(json.dumps(payload, indent=2))
+        return 0
+
+    if args.command == "examples":
+        payload = list_examples(profile_name=args.profile)
+        print(json.dumps(payload, indent=2))
+        return 0
+
+    if args.command == "schema":
+        payload = build_manifest_schema_summary()
+        print(json.dumps(payload, indent=2))
+        return 0
+
 
     if args.command == "check-launcher":
-        payload = check_launcher_path(args.launcher_path)
+        payload = check_launcher_path(Path(args.launcher_path))
         print(json.dumps(payload, indent=2))
-        return 0 if payload["ok"] else 1
+        return 0 if bool(payload.get("ok")) else 1
+
+# PATCHOPS_TRUE_EOF_MAIN_ENTRY_20260421
 
     if args.command == "release-readiness":
         from patchops.readiness import (
             build_release_readiness_snapshot,
             release_readiness_as_dict,
+            release_readiness_exit_code,
             render_release_readiness_report_lines,
+            render_release_readiness_scope_lines,
             write_release_readiness_report,
         )
 
@@ -922,12 +1019,10 @@ def main(argv: list[str] | None = None) -> int:
         )
         profile_summaries = list_profile_summaries(wrapper_project_root=wrapper_root)
         available_profiles = [item["name"] for item in profile_summaries]
-        core_tests_state = "green" if args.core_tests_green else "unknown"
-
         snapshot = build_release_readiness_snapshot(
             wrapper_root,
             available_profiles=available_profiles,
-            core_tests_state=core_tests_state,
+            core_tests_state=("green" if args.core_tests_green else "unknown"),
         )
         payload = release_readiness_as_dict(snapshot)
         payload["wrapper_project_root"] = str(wrapper_root)
@@ -936,6 +1031,7 @@ def main(argv: list[str] | None = None) -> int:
             if args.profile
             else profile_summaries
         )
+        payload["scope_lines"] = list(render_release_readiness_scope_lines(snapshot))
         payload["report_lines"] = list(
             render_release_readiness_report_lines(
                 snapshot,
@@ -943,7 +1039,6 @@ def main(argv: list[str] | None = None) -> int:
                 focused_profile=args.profile,
             )
         )
-
         if args.report_path:
             payload["report_path"] = write_release_readiness_report(
                 args.report_path,
@@ -953,184 +1048,8 @@ def main(argv: list[str] | None = None) -> int:
             )
 
         print(json.dumps(payload, indent=2))
-        return 0 if payload["status"] != "not_ready" else 1
+        return release_readiness_exit_code(snapshot)
 
-    if args.command == "maintenance-gate":
-        from patchops.maintenance_gate import (
-            build_maintenance_gate_snapshot,
-            maintenance_gate_as_dict,
-            render_maintenance_gate_report_lines,
-            write_maintenance_gate_report,
-        )
-
-        wrapper_root = (
-            Path(args.wrapper_root).resolve()
-            if args.wrapper_root
-            else Path(__file__).resolve().parents[1]
-        )
-        profile_summaries = list_profile_summaries(wrapper_project_root=wrapper_root)
-        available_profiles = [item["name"] for item in profile_summaries]
-        core_tests_state = "green" if args.core_tests_green else "unknown"
-
-        snapshot = build_maintenance_gate_snapshot(
-            wrapper_root,
-            available_profiles=available_profiles,
-            core_tests_state=core_tests_state,
-        )
-        payload = maintenance_gate_as_dict(snapshot)
-        payload["wrapper_project_root"] = str(wrapper_root)
-        payload["focused_profile"] = args.profile
-        payload["profile_summaries"] = (
-            [get_profile_summary(args.profile, wrapper_project_root=wrapper_root)]
-            if args.profile
-            else profile_summaries
-        )
-        payload["report_lines"] = list(
-            render_maintenance_gate_report_lines(
-                snapshot,
-                wrapper_project_root=wrapper_root,
-                focused_profile=args.profile,
-            )
-        )
-
-        if args.report_path:
-            payload["report_path"] = write_maintenance_gate_report(
-                args.report_path,
-                snapshot,
-                wrapper_project_root=wrapper_root,
-                focused_profile=args.profile,
-            )
-
-        print(json.dumps(payload, indent=2))
-        return 0 if payload["status"] != "not_ready" else 1
-
-    if args.command == "emit-operator-script":
-        from patchops.operator_scripts import emit_operator_script, render_operator_script
-
-        wrapper_root = (
-            str(Path(args.wrapper_root).resolve())
-            if args.wrapper_root
-            else str(Path(__file__).resolve().parents[1])
-        )
-        result = emit_operator_script(
-            args.output_path,
-            script_kind=args.script_kind,
-            wrapper_project_root=wrapper_root,
-            default_bundle_zip_path=args.bundle_zip_path,
-        )
-        script_text = Path(result.output_path).read_text(encoding="utf-8")
-        payload = result.to_dict()
-        payload["script_text"] = script_text
-        payload["line_count"] = len(script_text.splitlines())
-        payload["bundle_zip_path"] = args.bundle_zip_path
-        print(json.dumps(payload, indent=2))
-        return 0 if payload["ok"] else 1
-
-    if args.command == "setup-windows-env":
-        from patchops.windows_env_setup import (
-            apply_windows_env_setup,
-            build_windows_env_setup_plan,
-            read_windows_user_path,
-            windows_env_setup_as_dict,
-        )
-
-        wrapper_root = (
-            Path(args.wrapper_root).resolve()
-            if args.wrapper_root
-            else Path(__file__).resolve().parents[1]
-        )
-        existing_user_path = read_windows_user_path()
-        plan = build_windows_env_setup_plan(
-            wrapper_project_root=wrapper_root,
-            reports_root=args.reports_root,
-            bin_root=args.bin_root,
-            existing_user_path=existing_user_path,
-        )
-        payload = windows_env_setup_as_dict(plan)
-        payload["dry_run"] = bool(args.dry_run)
-
-        if args.dry_run:
-            payload["ok"] = True
-            payload["applied"] = False
-            print(json.dumps(payload, indent=2))
-            return 0
-
-        try:
-            apply_payload = apply_windows_env_setup(plan)
-            payload.update(apply_payload)
-            payload["ok"] = True
-            payload["applied"] = True
-            print(json.dumps(payload, indent=2))
-            return 0
-        except Exception as exc:
-            payload["ok"] = False
-            payload["applied"] = False
-            payload["error"] = f"{type(exc).__name__}: {exc}"
-            print(json.dumps(payload, indent=2))
-            return 1
-
-
-    if args.command == "bootstrap-repair":
-        from patchops.bootstrap_repair import apply_bootstrap_repair
-
-        wrapper_root = Path(args.target_root).resolve() if args.target_root else Path(__file__).resolve().parents[1]
-        result = apply_bootstrap_repair(
-            args.payload_root,
-            wrapper_root,
-            list(args.path or []),
-            backup_root=args.backup_root,
-            py_compile_paths=list(args.py_compile_path or []),
-        )
-        payload = result.to_dict()
-        payload["mode"] = "bootstrap_repair"
-        payload["wrapper_project_root"] = str(wrapper_root)
-        print(json.dumps(payload, indent=2))
-        return 0 if payload["ok"] else 1
-
-    if args.command == "profiles":
-        if args.name:
-            summary = get_profile_summary(args.name, wrapper_project_root=args.wrapper_root)
-            print(json.dumps(summary, indent=2))
-        else:
-            summaries = list_profile_summaries(wrapper_project_root=args.wrapper_root)
-            print(json.dumps(summaries, indent=2))
-        return 0
-
-    if args.command == "template":
-        template = build_manifest_template(
-            profile_name=args.profile,
-            wrapper_project_root=args.wrapper_root,
-            mode=args.mode,
-            patch_name=args.patch_name,
-            target_root=args.target_root,
-        )
-        if args.output_path:
-            written_path = _write_json_file(args.output_path, template)
-            print(json.dumps({
-                "written": True,
-                "output_path": str(written_path),
-                "active_profile": template["active_profile"],
-                "patch_name": template["patch_name"],
-                "mode": args.mode,
-            }, indent=2))
-        else:
-            print(json.dumps(template, indent=2))
-        return 0
-
-    if args.command == "doctor":
-        result = run_doctor(profile_name=args.profile, target_root=args.target_root)
-        print(json.dumps(result, indent=2))
-        return 0
-
-    if args.command == "examples":
-        result = list_examples(profile_name=args.profile)
-        print(json.dumps(result, indent=2))
-        return 0
-
-    if args.command == "schema":
-        payload = build_manifest_schema_summary()
-        print(json.dumps(payload, indent=2))
-        return 0
 
     if args.command == "init-project-doc":
         from patchops.project_packets import scaffold_project_packet
@@ -1139,65 +1058,14 @@ def main(argv: list[str] | None = None) -> int:
             project_name=args.project_name,
             target_root=args.target_root,
             profile_name=args.profile,
-            runtime_path=args.runtime_path,
+            runtime_path=getattr(args, "runtime_path", None),
             wrapper_project_root=args.wrapper_root,
-            output_path=args.output_path,
-            initial_goals=args.initial_goal,
+            output_path=getattr(args, "output_path", None),
+            initial_goals=list(getattr(args, "initial_goal", []) or []),
         )
         print(json.dumps(payload, indent=2))
         return 0
 
-
-    if args.command == "refresh-project-doc":
-        from patchops.project_packets import refresh_project_packet
-
-        payload = refresh_project_packet(
-            project_name=args.project_name,
-            wrapper_project_root=args.wrapper_root,
-            packet_path=args.packet_path,
-            handoff_json_path=args.handoff_json_path,
-            latest_report_path=args.report_path,
-            current_phase=args.current_phase,
-            current_objective=args.current_objective,
-            latest_passed_patch=args.latest_passed_patch,
-            latest_attempted_patch=args.latest_attempted_patch,
-            current_recommendation=args.current_recommendation,
-            next_action=args.next_action,
-            current_blockers=args.blocker,
-            outstanding_risks=args.risk,
-        )
-        print(json.dumps(payload, indent=2))
-        return 0
-
-
-    if args.command == "bootstrap-target":
-        import argparse
-
-        from patchops.project_packets import build_onboarding_bootstrap
-
-        bootstrap_parser = argparse.ArgumentParser(prog="patchops bootstrap-target")
-        bootstrap_parser.add_argument("--project-name", required=True)
-        bootstrap_parser.add_argument("--target-root", required=True)
-        bootstrap_parser.add_argument("--profile", required=True)
-        bootstrap_parser.add_argument("--wrapper-root", default=".")
-        bootstrap_parser.add_argument("--runtime-override", default=None)
-        bootstrap_parser.add_argument("--starter-intent", default="documentation_patch")
-        bootstrap_parser.add_argument("--initial-goal", action="append", default=[])
-
-        bootstrap_argv = sys.argv[2:] if argv is None else argv[1:]
-        bootstrap_args = bootstrap_parser.parse_args(bootstrap_argv)
-
-        payload = build_onboarding_bootstrap(
-            project_name=bootstrap_args.project_name,
-            target_root=bootstrap_args.target_root,
-            profile_name=bootstrap_args.profile,
-            wrapper_project_root=bootstrap_args.wrapper_root,
-            runtime_path=bootstrap_args.runtime_override,
-            initial_goals=list(bootstrap_args.initial_goal or []),
-            current_stage="Initial onboarding",
-        )
-        print(json.dumps(payload, indent=2))
-        return 0
     if args.command == "bootstrap-target":
         from patchops.project_packets import build_onboarding_bootstrap
 
@@ -1205,10 +1073,10 @@ def main(argv: list[str] | None = None) -> int:
             project_name=args.project_name,
             target_root=args.target_root,
             profile_name=args.profile,
-            runtime_path=args.runtime_path,
             wrapper_project_root=args.wrapper_root,
-            initial_goals=args.initial_goal,
-            current_stage=args.current_stage,
+            runtime_path=getattr(args, "runtime_override", None) or getattr(args, "runtime_path", None),
+            initial_goals=list(getattr(args, "initial_goal", []) or []),
+            current_stage=getattr(args, "current_stage", "Initial onboarding"),
         )
         print(json.dumps(payload, indent=2))
         return 0
@@ -1223,92 +1091,6 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, indent=2))
         return 0
 
-
-    if args.command == "bundle-entry":
-        result = run_bundle_execution_entry(
-            Path(args.bundle_root).resolve(),
-            wrapper_root=args.wrapper_root,
-            command_runner=main,
-        )
-        print(json.dumps(result.to_dict(), indent=2))
-        return result.exit_code
-    if args.command == "make-bundle":
-        wrapper_root = (
-            str(Path(args.wrapper_root).resolve())
-            if args.wrapper_root
-            else str(Path(__file__).resolve().parents[1])
-        )
-        target_root = args.target_root or wrapper_root
-        result = create_starter_bundle(
-            args.bundle_root,
-            patch_name=args.patch_name,
-            target_project=args.target_project,
-            target_project_root=target_root,
-            wrapper_project_root=wrapper_root,
-            recommended_profile=args.profile,
-            mode=args.mode,
-        )
-        self_check = run_bundle_authoring_self_check(result.bundle_root)
-        payload = {
-            "bundle_root": str(result.bundle_root),
-            "manifest_path": str(result.manifest_path),
-            "bundle_meta_path": str(result.bundle_meta_path),
-            "readme_path": str(result.readme_path),
-            "launcher_path": str(result.launcher_path),
-            "content_root": str(result.content_root),
-            "patch_name": args.patch_name,
-            "target_project": args.target_project,
-            "target_project_root": target_root,
-            "wrapper_project_root": wrapper_root,
-            "recommended_profile": args.profile,
-            "bundle_mode": args.mode,
-            "ok": self_check.is_valid,
-            "issue_count": self_check.issue_count,
-            "issues": [message.to_dict() for message in self_check.messages],
-        }
-        print(json.dumps(payload, indent=2))
-        return 0 if payload["ok"] else 1
-
-    if args.command == "make-proof-bundle":
-        wrapper_root = (
-            str(Path(args.wrapper_root).resolve())
-            if args.wrapper_root
-            else str(Path(__file__).resolve().parents[1])
-        )
-        target_root = args.target_root or wrapper_root
-        patch_name = args.patch_name or f"proof_{str(args.kind).strip().lower().replace('-', '_')}_bundle"
-        result = create_proof_bundle(
-            args.bundle_root,
-            kind=args.kind,
-            patch_name=patch_name,
-            target_project=args.target_project,
-            target_project_root=target_root,
-            wrapper_project_root=wrapper_root,
-            recommended_profile=args.profile,
-        )
-        print(json.dumps(result.to_dict(), indent=2))
-        return 0 if result.ok else 1
-
-    if args.command == "build-bundle":
-        result = build_bundle_zip(args.bundle_root, args.output)
-        payload = {
-            "bundle_root": str(result.bundle_root),
-            "output_zip": str(result.output_zip),
-            "root_folder_name": result.root_folder_name,
-            "member_count": result.member_count,
-            "ok": result.ok,
-            "issue_count": result.issue_count,
-            "issues": [message.to_dict() for message in result.issues],
-        }
-        print(json.dumps(payload, indent=2))
-        return 0 if payload["ok"] else 1
-
-    if args.command == "bundle-doctor":
-        result = run_bundle_doctor(args.bundle_path)
-        payload = result.to_dict()
-        print(json.dumps(payload, indent=2))
-        return 0 if payload["ok"] else 1
-
     if args.command == "starter":
         from patchops.project_packets import build_starter_manifest_for_intent
 
@@ -1322,9 +1104,13 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, indent=2))
         return 0
 
-    parser.error("Unknown command")
-    return 2
-
-
 if __name__ == "__main__":
+    import sys as _patchops_entry_sys
+
+    if len(_patchops_entry_sys.argv) > 1 and _patchops_entry_sys.argv[1] == "check-bundle":
+        from patchops.bundle_review import cli_check_bundle_main as _patchops_bundle_review_cli_check_bundle_main
+
+        raise SystemExit(_patchops_bundle_review_cli_check_bundle_main(_patchops_entry_sys.argv[2:]))
+
     raise SystemExit(main())
+

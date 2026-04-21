@@ -43,6 +43,27 @@ REQUIRED_RELEASE_TESTS = (
 )
 
 
+REQUIRED_BUNDLE_RELEASE_DOCS = (
+    "docs/bundle_contract_packet.md",
+    "docs/bundle_regression_gate.md",
+    "docs/bundle_smoke_gate.md",
+    "docs/self_hosted_bundle_proof.md",
+    "docs/bundle_release_readiness.md",
+)
+
+REQUIRED_BUNDLE_RELEASE_WORKFLOWS = (
+    "patchops/bundles/authoring.py",
+    "patchops/bundles/launcher_emitter.py",
+)
+
+REQUIRED_BUNDLE_RELEASE_TESTS = (
+    "tests/test_bundle_contract_packet_current.py",
+    "tests/test_bundle_manifest_regression_gate_current.py",
+    "tests/test_bundle_post_build_smoke_gate_current.py",
+    "tests/test_self_hosted_bundle_authoring_proof_current.py",
+)
+
+
 def _powershell_exe() -> str:
     candidates = [
         shutil.which("powershell"),
@@ -67,6 +88,9 @@ def _seed_release_ready_wrapper_root(root: Path) -> None:
         *REQUIRED_RELEASE_WORKFLOWS,
         *REQUIRED_RELEASE_LAUNCHERS,
         *REQUIRED_RELEASE_TESTS,
+        *REQUIRED_BUNDLE_RELEASE_DOCS,
+        *REQUIRED_BUNDLE_RELEASE_WORKFLOWS,
+        *REQUIRED_BUNDLE_RELEASE_TESTS,
     ):
         _write_file(root, relative)
 
@@ -121,6 +145,9 @@ def test_invoke_patch_readiness_launcher_executes_successfully_against_seeded_gr
     assert payload["status"] == "green"
     assert payload["core_tests_state"] == "green"
     assert payload["release_tests_ok"] is True
+    assert payload["bundle_release_docs_ok"] is True
+    assert payload["bundle_release_workflows_ok"] is True
+    assert payload["bundle_release_tests_ok"] is True
 
 
 def test_invoke_patch_readiness_launcher_can_write_report_artifact(tmp_path: Path) -> None:
@@ -158,6 +185,7 @@ def test_invoke_patch_readiness_launcher_can_write_report_artifact(tmp_path: Pat
     assert "Focused Profile   : trader" in report_text
     assert "Status            : green" in report_text
     assert "Tests             : ok" in report_text
+    assert "Bundle Tests      : ok" in report_text
 
 
 def test_invoke_patch_readiness_launcher_fails_when_required_test_surface_is_missing(tmp_path: Path) -> None:

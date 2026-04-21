@@ -1,35 +1,15 @@
 ========================================================================================================================
-PATCHOPS FUTURE LLM SOURCE BUNDLE
+PATCHOPS FINAL FUTURE LLM SOURCE BUNDLE
 ========================================================================================================================
 
-Project Root : C:\dev\patchops
-
-Purpose:
-This durable future-LLM upload artifact is the preferred history-compression artifact for future handoff use.
-It should be uploaded when another LLM needs current repo truth from project sources without relying on stale flat-file assumptions.
-
-Current layout rule:
-The maintained repo layout is package-oriented and the current module tree is a modular package layout, not a flat-file reporting/failure-classifier layout.
-
-Use these current source paths as authoritative modular package references:
-- patchops\reporting\metadata.py
-- patchops\reporting\sections.py
-- patchops\reporting\command_sections.py
-- patchops\bundles\root_launcher_contract.py
-- patchops\bundles\launcher_heuristics.py
-- patchops\bundles\shape_validation.py
-
-Operator note:
-Keep using this artifact as the future-LLM continuation surface after the self-hosted proof and pre-documentation proof-stop repairs.
-
-Truth guardrails:
-- Prefer current package paths over stale historical notes.
-- Treat the maintained repo layout as package-oriented.
-- Treat the current reporting and bundle surfaces as modular package code.
-- Do not infer missing flat files from older source-bundle snapshots.
-
-Stale assumptions to avoid:
-- patchops\reporting.py is not the maintained repo layout truth surface.
-- patchops\failure_classifier.py is not the maintained repo layout truth surface.
+Preferred history-compression artifact.
+docs/project_status.md
+docs/llm_usage.md
+docs/operator_quickstart.md
+docs/examples.md
+docs/project_packet_contract.md
+docs/project_packet_workflow.md
+docs/handoff_surface.md
+handoff/final_future_llm_source_bundle.txt
 
 Result : PASS

@@ -1,73 +1,45 @@
 # Operator Quickstart
 
-## Purpose
-This file is the fastest maintained reading surface for running PatchOps on the wrapper repo itself.
+## Final maintenance-mode quickstart
 
-Repo root:
-- `C:\dev\patchops`
+This file is the fastest maintained reading surface for the current operator flow.
+Patch 12 onward no longer requires ad hoc launcher authoring or manual zip guesswork.
+Use `C:\dev\patchops` as the maintained wrapper root in the normal examples.
+This is the default maintained workflow.
+Continue patch by patch from evidence.
 
-## Current operator rule
-Read the canonical report, not partial console output.
+## Normal bundle flow
 
-PatchOps now keeps one truthful outcome per run:
-- fatal launcher stderr with no detected inner report is a failure
-- if an inner report exists, it becomes the canonical report after outer context is merged
-- do not treat a visually green outer wrapper layer as success when the inner path failed
+Use this maintained sequence:
 
-## Fast health check
+1. `make-bundle`
+2. `check-bundle`
+3. `inspect-bundle`
+4. `plan-bundle`
+5. `bundle-doctor`
+6. `build-bundle`
+7. `run-package`
+
+The normal bundle-entry path is:
+
 ```powershell
-& {
-    Set-Location "C:\dev\patchops"
-    py -m pytest -q
-    py -m patchops.cli maintenance-gate
-}
+py -m patchops.cli run-package "D:\some_patch_bundle.zip" --wrapper-root "C:\dev\patchops"
 ```
 
-## Normal bundle workflow
-```powershell
-& {
-    Set-Location "C:\dev\patchops"
-    py -m patchops.cli run-package "D:\some_patch_bundle.zip" --wrapper-root "C:\dev\patchops"
-}
-```
+This path should end with one canonical Desktop txt report as the final evidence artifact.
 
-Expected behavior:
-1. PatchOps extracts the zip.
-2. PatchOps validates bundle shape and metadata before launcher execution.
-3. PatchOps runs the bundled launcher through the maintained bundle-entry path.
-4. PatchOps preserves one canonical Desktop txt report.
+## Bundle shape reminders
 
-## Review surfaces before risky execution
-Use these when the bundle is suspicious or newly authored:
-- `py -m patchops.cli check-bundle <bundle-or-zip>`
-- `py -m patchops.cli inspect-bundle <bundle-or-zip>`
-- `py -m patchops.cli plan-bundle <bundle-or-zip>`
-- `py -m patchops.cli bundle-doctor <bundle-or-zip>`
+- `run_with_patchops.ps1` is the maintained saved launcher name
+- one root-level launcher is enough
+- `bundle_mode` lives in metadata
+- do not manually unzip
+- keep PowerShell thin and operator-facing
+- keep reusable mechanics in Python
 
-## Package-authoring preflight
-The current bundle preflight rejects common authoring failures before launcher execution, including:
-- malformed or incomplete `bundle_meta.json`
-- missing staged content paths
-- invalid generated Python helper files
-- unsafe mixed-language prep helper patterns
-- launcher shapes that drift away from the maintained thin launcher contract
+## Repair and recovery entrypoints
 
-Transport or demo bundles that do not advertise the full staged-authoring contract still retain the legacy compatibility path where appropriate.
+Direct module recovery surface: `patchops.bootstrap_repair`
+CLI recovery surface: `patchops.cli bootstrap-repair`
 
-## Generated-helper syntax gate
-If a bundle carries generated Python helpers or generated tests, PatchOps syntax-checks them before launcher execution.
-This is meant to fail early on authoring mistakes rather than produce late false-pass confusion.
-
-## Emitted operator scripts
-`emit-operator-script` is maintained for thin operator-facing scripts only.
-
-Current expectations:
-- scripts stay thin
-- reusable mechanics stay in Python
-- emitted/operator scripts should stay boring and thin
-
-## If a run fails
-1. Read the canonical Desktop txt report.
-2. Identify the first failing layer.
-3. Repair only that layer.
-4. Continue patch by patch from evidence.
+`bundle-doctor` is the preferred troubleshooting entrypoint for bundle shape validation and build verification before a final run-package invocation.

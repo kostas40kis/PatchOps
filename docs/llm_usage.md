@@ -1,35 +1,24 @@
 # PatchOps LLM Usage
 
-## Working style
+This file is the orientation page for future coding LLMs.
 
-LLMs working on PatchOps should follow these rules:
+## Bundle-first command order
 
-- keep thin PowerShell,
-- keep reusable mechanics in Python,
-- preserve one canonical truth,
-- prefer narrow truthful repairs,
-- and read the current report before claiming success.
+Continue patch by patch from evidence.
+Use this exact bundle command order when working in the current bundle flow:
 
-## Maintained surfaces
+1. `make-bundle`
+2. `check-bundle`
+3. `inspect-bundle`
+4. `plan-bundle`
+5. `bundle-doctor`
+6. `build-bundle`
+7. `run-package`
 
-When describing maintained surfaces, preserve the command inventory:
+## Contract reminders
 
-- `check`
-- `inspect`
-- `plan`
-- `apply`
-- `verify`
-- `check-bundle`
-- `run-package`
-
-## Reporting contract
-
-A suspicious-success blocker is part of the maintained reporting contract. Fatal setup or launcher failure with missing trustworthy inner evidence must not be summarized as PASS.
-
-## Development order
-
-Use a code-first / docs-last process:
-- code patches first,
-- proof gates second,
-- documentation refresh after the proof stop,
-- documentation contract locks after the refresh.
+- thin PowerShell
+- reusable mechanics in Python
+- `run_with_patchops.ps1` is the maintained saved launcher name
+- `bundle_mode` lives in metadata
+- do not manually unzip during the normal operator path

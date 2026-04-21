@@ -57,145 +57,6 @@ def _read_json_object_from_zip(zf: zipfile.ZipFile, member_name: str) -> dict[st
     return data
 
 
-def check_bundle_payload(
-    bundle_zip_path: str | Path,
-    wrapper_project_root: str | Path | None = None,
-    *,
-    profile: str | None = None,
-    profile_name: str | None = None,
-    timestamp_token: str | None = None,
-    **_ignored: Any,
-) -> dict[str, Any]:
-    del wrapper_project_root, timestamp_token, _ignored
-
-    if profile is None:
-        profile = profile_name
-
-    bundle_zip = Path(bundle_zip_path)
-    exists = bundle_zip.exists()
-    resolved_path = str(bundle_zip.resolve()) if exists else str(bundle_zip)
-
-    issues: list[dict[str, Any]] = []
-    warnings: list[dict[str, Any]] = []
-    top_level_root: str | None = None
-    bundle_meta_present = False
-    recommended_profile: str | None = None
-
-    if not exists:
-        issues.append(
-            _issue(
-                "missing_bundle_zip",
-                "Bundle zip was not found.",
-                path=resolved_path,
-            )
-        )
-        return {
-            "ok": False,
-            "exists": False,
-            "path": resolved_path,
-            "profile": profile,
-            "top_level_root": None,
-            "issue_count": len(issues),
-            "issues": issues,
-            "warning_count": len(warnings),
-            "warnings": warnings,
-            "bundle_meta_present": False,
-            "recommended_profile": None,
-        }
-
-    try:
-        with zipfile.ZipFile(bundle_zip, "r") as zf:
-            member_names = [name for name in zf.namelist() if _normalize_member_name(name)]
-            if not member_names:
-                issues.append(
-                    _issue(
-                        "invalid_zip",
-                        "Bundle zip is empty.",
-                        path=resolved_path,
-                    )
-                )
-            else:
-                roots = _top_level_roots(member_names)
-                if len(roots) != 1:
-                    issues.append(
-                        _issue(
-                            "multiple_roots",
-                            "Bundle zip must contain exactly one top-level root folder.",
-                            path=resolved_path,
-                        )
-                    )
-                else:
-                    top_level_root = roots[0]
-                    manifest_member = f"{top_level_root}/manifest.json"
-                    bundle_meta_member = f"{top_level_root}/bundle_meta.json"
-
-                    if manifest_member not in member_names:
-                        issues.append(
-                            _issue(
-                                "missing_manifest",
-                                "Bundle zip is missing manifest.json at the bundle root.",
-                                path=manifest_member,
-                            )
-                        )
-
-                    if bundle_meta_member in member_names:
-                        bundle_meta_present = True
-                        try:
-                            bundle_meta = _read_json_object_from_zip(zf, bundle_meta_member)
-                        except Exception as exc:
-                            warnings.append(
-                                _warning(
-                                    "invalid_bundle_meta",
-                                    f"bundle_meta.json could not be parsed cleanly: {exc}",
-                                    path=bundle_meta_member,
-                                )
-                            )
-                        else:
-                            recommended_profile = (
-                                None
-                                if bundle_meta is None
-                                else str(bundle_meta.get("recommended_profile") or "").strip() or None
-                            )
-                    else:
-                        warnings.append(
-                            _warning(
-                                "missing_bundle_meta",
-                                "bundle_meta.json is absent; current check-bundle compatibility treats this as a warning, not a top-level failure.",
-                                path=bundle_meta_member,
-                            )
-                        )
-    except zipfile.BadZipFile:
-        issues.append(
-            _issue(
-                "invalid_zip",
-                "Bundle zip could not be opened as a valid zip archive.",
-                path=resolved_path,
-            )
-        )
-    except Exception as exc:
-        issues.append(
-            _issue(
-                "invalid_zip",
-                f"Bundle zip could not be reviewed cleanly: {exc}",
-                path=resolved_path,
-            )
-        )
-
-    return {
-        "ok": len(issues) == 0,
-        "exists": exists,
-        "path": resolved_path,
-        "profile": profile,
-        "top_level_root": top_level_root,
-        "issue_count": len(issues),
-        "issues": issues,
-        "warning_count": len(warnings),
-        "warnings": warnings,
-        "bundle_meta_present": bundle_meta_present,
-        "recommended_profile": recommended_profile,
-    }
-
-
 def check_bundle_cli_payload(*args: Any, **kwargs: Any) -> dict[str, Any]:
     if args and hasattr(args[0], "__dict__") and not isinstance(args[0], (str, Path)):
         namespace = args[0]
@@ -216,6 +77,104 @@ def check_bundle_cli_payload(*args: Any, **kwargs: Any) -> dict[str, Any]:
         kwargs["profile"] = kwargs.pop("profile_name")
     return check_bundle_payload(*args, **kwargs)
 
+def check_bundle_payload(
+    bundle_zip_path: Path | str,
+    wrapper_root: Path | str | None = None,
+    profile: str | None = None,
+    timestamp_token: str | None = None,
+    requested_profile: str | None = None,
+) -> dict[str, object]:
+    import zipfile
+    from pathlib import Path as _Path
+
+    bundle_path = _Path(bundle_zip_path)
+    effective_profile = requested_profile if requested_profile is not None else profile
+    source_kind = "zip" if bundle_path.suffix.lower() == ".zip" else "directory"
+
+    payload: dict[str, object] = {
+        "path": str(bundle_path),
+        "exists": bundle_path.exists(),
+        "source_kind": source_kind,
+        "requested_profile": effective_profile,
+        "ok": False,
+        "issue_count": 0,
+        "issues": [],
+    }
+
+    def build_issue(code: str, message: str, *, path: str | None = None) -> dict[str, object]:
+        item: dict[str, object] = {"code": code, "message": message}
+        if path is not None:
+            item["path"] = path
+        return item
+
+    issues: list[dict[str, object]] = []
+    launcher_issues: list[dict[str, object]] = []
+
+    if not bundle_path.exists():
+        payload["issues"] = [build_issue("missing_bundle", f"Bundle path does not exist: {bundle_path}", path=str(bundle_path))]
+        payload["issue_count"] = 1
+        payload["launcher_review"] = {"status": "reject", "launcher_path": None, "issue_count": 0, "issues": []}
+        payload["launcher_status"] = "reject"
+        payload["launcher_issue_count"] = 0
+        payload["launcher_issue_codes"] = []
+        return payload
+
+    if source_kind != "zip":
+        payload["issues"] = [build_issue("unsupported_source_kind", "check-bundle currently expects a bundle zip path", path=str(bundle_path))]
+        payload["issue_count"] = 1
+        payload["launcher_review"] = {"status": "reject", "launcher_path": None, "issue_count": 0, "issues": []}
+        payload["launcher_status"] = "reject"
+        payload["launcher_issue_count"] = 0
+        payload["launcher_issue_codes"] = []
+        return payload
+
+    with zipfile.ZipFile(bundle_path) as zf:
+        raw_members = [name for name in zf.namelist() if name and not name.endswith("/")]
+    members = [name.replace("\\", "/") for name in raw_members]
+
+    payload["member_count"] = len(members)
+    roots = sorted({member.split("/", 1)[0] for member in members if "/" in member})
+    payload["top_level_root"] = roots[0] if len(roots) == 1 else None
+
+    if len(roots) != 1:
+        issues.append(build_issue("invalid_root_count", f"Expected exactly one top-level root, found {len(roots)}", path=str(bundle_path)))
+    else:
+        root = roots[0]
+        manifest_member = f"{root}/manifest.json"
+        meta_member = f"{root}/bundle_meta.json"
+        launcher_member = f"{root}/run_with_patchops.ps1"
+
+        payload["manifest_path"] = manifest_member if manifest_member in members else None
+        payload["launcher_path"] = launcher_member if launcher_member in members else None
+
+        if manifest_member not in members:
+            issues.append(build_issue("missing_manifest", f"Bundle zip is missing manifest.json under {root}", path=manifest_member))
+        if meta_member not in members:
+            issues.append(build_issue("missing_bundle_meta", f"Bundle zip is missing bundle_meta.json under {root}", path=meta_member))
+        if launcher_member not in members:
+            launcher_issues.append(build_issue("missing_root_launcher", f"Bundle zip is missing saved root launcher: {launcher_member}", path=launcher_member))
+
+        payload["launcher_review"] = {
+            "status": "accept" if not launcher_issues else "reject",
+            "launcher_path": launcher_member if launcher_member in members else None,
+            "issue_count": len(launcher_issues),
+            "issues": launcher_issues,
+        }
+        payload["launcher_status"] = payload["launcher_review"]["status"]
+        payload["launcher_issue_count"] = len(launcher_issues)
+        payload["launcher_issue_codes"] = [item["code"] for item in launcher_issues]
+
+    if "launcher_review" not in payload:
+        payload["launcher_review"] = {"status": "reject", "launcher_path": None, "issue_count": 0, "issues": []}
+        payload["launcher_status"] = "reject"
+        payload["launcher_issue_count"] = 0
+        payload["launcher_issue_codes"] = []
+
+    payload["issues"] = issues
+    payload["issue_count"] = len(issues)
+    payload["ok"] = not issues and not launcher_issues
+    return payload
+
 
 def cli_check_bundle_main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="patchops bundle_review")
@@ -232,11 +191,363 @@ def cli_check_bundle_main(argv: list[str] | None = None) -> int:
         timestamp_token=args.timestamp_token,
     )
     print(json.dumps(payload, indent=2))
-    return 0 if payload["ok"] else 1
+    return 0 if payload.get("ok") else 1
+
+# PATCHOPS_CHECK_BUNDLE_EOF_OVERRIDE_START
+
+def _patchops_check_bundle_payload_current(
+    bundle_zip_path: Path | str,
+    wrapper_root: Path | str | None = None,
+    profile: str | None = None,
+    timestamp_token: str | None = None,
+    requested_profile: str | None = None,
+) -> dict[str, object]:
+    import zipfile
+    from pathlib import Path as _Path
+
+    bundle_path = _Path(bundle_zip_path)
+    effective_profile = requested_profile if requested_profile is not None else profile
+    source_kind = "zip" if bundle_path.suffix.lower() == ".zip" else "directory"
+
+    payload: dict[str, object] = {
+        "path": str(bundle_path),
+        "exists": bundle_path.exists(),
+        "source_kind": source_kind,
+        "requested_profile": effective_profile,
+        "ok": False,
+        "issue_count": 0,
+        "issues": [],
+    }
+
+    def build_issue(code: str, message: str, *, path: str | None = None) -> dict[str, object]:
+        item: dict[str, object] = {"code": code, "message": message}
+        if path is not None:
+            item["path"] = path
+        return item
+
+    issues: list[dict[str, object]] = []
+    launcher_issues: list[dict[str, object]] = []
+
+    if not bundle_path.exists():
+        payload["issues"] = [build_issue("missing_bundle", f"Bundle path does not exist: {bundle_path}", path=str(bundle_path))]
+        payload["issue_count"] = 1
+        payload["launcher_review"] = {"status": "reject", "launcher_path": None, "issue_count": 0, "issues": []}
+        payload["launcher_status"] = "reject"
+        payload["launcher_issue_count"] = 0
+        payload["launcher_issue_codes"] = []
+        return payload
+
+    if source_kind != "zip":
+        payload["issues"] = [build_issue("unsupported_source_kind", "check-bundle currently expects a bundle zip path", path=str(bundle_path))]
+        payload["issue_count"] = 1
+        payload["launcher_review"] = {"status": "reject", "launcher_path": None, "issue_count": 0, "issues": []}
+        payload["launcher_status"] = "reject"
+        payload["launcher_issue_count"] = 0
+        payload["launcher_issue_codes"] = []
+        return payload
+
+    with zipfile.ZipFile(bundle_path) as zf:
+        raw_members = [name for name in zf.namelist() if name and not name.endswith("/")]
+    members = [name.replace("\\", "/") for name in raw_members]
+
+    payload["member_count"] = len(members)
+    roots = sorted({member.split("/", 1)[0] for member in members if "/" in member})
+    payload["top_level_root"] = roots[0] if len(roots) == 1 else None
+
+    if len(roots) != 1:
+        issues.append(build_issue("invalid_root_count", f"Expected exactly one top-level root, found {len(roots)}", path=str(bundle_path)))
+    else:
+        root = roots[0]
+        manifest_member = f"{root}/manifest.json"
+        meta_member = f"{root}/bundle_meta.json"
+        launcher_member = f"{root}/run_with_patchops.ps1"
+
+        payload["manifest_path"] = manifest_member if manifest_member in members else None
+        payload["launcher_path"] = launcher_member if launcher_member in members else None
+
+        if manifest_member not in members:
+            issues.append(build_issue("missing_manifest", f"Bundle zip is missing manifest.json under {root}", path=manifest_member))
+        if meta_member not in members:
+            issues.append(build_issue("missing_bundle_meta", f"Bundle zip is missing bundle_meta.json under {root}", path=meta_member))
+        if launcher_member not in members:
+            launcher_issues.append(build_issue("missing_root_launcher", f"Bundle zip is missing saved root launcher: {launcher_member}", path=launcher_member))
+
+        payload["launcher_review"] = {
+            "status": "accept" if not launcher_issues else "reject",
+            "launcher_path": launcher_member if launcher_member in members else None,
+            "issue_count": len(launcher_issues),
+            "issues": launcher_issues,
+        }
+        payload["launcher_status"] = payload["launcher_review"]["status"]
+        payload["launcher_issue_count"] = len(launcher_issues)
+        payload["launcher_issue_codes"] = [item["code"] for item in launcher_issues]
+
+    if "launcher_review" not in payload:
+        payload["launcher_review"] = {"status": "reject", "launcher_path": None, "issue_count": 0, "issues": []}
+        payload["launcher_status"] = "reject"
+        payload["launcher_issue_count"] = 0
+        payload["launcher_issue_codes"] = []
+
+    payload["issues"] = issues
+    payload["issue_count"] = len(issues)
+    payload["ok"] = not issues and not launcher_issues
+    return payload
 
 
-__all__ = [
-    "check_bundle_payload",
-    "check_bundle_cli_payload",
-    "cli_check_bundle_main",
-]
+def _patchops_cli_check_bundle_main_current(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="patchops bundle_review")
+    parser.add_argument("bundle_zip_path")
+    parser.add_argument("--profile", default=None)
+    parser.add_argument("--wrapper-root", default=None)
+    parser.add_argument("--timestamp-token", default=None)
+    args = parser.parse_args(argv)
+
+    payload = _patchops_check_bundle_payload_current(
+        args.bundle_zip_path,
+        args.wrapper_root,
+        profile=args.profile,
+        timestamp_token=args.timestamp_token,
+    )
+    print(json.dumps(payload, indent=2))
+    return 0 if payload.get("ok") else 1
+
+check_bundle_payload = _patchops_check_bundle_payload_current
+cli_check_bundle_main = _patchops_cli_check_bundle_main_current
+# PATCHOPS_CHECK_BUNDLE_EOF_OVERRIDE_END
+
+# PATCHOPS_CHECK_BUNDLE_RUNTIME_WRAPPER_START
+import zipfile as _patchops_check_bundle_zipfile
+from pathlib import Path as _PatchOpsCheckBundlePath
+
+_PATCHOPS_CHECK_BUNDLE_ORIGINAL = check_bundle_payload
+
+
+def _patchops_check_bundle_issue(code, message, path=None):
+    item = {"code": code, "message": message}
+    if path is not None:
+        item["path"] = path
+    return item
+
+
+def check_bundle_payload(*args, **kwargs):
+    payload = _PATCHOPS_CHECK_BUNDLE_ORIGINAL(*args, **kwargs)
+    if not isinstance(payload, dict):
+        payload = {}
+
+    bundle_zip_path = None
+    if args:
+        bundle_zip_path = args[0]
+    if bundle_zip_path is None:
+        bundle_zip_path = kwargs.get("bundle_zip_path")
+    if bundle_zip_path is None:
+        bundle_zip_path = kwargs.get("bundle_path")
+
+    requested_profile = kwargs.get("requested_profile")
+    if requested_profile is None:
+        requested_profile = kwargs.get("profile")
+
+    bundle_path = _PatchOpsCheckBundlePath(bundle_zip_path)
+    payload["path"] = str(bundle_path)
+    payload["exists"] = bundle_path.exists()
+    payload["source_kind"] = "zip" if bundle_path.suffix.lower() == ".zip" else "directory"
+    payload["requested_profile"] = requested_profile
+
+    issues = []
+    launcher_issues = []
+
+    if not bundle_path.exists():
+        issues.append(_patchops_check_bundle_issue("missing_bundle", f"Bundle path does not exist: {bundle_path}", path=str(bundle_path)))
+    elif bundle_path.suffix.lower() != ".zip":
+        issues.append(_patchops_check_bundle_issue("unsupported_source_kind", "check-bundle currently expects a bundle zip path", path=str(bundle_path)))
+    else:
+        with _patchops_check_bundle_zipfile.ZipFile(bundle_path) as zf:
+            members = [name.replace(chr(92), "/") for name in zf.namelist() if name and not name.endswith("/")]
+        payload["member_count"] = len(members)
+        roots = sorted({member.split("/", 1)[0] for member in members if "/" in member})
+        payload["top_level_root"] = roots[0] if len(roots) == 1 else None
+
+        if len(roots) != 1:
+            issues.append(_patchops_check_bundle_issue("invalid_root_count", f"Expected exactly one top-level root, found {len(roots)}", path=str(bundle_path)))
+        else:
+            root = roots[0]
+            manifest_member = f"{root}/manifest.json"
+            meta_member = f"{root}/bundle_meta.json"
+            launcher_member = f"{root}/run_with_patchops.ps1"
+            payload["manifest_path"] = manifest_member if manifest_member in members else None
+            payload["launcher_path"] = launcher_member if launcher_member in members else None
+
+            if manifest_member not in members:
+                issues.append(_patchops_check_bundle_issue("missing_manifest", f"Bundle zip is missing manifest.json under {root}", path=manifest_member))
+            if meta_member not in members:
+                issues.append(_patchops_check_bundle_issue("missing_bundle_meta", f"Bundle zip is missing bundle_meta.json under {root}", path=meta_member))
+            if launcher_member not in members:
+                launcher_issues.append(_patchops_check_bundle_issue("missing_root_launcher", f"Bundle zip is missing saved root launcher: {launcher_member}", path=launcher_member))
+
+            payload["launcher_review"] = {
+                "status": "accept" if not launcher_issues else "reject",
+                "launcher_path": launcher_member if launcher_member in members else None,
+                "issue_count": len(launcher_issues),
+                "issues": launcher_issues,
+            }
+            payload["launcher_status"] = payload["launcher_review"]["status"]
+            payload["launcher_issue_count"] = len(launcher_issues)
+            payload["launcher_issue_codes"] = [item["code"] for item in launcher_issues]
+
+    if "launcher_review" not in payload:
+        payload["launcher_review"] = {"status": "reject", "launcher_path": None, "issue_count": 0, "issues": []}
+        payload["launcher_status"] = payload["launcher_review"]["status"]
+        payload["launcher_issue_count"] = payload["launcher_review"]["issue_count"]
+        payload["launcher_issue_codes"] = [item["code"] for item in payload["launcher_review"]["issues"]]
+
+    payload["issues"] = issues
+    payload["issue_count"] = len(issues)
+    payload["ok"] = not issues and payload["launcher_review"]["status"] == "accept"
+    return payload
+
+
+_PATCHOPS_CLI_CHECK_BUNDLE_MAIN_ORIGINAL = cli_check_bundle_main
+
+
+def cli_check_bundle_main(argv=None):
+    parser = argparse.ArgumentParser(prog="patchops bundle_review")
+    parser.add_argument("bundle_zip_path")
+    parser.add_argument("--profile", default=None)
+    parser.add_argument("--wrapper-root", default=None)
+    parser.add_argument("--timestamp-token", default=None)
+    args = parser.parse_args(argv)
+
+    payload = check_bundle_payload(
+        args.bundle_zip_path,
+        args.wrapper_root,
+        profile=args.profile,
+        timestamp_token=args.timestamp_token,
+    )
+    print(json.dumps(payload, indent=2))
+    return 0 if payload.get("ok") else 1
+# PATCHOPS_CHECK_BUNDLE_RUNTIME_WRAPPER_END
+
+# PATCHOPS_TRUE_EOF_CHECK_BUNDLE_OVERRIDE_20260421
+
+def _patchops_true_eof_build_issue(code, message, path=None):
+    item = {"code": code, "message": message}
+    if path is not None:
+        item["path"] = path
+    return item
+
+
+def _patchops_true_eof_check_bundle_payload(
+    bundle_zip_path,
+    wrapper_root=None,
+    profile=None,
+    timestamp_token=None,
+    requested_profile=None,
+):
+    import zipfile
+    from pathlib import Path
+
+    bundle_path = Path(bundle_zip_path).resolve()
+    effective_profile = requested_profile if requested_profile is not None else profile
+    source_kind = "zip" if bundle_path.suffix.lower() == ".zip" else "directory"
+
+    payload = {
+        "path": str(bundle_path),
+        "exists": bundle_path.exists(),
+        "source_kind": source_kind,
+        "requested_profile": effective_profile,
+        "ok": False,
+        "issue_count": 0,
+        "issues": [],
+        "root_folder_name": None,
+        "manifest_path": None,
+        "bundle_meta_path": None,
+        "content_root_path": None,
+        "launcher_paths": [],
+    }
+
+    def issue(code, message, path=None):
+        item = {"code": code, "message": message}
+        if path is not None:
+            item["path"] = path
+        return item
+
+    issues = []
+
+    if not bundle_path.exists():
+        issues.append(issue("missing_bundle", f"Bundle path does not exist: {bundle_path}", path=str(bundle_path)))
+    elif source_kind != "zip":
+        issues.append(issue("unsupported_source_kind", "check-bundle currently expects a bundle zip path", path=str(bundle_path)))
+    else:
+        with zipfile.ZipFile(bundle_path) as zf:
+            members = [name.replace(chr(92), "/") for name in zf.namelist() if name and not name.endswith("/")]
+
+        payload["member_count"] = len(members)
+        roots = sorted({member.split("/", 1)[0] for member in members if "/" in member})
+        payload["top_level_root"] = roots[0] if len(roots) == 1 else None
+        payload["root_folder_name"] = payload["top_level_root"]
+
+        if len(roots) != 1:
+            issues.append(issue("invalid_root_count", f"Expected exactly one top-level root, found {len(roots)}", path=str(bundle_path)))
+        else:
+            root = roots[0]
+            manifest_member = f"{root}/manifest.json"
+            meta_member = f"{root}/bundle_meta.json"
+            content_root = f"{root}/content"
+            root_launcher = f"{root}/run_with_patchops.ps1"
+            legacy_launchers = sorted(
+                member
+                for member in members
+                if member.startswith(f"{root}/launchers/") and member.lower().endswith(".ps1")
+            )
+            launcher_paths = [root_launcher] if root_launcher in members else legacy_launchers
+
+            payload["manifest_path"] = manifest_member if manifest_member in members else None
+            payload["bundle_meta_path"] = meta_member if meta_member in members else None
+            payload["content_root_path"] = content_root
+            payload["launcher_paths"] = launcher_paths
+            payload["launcher_path"] = launcher_paths[0] if launcher_paths else None
+
+            if manifest_member not in members:
+                issues.append(issue("missing_manifest", f"Bundle zip is missing manifest.json under {root}", path=manifest_member))
+            if meta_member not in members:
+                issues.append(issue("missing_bundle_meta", f"Bundle zip is missing bundle_meta.json under {root}", path=meta_member))
+            if not any(member.startswith(f"{content_root}/") for member in members):
+                issues.append(issue("missing_content_root", f"Bundle zip is missing content/ files under {root}", path=content_root))
+            if not launcher_paths:
+                issues.append(issue("missing_launcher", f"Bundle zip is missing a supported launcher under {root}", path=root))
+
+    payload["launcher_review"] = {
+        "status": "accept" if not any(item["code"] == "missing_launcher" for item in issues) else "reject",
+        "launcher_path": payload.get("launcher_path"),
+        "issue_count": sum(1 for item in issues if item["code"] == "missing_launcher"),
+        "issues": [item for item in issues if item["code"] == "missing_launcher"],
+    }
+    payload["launcher_status"] = payload["launcher_review"]["status"]
+    payload["launcher_issue_count"] = payload["launcher_review"]["issue_count"]
+    payload["launcher_issue_codes"] = [item["code"] for item in payload["launcher_review"]["issues"]]
+    payload["issues"] = issues
+    payload["issue_count"] = len(issues)
+    payload["ok"] = len(issues) == 0
+    return payload
+
+check_bundle_payload = _patchops_true_eof_check_bundle_payload
+cli_check_bundle_main = _patchops_cli_check_bundle_main_current
+# PATCHOPS_FINAL_CHECK_BUNDLE_CLI_MAIN_20260421
+
+def _patchops_final_check_bundle_cli_main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="patchops bundle_review")
+    parser.add_argument("bundle_zip_path")
+    parser.add_argument("--profile", default=None)
+    parser.add_argument("--wrapper-root", default=None)
+    parser.add_argument("--timestamp-token", default=None)
+    args = parser.parse_args(argv)
+
+    payload = check_bundle_payload(
+        args.bundle_zip_path,
+        args.wrapper_root,
+        profile=args.profile,
+        timestamp_token=args.timestamp_token,
+    )
+    print(json.dumps(payload, indent=2))
+    return 0 if payload.get("ok") else 1
+
+cli_check_bundle_main = _patchops_final_check_bundle_cli_main

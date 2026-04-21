@@ -2,47 +2,79 @@
 
 ## Purpose
 
-This file describes the maintained PatchOps bundle shape after the post-publish refresh wave.
+This file describes the maintained PatchOps zip bundle shape for the current live repo.
+A bundle is **bundle transport**, not a replacement for the manifest, profile, report, or project packet concepts.
+Keep the wrapper / target / project packet boundaries explicit.
 
-Use it when you need the exact zip layout, launcher rule, and review sequence for the modern bundle workflow.
+## Core distinction
 
-## Maintained bundle tree
+- the **manifest** is the execution contract
+- the **profile** selects wrapper behavior
+- the **report** is the final evidence artifact
+- the zip bundle is transport around those maintained surfaces
+- the project packet remains a separate maintained surface from bundle transport
+
+## Maintained root shape
+
+Archive the bundle root contents directly.
+Do not add an extra duplicate parent folder.
+Do not depend on a manual unzip stage.
+Do not require a manual unzip guess.
+
+Maintained bundle root:
 
 ```text
-<bundle-root>/
-  manifest.json
+example_bundle/
   bundle_meta.json
-  README.txt
+  manifest.json
   run_with_patchops.ps1
   content/
-    ...
+  launchers/
 ```
 
-## Root launcher rule
+`run_with_patchops.ps1` is the one maintained root launcher.
+One root-level launcher is enough.
+One canonical Desktop txt report is enough.
 
-- Use exactly one saved root launcher: `run_with_patchops.ps1`.
-- Keep the saved launcher in top-level `param(...)` script-file form.
-- Do not prepend stray leading `/` or `\` characters before `param(...)`.
-- Do not hand-author the saved launcher when a Python helper is available.
-- The root launcher is a thin compatibility shim that delegates to `bundle-entry` or the maintained manifest review/apply path.
+## Command sequence
 
-## Maintained review sequence
+Use the maintained sequence:
 
-Use the same maintained order every time:
+- `make-bundle`
+- `check-bundle`
+- `inspect-bundle`
+- `plan-bundle`
+- `bundle-doctor`
+- `build-bundle`
+- `run-package`
 
-1. `py -m patchops.cli make-bundle ...`
-2. `py -m patchops.cli check-bundle ...`
-3. `py -m patchops.cli inspect-bundle ...`
-4. `py -m patchops.cli plan-bundle ...`
-5. `py -m patchops.cli bundle-doctor ...`
-6. `py -m patchops.cli build-bundle ...`
-7. `py -m patchops.cli run-package ...`
+Continue patch by patch from evidence.
+In lower-case contract wording: continue patch by patch from evidence.
 
-## Packaging rule
+## Launcher and compatibility notes
 
-Package the bundle root itself so the zip expands to one top-level bundle directory containing the maintained root files.
+The saved root launcher is a thin launcher and a compatibility shim.
+Keep reusable mechanics in Python.
+Keep PowerShell thin and operator-facing.
+The launcher should preserve the normal bundle-entry path and end with one canonical Desktop txt report.
 
-## Operator boundary
+## Bundle doctor posture
 
-PowerShell stays thin and operator-facing.
-Reusable mechanics stay in Python.
+`bundle-doctor` is the preferred troubleshooting entrypoint for shape validation and build verification before `run-package`.
+
+## Path hygiene
+
+Reject malformed bundle shapes early.
+Be careful with stray leading `/` or `\` characters in path inputs.
+Avoid stale assumptions about older PatchOps launcher layouts.
+
+## Maintained run example
+
+```powershell
+py -m patchops.cli run-package "D:\some_patch_bundle.zip" --wrapper-root "C:\dev\patchops"
+```
+
+That normal bundle-entry path should end with one canonical Desktop txt report.
+
+Patch 12 onward this standardized bundle flow is treated as proven self-hosted.
+

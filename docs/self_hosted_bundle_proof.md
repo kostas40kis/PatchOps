@@ -1,34 +1,29 @@
-# Self-hosted bundle authoring proof
+# Self hosted bundle proof
 
-From Patch 12 onward, the standardized bundle workflow is proven against PatchOps itself.
+## Purpose
 
-The proof path is intentionally the same one operators and future LLM sessions are expected to use:
+This file records the maintained self-hosted bundle proof expectations for PatchOps.
+The bundle authoring path should be able to prove itself without ad hoc launcher guesswork.
 
-1. scaffold a PatchOps-targeted proof bundle from Python,
-2. check it with `bundle-doctor`,
-3. build the zip from Python,
-4. review the resulting zip,
-5. execute the bundle through `run-package`,
-6. read one canonical report.
+## Proof expectations
 
-## What this proof demonstrates
+- the authoring flow is self-hosted
+- `run_with_patchops.ps1` remains the saved root launcher
+- the launcher stays thin and operator-facing
+- `bundle_mode` stays in metadata
+- bundle content lives under `content/`
+- the final operator path ends in one canonical Desktop txt report
 
-- PatchOps can generate a self-hosted proof bundle without hand-authoring launcher structure.
-- The generated bundle targets `C:/dev/patchops` using the canonical root layout.
-- `bundle-doctor` accepts the generated bundle as a valid maintained bundle.
-- `build-bundle` produces a one-root deterministic zip.
-- `inspect-bundle` and `plan-bundle` succeed on the built proof zip.
-- The actual patch bundle used for this proof is itself executed through `run-package`, which provides the canonical self-hosted report artifact.
+## Proof surfaces
 
-## Maintained command sequence
+- `patchops/bundles/authoring.py`
+- `patchops/bundles/launcher_emitter.py`
+- `create_starter_bundle`
+- `emit_root_bundle_launcher`
+- `build-bundle`
+- `run-package`
 
-```text
-py -m patchops.cli make-proof-bundle --kind apply ...
-py -m patchops.cli bundle-doctor <bundle-root>
-py -m patchops.cli build-bundle <bundle-root> --output <zip>
-py -m patchops.cli inspect-bundle <zip>
-py -m patchops.cli plan-bundle <zip>
-py -m patchops.cli run-package <zip> --wrapper-root C:\dev\patchops
-```
+## Proof posture
 
-This is now the maintained self-hosted proof path for PatchOps bundle work.
+Use this proof to keep the self-hosted story truthful.
+Continue patch by patch from evidence.

@@ -1,44 +1,23 @@
-# Post-build bundle smoke gate
-
-This document defines the maintained post-build bundle smoke gate for PatchOps bundles.
+# Bundle smoke gate
 
 ## Purpose
 
-A bundle is not treated as shippable immediately after `build-bundle` succeeds.
-The built zip should also survive the modern zip review surfaces before operators or LLMs rely on it.
+This post-build bundle smoke gate records the maintained smoke pass that a shippable bundle should clear before final operator use.
 
-## Maintained smoke sequence
+## Maintained surface split
 
-1. Generate or update the bundle root.
-2. Run `bundle-doctor` on the bundle root.
-3. Build the zip with `build-bundle`.
-4. Review the built zip with `inspect-bundle`.
-5. Review the built zip with `plan-bundle`.
-6. Only then treat the built zip as shippable.
+Use these bundle surfaces in order:
+- `bundle-doctor`
+- `check-bundle`
+- `inspect-bundle`
+- `plan-bundle`
+- `build-bundle`
 
-## Why this exists
+Do not treat raw `check-bundle` against a built zip as the maintained smoke gate.
+The maintained smoke story is broader than one raw command because it must keep bundle shape, review, build, and final operator flow aligned.
 
-This catches authoring drift that can hide between:
-- a healthy bundle root
-- a successful deterministic zip export
-- the real post-build zip review path
+## Gate posture
 
-It also keeps the release gate honest across both worlds:
-- classic manifest review surfaces
-- bundle review/build surfaces
-
-## Operator rule
-
-For bundle roots:
-- use `bundle-doctor`
-- use `check-bundle`
-
-For built zips:
-- use `inspect-bundle`
-- use `plan-bundle`
-
-Do not treat raw `check-bundle` against a built zip as the maintained smoke gate for shippable proof bundles.
-
-## Evidence rule
-
-Read the canonical report, continue patch by patch from evidence, and do not claim the bundle is ready if the post-build smoke gate is still red.
+A shippable bundle should preserve one canonical Desktop txt report and should continue patch by patch from evidence.
+Keep PowerShell thin and operator-facing.
+Keep reusable mechanics in Python.

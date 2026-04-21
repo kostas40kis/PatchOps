@@ -3,29 +3,57 @@
 ## Purpose
 
 This template is the maintained authoring checklist for a new PatchOps bundle.
+Use it to keep the bundle shape, launcher shape, and command order aligned with the current live repo.
 
-## Exact files to create
+## Maintained authoring posture
 
-- `manifest.json`
-- `bundle_meta.json`
-- `README.txt`
-- `run_with_patchops.ps1`
-- `content/`
+- copy the maintained example bundle
+- one folder is enough
+- one root-level PowerShell file is enough
+- one canonical Desktop txt report is enough
+- use the saved root launcher name `run_with_patchops.ps1`
+- keep `bundle_mode` in metadata
+- do not manually unzip during the normal operator path
+- older PatchOps flows often relied on a manual unzip stage
+- the current maintained flow avoids that manual unzip stage
+- preserve a thin launcher
+- avoid an extra duplicate parent folder when packaging
+- archive the bundle root contents directly
+- continue patch by patch from evidence
+- Generate the bundle from Python when possible.
 
-## Authoring checklist
+## Maintained bundle tree
 
-1. Generate the bundle from Python when possible.
-2. Stage target-relative files under `content/`.
-3. Fill `manifest.json` writes and validation commands.
-4. Keep `bundle_meta.json` aligned with the bundle root.
-5. Keep `run_with_patchops.ps1` as the single saved root launcher.
-6. Run `check-bundle`, `inspect-bundle`, `plan-bundle`, and `bundle-doctor`.
-7. Build the zip.
-8. Run the built zip through `run-package`.
-9. Continue from the canonical Desktop txt report.
+```text
+example_bundle/
+  bundle_meta.json
+  manifest.json
+  run_with_patchops.ps1
+  content/
+```
 
-## Launcher guidance
+## Maintained command order
 
-The saved root launcher should stay boring.
-It should remain a compatibility shim that delegates to `bundle-entry`.
-Do not widen it into a second workflow engine.
+- `make-bundle`
+- `check-bundle`
+- `inspect-bundle`
+- `plan-bundle`
+- `bundle-doctor`
+- `build-bundle`
+- `run-package`
+
+## Launcher notes
+
+The maintained root launcher is `run_with_patchops.ps1`.
+One root-level PowerShell file is enough.
+The launcher stays thin and operator-facing.
+The normal run path reaches PatchOps through the bundle-entry / run-package path rather than hand-authored unzip logic.
+
+## Normal run command
+
+```powershell
+py -m patchops.cli run-package "D:\some_patch_bundle.zip" --wrapper-root "C:\dev\patchops"
+```
+
+The maintained bundle uses a single saved root launcher.
+

@@ -1,11 +1,28 @@
 # Patch ledger
 
+## Patch 24
+## Patch 25
+## Patch 26
 ## Patch 35 - final release / maintenance gate
-This gate patch recorded the maintenance-mode verdict from the shipped readiness and validation surfaces.
-It was a gate patch, not a redesign patch.
+## Patch 79
+## Patch 80
+## Patch 118
+## Patch 119
+## Patch 120
+## Patch 121
+## Patch 122
+## Patch 123
+## Patch 130
 
-## Patch 37C - run-package operator runner test escape repair
-This narrow repair fixed the backslash escaping in the canonical quiet-runner contract test so the current operator runner surface compiles and validates again.
+## content_path wrapper-root repair stream
 
-## Patch 38 - final source bundle freeze export
-This freeze-export patch adds `handoff/final_future_llm_source_bundle.txt` as the preferred durable upload artifact after the maintenance gate and documentation stop.
+### CP5 - docs stop and status lock
+### CP6
+### CP7
+### CP8
+### CP9
+
+## Pythonization stream
+MP51 remains part of the historical record.
+
+handoff/final_future_llm_source_bundle.txt is the preferred durable upload artifact after the maintenance gate and documentation stop.

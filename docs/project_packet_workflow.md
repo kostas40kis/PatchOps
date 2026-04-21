@@ -2,53 +2,44 @@
 
 ## Purpose
 
-This workflow explains how project packets fit into normal PatchOps usage after the published Patch 29A state.
+This workflow explains how project packets fit into normal PatchOps usage.
 
-## When to use a packet
+## two-step onboarding
 
-Use a project packet when you need the maintained target-facing contract for one repo.
+A brand-new target project uses two-step onboarding.
+An already-running PatchOps effort should prefer handoff/current_handoff.md first.
 
-Examples:
+## onboarding bootstrap artifact surface
 
-- `docs/projects/trader.md`
-- `docs/projects/wrapper_self_hosted.md`
+- onboarding/current_target_bootstrap.md
+- onboarding/current_target_bootstrap.json
+- onboarding/next_prompt.txt
+- onboarding/starter_manifest.json
 
-## Core command surfaces
+they do not replace manifests, reports, project packets, or handoff.
 
-Packet-oriented maintenance should keep using the normal CLI surfaces:
+## helper-first onboarding command surface
 
-- `py -m patchops.cli init-project-doc`
-- `py -m patchops.cli refresh-project-doc`
-- `py -m patchops.cli export-handoff`
-- `py -m patchops.cli check <manifest>`
-- `py -m patchops.cli inspect <manifest>`
-- `py -m patchops.cli plan <manifest>`
-- `py -m patchops.cli apply <manifest>`
-- `py -m patchops.cli verify <manifest>`
+- recommend-profile
+- init-project-doc
+- starter
+- refresh-project-doc
 
-## Recommended flow
+These helper surfaces reduce ambiguity during first use and do not replace manifests, reports, or handoff.
 
-1. Read the packet for the target.
-2. Read the current handoff if work is already in progress.
-3. Use `check`, `inspect`, and `plan` before risky apply work.
-4. Apply or verify narrowly.
-5. Read the canonical report first.
-6. Refresh the packet only after the report changes the maintained target story.
+## maintained update discipline
 
-## Self-hosted workflow reminder
+stable packet sections should change rarely
+mutable packet sections should be refreshed as validated progress changes
+grounded in reports and handoff when available
+careful not to rewrite stable sections without real reason
+handoff bundle first
+refresh the packet after validated progress
 
-For PatchOps patching PatchOps, use `docs/projects/wrapper_self_hosted.md`.
+PATCHOPS_PATCH80_SELF_HOSTED_COMMAND_FLOW:START
+Patch 79 - self-hosted operator flow
+PATCHOPS_PATCH80_SELF_HOSTED_COMMAND_FLOW:END
 
-The selected profile remains `generic_python`, PowerShell stays thin, and reusable logic stays in Python-owned surfaces.
-
-## Handoff relationship
-
-Handoff remains the resume surface for already-running work.
-
-A project packet gives target context.
-A handoff file gives current-run continuity.
-A canonical report gives the evidence.
-
-## Maintenance posture
-
-Keep packet work additive, operator-friendly, and conservative.
+PATCHOPS_PATCH84_WORKFLOW_MECHANICAL:START
+Mechanical workflow remains explicit.
+PATCHOPS_PATCH84_WORKFLOW_MECHANICAL:END

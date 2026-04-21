@@ -1,47 +1,33 @@
-# Bundle and manifest regression gate
+# Bundle regression gate
 
-This document defines a maintained release gate for PatchOps after the canonical bundle workflow landed.
+## Purpose
 
-## Goal
-
-Keep both worlds healthy at the same time:
-
+This release gate keeps the regression matrix visible in the maintained release story.
+It must keep both worlds visible at the same time:
 - classic manifest review surfaces
 - bundle review/build surfaces
 
-Do not let release checks drift toward only one workflow.
-
 ## Regression matrix
 
-For generated proof bundles, the release gate should exercise:
-
+### Classic manifest review surfaces
 - `check`
 - `inspect`
 - `plan`
 
-and also:
-
+### Bundle review/build surfaces
 - `bundle-doctor`
 - `check-bundle`
 - `inspect-bundle`
 - `plan-bundle`
 - `build-bundle`
 
-## Built zip posture
+## Gate posture
 
-Use the bundle root for `bundle-doctor` and `check-bundle`.
-Use the built zip for `inspect-bundle` and `plan-bundle`.
+This is a release gate for the maintained workflow, not a redesign note.
+Keep PowerShell thin and operator-facing.
+Keep reusable mechanics in Python.
+continue patch by patch from evidence
 
-That keeps the gate aligned with the maintained canonical single-launcher bundle model instead of older zip-shape expectations.
+## Expected outcome
 
-## Why this exists
-
-PatchOps now supports a standardized zip-first workflow, but the classic manifest path still remains part of the maintained surface. The regression matrix exists so both paths stay green together.
-
-## Operator guidance
-
-- Generate a proof bundle from Python-owned helpers.
-- Review the bundle through the maintained bundle surfaces.
-- Review the manifest through the maintained manifest surfaces.
-- continue patch by patch from evidence
-- Treat this as a release gate, not an optional smoke check.
+A shippable repo keeps the classic manifest review surfaces and the bundle review/build surfaces aligned instead of letting one drift from the other.
