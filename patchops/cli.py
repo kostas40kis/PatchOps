@@ -833,11 +833,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "check-bundle":
         from patchops.bundles.legacy_bundle_review import check_bundle_cli_payload_compat
         _bundle_source = getattr(args, "bundle_path", None) or getattr(args, "bundle_zip_path", None) or getattr(args, "source_path", None)
-        _compat_payload = check_bundle_cli_payload_compat(_bundle_source, profile_name=getattr(args, "profile", None))
-        if _compat_payload is not None:
-            import json as _json
-            print(_json.dumps(_compat_payload, indent=2))
-            return 0 if bool(_compat_payload.get("ok", False)) else 1
+        _bundle_source_path = Path(_bundle_source).resolve() if _bundle_source else None
+        if not (_bundle_source_path and _bundle_source_path.exists() and _bundle_source_path.is_dir()):
+            _compat_payload = check_bundle_cli_payload_compat(_bundle_source, profile_name=getattr(args, "profile", None))
+            if _compat_payload is not None:
+                import json as _json
+                print(_json.dumps(_compat_payload, indent=2))
+                return 0 if bool(_compat_payload.get("ok", False)) else 1
     # PATCHOPS_B2E_COMPAT_END
 
 
@@ -1036,7 +1038,6 @@ def main(argv: list[str] | None = None) -> int:
             render_release_readiness_report_lines(
                 snapshot,
                 wrapper_project_root=wrapper_root,
-                focused_profile=args.profile,
             )
         )
         if args.report_path:
@@ -1044,7 +1045,6 @@ def main(argv: list[str] | None = None) -> int:
                 args.report_path,
                 snapshot,
                 wrapper_project_root=wrapper_root,
-                focused_profile=args.profile,
             )
 
         print(json.dumps(payload, indent=2))
@@ -1103,6 +1103,267 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(json.dumps(payload, indent=2))
         return 0
+
+
+    if args.command == "maintenance-gate":
+        from pathlib import Path as _Path
+        from patchops.maintenance_gate import (
+            build_maintenance_gate_snapshot,
+            render_maintenance_gate_report_lines,
+            write_maintenance_gate_report,
+        )
+        from patchops.profiles.base import PROFILE_FACTORIES
+
+        available_profiles = sorted(str(name) for name in PROFILE_FACTORIES.keys())
+
+        snapshot = build_maintenance_gate_snapshot(
+            wrapper_project_root=_Path(args.wrapper_root),
+            available_profiles=available_profiles,
+            core_tests_state="green" if bool(getattr(args, "core_tests_green", False)) else "unknown",
+        )
+
+        if isinstance(snapshot, dict):
+            payload = dict(snapshot)
+        else:
+            payload = asdict(snapshot)
+
+        try:
+            report_lines = list(render_maintenance_gate_report_lines(snapshot, wrapper_project_root=_Path(args.wrapper_root), focused_profile=getattr(args, "profile", None)))
+        except TypeError:
+            report_lines = list(render_maintenance_gate_report_lines(snapshot, wrapper_project_root=_Path(args.wrapper_root), focused_profile=getattr(args, "profile", None)))
+
+        payload["report_lines"] = report_lines
+        payload["wrapper_project_root"] = str(_Path(args.wrapper_root).resolve())
+        regression_gate = dict(payload.get("regression_gate") or {})
+        smoke_gate = dict(payload.get("smoke_gate") or {})
+        release_readiness = dict(payload.get("release_readiness") or {})
+
+        regression_gate["name"] = "bundle_manifest_regression"
+        smoke_gate["name"] = "post_build_bundle_smoke"
+        release_readiness["name"] = "release_readiness"
+
+        payload["gate_results"] = {
+            "bundle_manifest_regression": regression_gate,
+            "post_build_bundle_smoke": smoke_gate,
+            "release_readiness": release_readiness,
+        }
+
+        report_path = getattr(args, "report_path", None)
+        if report_path:
+            try:
+                write_maintenance_gate_report(report_path, snapshot, wrapper_project_root=_Path(args.wrapper_root), focused_profile=getattr(args, "profile", None))
+            except TypeError:
+                write_maintenance_gate_report(report_path, snapshot, wrapper_project_root=_Path(args.wrapper_root), focused_profile=getattr(args, "profile", None))
+            payload["report_path"] = str(_Path(report_path))
+
+        print(json.dumps(payload, indent=2))
+        return 0
+
+    if args.command == "setup-windows-env":
+        import os
+        from pathlib import Path as _Path
+        from patchops.windows_env_setup import (
+            apply_windows_env_setup,
+            build_windows_env_setup_plan,
+            windows_env_setup_as_dict,
+        )
+
+        wrapper_root = _Path(args.wrapper_root)
+        reports_root = _Path(args.reports_root) if getattr(args, "reports_root", None) else None
+        bin_root = _Path(args.bin_root) if getattr(args, "bin_root", None) else None
+
+        plan = build_windows_env_setup_plan(
+            wrapper_project_root=wrapper_root,
+            reports_root=reports_root,
+            bin_root=bin_root,
+            existing_user_path=os.environ.get("PATH", ""),
+        )
+
+        payload = windows_env_setup_as_dict(plan)
+        payload["ok"] = True
+        payload["dry_run"] = bool(getattr(args, "dry_run", False))
+
+        if payload["dry_run"]:
+            payload["applied"] = False
+        else:
+            result = apply_windows_env_setup(plan, persist_user_env=False)
+            if isinstance(result, dict):
+                payload.update(result)
+            payload["applied"] = True
+
+        print(json.dumps(payload, indent=2))
+        return 0
+
+
+    if args.command == "make-bundle":
+        from patchops.bundles.authoring import create_starter_bundle, run_bundle_authoring_self_check
+
+        bundle_root = getattr(args, "bundle_root", None) or getattr(args, "output_root", None) or getattr(args, "destination", None)
+        target_root = getattr(args, "target_root", None) or getattr(args, "target_project_root", None)
+        wrapper_root = getattr(args, "wrapper_root", None) or r"C:\dev\patchops"
+        profile_name = getattr(args, "profile", None) or "generic_python"
+        mode_name = getattr(args, "mode", None) or "apply"
+
+        result = create_starter_bundle(
+            bundle_root,
+            patch_name=args.patch_name,
+            target_project=args.target_project,
+            target_project_root=target_root,
+            wrapper_project_root=wrapper_root,
+            recommended_profile=profile_name,
+            mode=mode_name,
+        )
+
+        self_check = run_bundle_authoring_self_check(result.bundle_root)
+
+        payload = {
+            "ok": self_check.issue_count == 0 and self_check.is_valid is True,
+            "issue_count": self_check.issue_count,
+            "is_valid": self_check.is_valid,
+            "issues": [
+                {
+                    "code": message.code,
+                    "message": message.message,
+                    "path": message.path,
+                    "severity": getattr(message, "severity", "error"),
+                }
+                for message in self_check.messages
+            ],
+            "bundle_root": str(result.bundle_root),
+            "manifest_path": str(result.manifest_path),
+            "bundle_meta_path": str(result.bundle_meta_path),
+            "readme_path": str(result.readme_path),
+            "launcher_path": str(result.launcher_path),
+            "content_root": str(result.content_root),
+            "patch_name": args.patch_name,
+            "target_project": args.target_project,
+            "target_project_root": str(target_root),
+            "wrapper_project_root": str(wrapper_root),
+            "recommended_profile": profile_name,
+            "bundle_mode": mode_name,
+            "launcher_name": result.launcher_path.name,
+            "root_entries": sorted(path.name for path in result.bundle_root.iterdir()),
+        }
+        print(json.dumps(payload, indent=2))
+        return 0
+
+
+
+    if args.command == "make-proof-bundle":
+        from pathlib import Path as _Path
+        from patchops.bundles.authoring import create_proof_bundle
+
+        _wrapper_root = args.wrapper_root or r"C:\dev\patchops"
+
+        result = create_proof_bundle(
+            _Path(args.bundle_root),
+            kind=args.kind,
+            patch_name=args.patch_name,
+            target_project=args.target_project,
+            target_project_root=args.target_root,
+            wrapper_project_root=_wrapper_root,
+            recommended_profile=args.profile,
+        )
+
+        payload = {
+            "ok": bool(result.ok),
+            "kind": result.kind,
+            "bundle_mode": result.bundle_mode,
+            "intended_surface": result.intended_surface,
+            "expected_exit_code": result.expected_exit_code,
+            "bundle_root": str(result.bundle_root),
+            "manifest_path": str(result.manifest_path),
+            "bundle_meta_path": str(result.bundle_meta_path),
+            "readme_path": str(result.readme_path),
+            "launcher_path": str(result.launcher_path),
+            "content_root": str(result.content_root),
+            "proof_file_path": str(result.proof_file_path),
+            "patch_name": args.patch_name,
+            "target_project": args.target_project,
+            "target_project_root": args.target_root,
+            "recommended_profile": args.profile,
+            "launcher_name": result.launcher_path.name,
+            "issue_count": int(result.issue_count),
+            "issues": list(result.issues),
+        }
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
+
+
+
+    if args.command == "build-bundle":
+        from dataclasses import asdict, is_dataclass
+        from pathlib import Path as _Path
+        from patchops.bundles.authoring import build_bundle_zip
+
+        result = build_bundle_zip(_Path(args.bundle_root), _Path(args.output))
+
+        def _issue_to_payload(issue):
+            if hasattr(issue, "to_dict"):
+                return issue.to_dict()
+            if isinstance(issue, dict):
+                return dict(issue)
+            if is_dataclass(issue):
+                return asdict(issue)
+            payload = {}
+            for name in ("code", "message", "path", "severity"):
+                value = getattr(issue, name, None)
+                if value is not None:
+                    payload[name] = value
+            if "message" not in payload:
+                payload["message"] = str(issue)
+            return payload
+
+        issues = [_issue_to_payload(issue) for issue in getattr(result, "issues", ())]
+
+        payload = {
+            "ok": bool(getattr(result, "ok", len(issues) == 0)),
+            "issue_count": len(issues),
+            "issues": issues,
+            "bundle_root": str(getattr(result, "bundle_root", _Path(args.bundle_root)).resolve()),
+            "output_zip": str(getattr(result, "output_zip", _Path(args.output)).resolve()),
+            "root_folder_name": getattr(result, "root_folder_name", _Path(args.bundle_root).resolve().name),
+            "member_count": int(getattr(result, "member_count", 0)),
+        }
+        print(json.dumps(payload, indent=2))
+        return 0 if payload["ok"] else 1
+
+
+    if args.command == "bundle-doctor":
+        from dataclasses import asdict, is_dataclass
+        from pathlib import Path as _Path
+        from patchops.bundles.authoring import run_bundle_doctor
+
+        result = run_bundle_doctor(_Path(args.bundle_path))
+
+        if hasattr(result, "to_dict"):
+            payload = result.to_dict()
+        elif is_dataclass(result):
+            payload = asdict(result)
+        else:
+            payload = {
+                "source_path": str(getattr(result, "source_path", _Path(args.bundle_path))),
+                "source_kind": getattr(result, "source_kind", None),
+                "ok": bool(getattr(result, "ok", False)),
+                "issue_count": int(getattr(result, "issue_count", 0)),
+                "shape_issue_count": int(getattr(result, "shape_issue_count", 0)),
+                "launcher_issue_count": int(getattr(result, "launcher_issue_count", 0)),
+                "build_issue_count": int(getattr(result, "build_issue_count", 0)),
+                "issues": [
+                    item.to_dict() if hasattr(item, "to_dict") else str(item)
+                    for item in getattr(result, "issues", ())
+                ],
+                "root_folder_name": getattr(result, "root_folder_name", None),
+                "manifest_path": getattr(result, "manifest_path", None),
+                "bundle_meta_path": getattr(result, "bundle_meta_path", None),
+                "content_root_path": getattr(result, "content_root_path", None),
+                "launcher_paths": list(getattr(result, "launcher_paths", ())),
+                "build_output_zip": getattr(result, "build_output_zip", None),
+                "summary_text": "\n".join(getattr(result, "summary_lines", ())),
+            }
+
+        print(json.dumps(payload, indent=2))
+        return 0 if bool(payload.get("ok", False)) else 1
 
 if __name__ == "__main__":
     import sys as _patchops_entry_sys

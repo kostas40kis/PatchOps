@@ -57,3 +57,12 @@ py -m patchops.cli run-package "D:\some_patch_bundle.zip" --wrapper-root "C:\dev
 
 The maintained bundle uses a single saved root launcher.
 
+## Troubleshooting entrypoint
+
+`bundle-doctor` is the preferred troubleshooting entrypoint when a bundle root or built zip does not behave as expected.
+
+Use it before rerunning broader workflows so you can separate:
+- shape validation
+- build verification
+
+Treat `bundle-doctor` as the fastest maintained way to confirm whether the bundle shape, saved launcher family, and buildable export all still match the current PatchOps contract.

@@ -124,3 +124,26 @@ def render_report_header(
 ) -> str:
     metadata = value if isinstance(value, ReportHeaderMetadata) else build_report_header_metadata(value, timestamp=timestamp)
     return "\n".join(render_report_header_lines(metadata))
+
+# PATCHOPS_C1A_BACKUP_WRITE_EVIDENCE_METADATA_HELPER_20260422
+def build_backup_write_evidence_lines(result) -> list[str]:
+    lines: list[str] = []
+
+    backup_records = list(getattr(result, "backup_records", ()) or ())
+    write_records = list(getattr(result, "write_records", ()) or ())
+
+    for record in backup_records:
+        source_path = getattr(record, "source_path", None) or getattr(record, "target_path", None) or getattr(record, "path", None)
+        backup_path = getattr(record, "backup_path", None)
+        missing = bool(getattr(record, "missing", False) or getattr(record, "was_missing", False))
+        if missing and source_path is not None:
+            lines.append(f"MISSING: {source_path}")
+        elif source_path is not None and backup_path is not None:
+            lines.append(f"BACKUP : {source_path} -> {backup_path}")
+
+    for record in write_records:
+        target_path = getattr(record, "target_path", None) or getattr(record, "destination_path", None) or getattr(record, "path", None)
+        if target_path is not None:
+            lines.append(f"WRITE  : {target_path}")
+
+    return lines

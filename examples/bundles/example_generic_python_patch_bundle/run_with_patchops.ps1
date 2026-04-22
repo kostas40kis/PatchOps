@@ -1,23 +1,16 @@
 & {
+    [CmdletBinding()]
     param(
-        [string]$WrapperRepoRoot = 'C:\dev\patchops'
+        [Parameter(Mandatory = $false)]
+        [string]$WrapperRepoRoot = "C:\dev\patchops"
     )
 
+    Set-StrictMode -Version Latest
     $ErrorActionPreference = 'Stop'
 
-    $bundleRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $manifestPath = Join-Path $bundleRoot 'manifest.json'
+    # bundle-entry
+    $bundleRoot = $PSScriptRoot
 
-    if (-not (Test-Path -LiteralPath $manifestPath)) {
-        throw "Bundle manifest not found: $manifestPath"
-    }
-
-    Push-Location $WrapperRepoRoot
-    try {
-        py -m patchops.cli apply $manifestPath --wrapper-root $WrapperRepoRoot
-        exit $LASTEXITCODE
-    }
-    finally {
-        Pop-Location
-    }
+    py -m patchops.cli run-package $bundleRoot --wrapper-root $WrapperRepoRoot
+    exit $LASTEXITCODE
 }

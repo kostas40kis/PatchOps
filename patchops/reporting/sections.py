@@ -162,3 +162,48 @@ def failure_section(result: WorkflowResult) -> str:
     if metadata.details_display:
         lines.append(f"Details  : {metadata.details_display}")
     return "\n".join(lines)
+
+# PATCHOPS_C1A_BACKUP_WRITE_EVIDENCE_SECTIONS_OVERRIDE_20260422
+def _patchops_c1a_backup_write_lines(result) -> list[str]:
+    lines: list[str] = []
+
+    backup_records = list(getattr(result, "backup_records", ()) or ())
+    write_records = list(getattr(result, "write_records", ()) or ())
+
+    for record in backup_records:
+        source_path = getattr(record, "source_path", None) or getattr(record, "target_path", None) or getattr(record, "path", None)
+        backup_path = getattr(record, "backup_path", None)
+        missing = bool(getattr(record, "missing", False) or getattr(record, "was_missing", False))
+        if missing and source_path is not None:
+            lines.append(f"MISSING: {source_path}")
+        elif source_path is not None and backup_path is not None:
+            lines.append(f"BACKUP : {source_path} -> {backup_path}")
+
+    for record in write_records:
+        target_path = getattr(record, "target_path", None) or getattr(record, "destination_path", None) or getattr(record, "path", None)
+        if target_path is None:
+            continue
+        origin = getattr(record, "content_source", None) or getattr(record, "source_kind", None) or getattr(record, "content_origin", None)
+        if origin:
+            lines.append(f"WRITE  : {target_path} ({origin})")
+        else:
+            lines.append(f"WRITE  : {target_path}")
+
+    return lines
+
+try:
+    _PATCHOPS_C1A_PREV_RENDER_APPLY_SUMMARY_LINES = render_apply_summary_lines  # type: ignore[name-defined]
+
+    def render_apply_summary_lines(result):  # type: ignore[override]
+        lines = list(_PATCHOPS_C1A_PREV_RENDER_APPLY_SUMMARY_LINES(result))
+        evidence_lines = _patchops_c1a_backup_write_lines(result)
+        if evidence_lines:
+            existing = set(lines)
+            lines.append("")
+            for line in evidence_lines:
+                if line not in existing:
+                    lines.append(line)
+                    existing.add(line)
+        return lines
+except NameError:
+    pass

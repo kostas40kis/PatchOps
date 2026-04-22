@@ -37,3 +37,18 @@ Other conservative suspicious-run cases should also be treated carefully.
 - target_project_failure
 - wrapper_failure
 - suspicious_run
+
+## Wrapper boundary and launcher artifacts
+
+Use the repair guide to keep the boundary explicit: wrapper failure versus target-content failure.
+
+PatchOps should remain a wrapper and reporting layer, not a second apply engine.
+
+Launcher artifacts are part of the operator surface and should be treated as maintained evidence carriers, not throwaway glue. A concrete example is stray leading characters in `run_with_patchops.ps1`, which can make the launcher fail before the real validation target is even reached.
+
+Current operator-visible launcher and helper surfaces include:
+- `emit-operator-script`
+- `maintenance-gate`
+- `Push-PatchOpsToGitHub.ps1`
+
+When these surfaces drift, repair the wrapper/operator layer first, then rerun the narrowest truthful proof.

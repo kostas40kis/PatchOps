@@ -368,3 +368,62 @@ __all__ = [
     "inspect_bundle_cli_payload_compat",
     "plan_bundle_cli_payload_compat",
 ]
+
+# PATCHOPS_B1I_LEGACY_DIRECTORY_COMPAT_OVERRIDE_20260422
+from pathlib import Path as _PATCHOPS_B1I_Path
+
+_PATCHOPS_B1I_PREV_CHECK_BUNDLE_CLI_PAYLOAD_COMPAT = check_bundle_cli_payload_compat
+
+def _patchops_b1i_directory_payload(bundle_path: _PATCHOPS_B1I_Path, *, requested_profile: str | None = None) -> dict[str, object]:
+    bundle_path = _PATCHOPS_B1I_Path(bundle_path)
+    manifest_path = bundle_path / "manifest.json"
+    bundle_meta_path = bundle_path / "bundle_meta.json"
+    content_root_path = bundle_path / "content"
+    root_launcher_path = bundle_path / "run_with_patchops.ps1"
+    legacy_launchers = sorted((bundle_path / "launchers").glob("*.ps1")) if (bundle_path / "launchers").exists() else []
+    launcher_paths = [root_launcher_path] if root_launcher_path.exists() else legacy_launchers
+
+    issues: list[str] = []
+    if not manifest_path.exists():
+        issues.append(f"Bundle root is missing manifest.json: {manifest_path}")
+    if not bundle_meta_path.exists():
+        issues.append(f"Bundle root is missing bundle_meta.json: {bundle_meta_path}")
+    if not content_root_path.exists() or not any(path.is_file() for path in content_root_path.rglob("*")):
+        issues.append(f"Bundle root is missing content/ files: {content_root_path}")
+
+    launcher_issues: list[str] = []
+    if not launcher_paths:
+        launcher_issues.append(f"Bundle root is missing saved root launcher: {root_launcher_path}")
+
+    launcher_path = str(launcher_paths[0].resolve()) if launcher_paths else None
+    launcher_status = "safe" if not launcher_issues else "reject"
+
+    return {
+        "path": str(bundle_path),
+        "exists": bundle_path.exists(),
+        "source_kind": "directory",
+        "requested_profile": requested_profile,
+        "ok": len(issues) == 0 and launcher_status == "accept",
+        "issue_count": len(issues),
+        "issues": issues,
+        "root_folder_name": bundle_path.name,
+        "manifest_path": str(manifest_path.resolve()) if manifest_path.exists() else None,
+        "bundle_meta_path": str(bundle_meta_path.resolve()) if bundle_meta_path.exists() else None,
+        "content_root_path": str(content_root_path.resolve()) if content_root_path.exists() else None,
+        "launcher_paths": [str(path.resolve()) for path in launcher_paths],
+        "launcher_review": {
+            "status": launcher_status,
+            "launcher_path": launcher_path,
+            "issue_count": len(launcher_issues),
+            "issues": launcher_issues,
+        },
+        "launcher_status": launcher_status,
+        "launcher_issue_count": len(launcher_issues),
+        "launcher_issue_codes": [],
+    }
+
+def check_bundle_cli_payload_compat(bundle_path, profile_name=None):
+    bundle_path = _PATCHOPS_B1I_Path(bundle_path)
+    if bundle_path.exists() and bundle_path.is_dir():
+        return _patchops_b1i_directory_payload(bundle_path, requested_profile=profile_name)
+    return _PATCHOPS_B1I_PREV_CHECK_BUNDLE_CLI_PAYLOAD_COMPAT(bundle_path, profile_name=profile_name)

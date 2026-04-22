@@ -262,9 +262,6 @@ $argList = @('-m', 'patchops.cli', 'maintenance-gate', '--wrapper-root', $Wrappe
 if ($CoreTestsGreen.IsPresent) {{
     $argList += '--core-tests-green'
 }}
-else {{
-    $argList += '--core-tests-green'
-}}
 {_process_launch_block('$argList', stdout_handler=_maintenance_stdout_handler())}"""
         )
 
@@ -290,7 +287,15 @@ foreach ($item in @($PatchOpsArguments)) {{
         $argList += [string]$item
     }}
 }}
-{_process_launch_block('$argList', stdout_handler=_patchops_entry_stdout_handler())}"""
+$firstArgument = ''
+if ($PatchOpsArguments -and $PatchOpsArguments.Count -gt 0 -and $null -ne $PatchOpsArguments[0]) {{
+    $firstArgument = [string]$PatchOpsArguments[0]
+}}
+if (($firstArgument -eq 'maintenance-gate' -or $firstArgument -eq 'setup-windows-env') -and -not ($PatchOpsArguments -contains '--wrapper-root')) {{
+    $argList += '--wrapper-root'
+    $argList += $WrapperRepoRoot
+}}
+{_process_launch_block('$argList')}"""
     )
 
 

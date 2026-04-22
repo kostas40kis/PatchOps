@@ -119,8 +119,44 @@ def check_bundle_payload(
         payload["launcher_issue_codes"] = []
         return payload
 
+    if source_kind == "directory":
+        from patchops.bundles import validate_extracted_bundle_dir
+        from patchops.bundles.launcher_self_check import check_launcher_path
+
+        validation = validate_extracted_bundle_dir(bundle_path)
+        issues = [
+            build_issue(message.code, message.message, path=message.path)
+            for message in validation.errors
+        ]
+
+        manifest_path = bundle_path / "manifest.json"
+        bundle_meta_path = bundle_path / "bundle_meta.json"
+        content_root_path = bundle_path / "content"
+        launcher_path = bundle_path / "run_with_patchops.ps1"
+
+        payload["root_folder_name"] = bundle_path.name
+        payload["manifest_path"] = str(manifest_path.resolve()) if manifest_path.exists() else None
+        payload["bundle_meta_path"] = str(bundle_meta_path.resolve()) if bundle_meta_path.exists() else None
+        payload["content_root_path"] = str(content_root_path.resolve()) if content_root_path.exists() else None
+        payload["launcher_paths"] = ["run_with_patchops.ps1"] if launcher_path.exists() else []
+
+        launcher_review = (
+            check_launcher_path(launcher_path)
+            if launcher_path.exists()
+            else {"status": "reject", "launcher_path": None, "issue_count": 1, "issues": [build_issue("missing_root_launcher", f"Bundle root is missing saved root launcher: {launcher_path}", path=str(launcher_path))]}
+        )
+        payload["launcher_review"] = launcher_review
+        payload["launcher_status"] = launcher_review["status"]
+        payload["launcher_issue_count"] = launcher_review["issue_count"]
+        payload["launcher_issue_codes"] = [item["code"] for item in launcher_review["issues"]]
+
+        payload["issues"] = issues
+        payload["issue_count"] = len(issues)
+        payload["ok"] = len(issues) == 0 and payload["launcher_issue_count"] == 0
+        return payload
+
     if source_kind != "zip":
-        payload["issues"] = [build_issue("unsupported_source_kind", "check-bundle currently expects a bundle zip path", path=str(bundle_path))]
+        payload["issues"] = [build_issue("unsupported_source_kind", "Unsupported bundle source kind", path=str(bundle_path))]
         payload["issue_count"] = 1
         payload["launcher_review"] = {"status": "reject", "launcher_path": None, "issue_count": 0, "issues": []}
         payload["launcher_status"] = "reject"
@@ -155,7 +191,7 @@ def check_bundle_payload(
             launcher_issues.append(build_issue("missing_root_launcher", f"Bundle zip is missing saved root launcher: {launcher_member}", path=launcher_member))
 
         payload["launcher_review"] = {
-            "status": "accept" if not launcher_issues else "reject",
+            "status": "safe" if not launcher_issues else "reject",
             "launcher_path": launcher_member if launcher_member in members else None,
             "issue_count": len(launcher_issues),
             "issues": launcher_issues,
@@ -273,7 +309,7 @@ def _patchops_check_bundle_payload_current(
             launcher_issues.append(build_issue("missing_root_launcher", f"Bundle zip is missing saved root launcher: {launcher_member}", path=launcher_member))
 
         payload["launcher_review"] = {
-            "status": "accept" if not launcher_issues else "reject",
+            "status": "safe" if not launcher_issues else "reject",
             "launcher_path": launcher_member if launcher_member in members else None,
             "issue_count": len(launcher_issues),
             "issues": launcher_issues,
@@ -384,7 +420,7 @@ def check_bundle_payload(*args, **kwargs):
                 launcher_issues.append(_patchops_check_bundle_issue("missing_root_launcher", f"Bundle zip is missing saved root launcher: {launcher_member}", path=launcher_member))
 
             payload["launcher_review"] = {
-                "status": "accept" if not launcher_issues else "reject",
+                "status": "safe" if not launcher_issues else "reject",
                 "launcher_path": launcher_member if launcher_member in members else None,
                 "issue_count": len(launcher_issues),
                 "issues": launcher_issues,
@@ -401,7 +437,7 @@ def check_bundle_payload(*args, **kwargs):
 
     payload["issues"] = issues
     payload["issue_count"] = len(issues)
-    payload["ok"] = not issues and payload["launcher_review"]["status"] == "accept"
+    payload["ok"] = not issues and payload["launcher_review"]["status"] != "reject"
     return payload
 
 
@@ -551,3 +587,136 @@ def _patchops_final_check_bundle_cli_main(argv: list[str] | None = None) -> int:
     return 0 if payload.get("ok") else 1
 
 cli_check_bundle_main = _patchops_final_check_bundle_cli_main
+
+# PATCHOPS_B1H_DIRECTORY_BUNDLE_OVERRIDE_20260422
+from pathlib import Path as _PATCHOPS_B1H_Path
+
+def _patchops_b1h_directory_payload(bundle_path: _PATCHOPS_B1H_Path, *, requested_profile: str | None = None) -> dict[str, object]:
+    bundle_path = _PATCHOPS_B1H_Path(bundle_path)
+    payload: dict[str, object] = {
+        "path": str(bundle_path),
+        "exists": bundle_path.exists(),
+        "source_kind": "directory",
+        "requested_profile": requested_profile,
+        "ok": False,
+        "issue_count": 0,
+        "issues": [],
+    }
+
+    def build_issue(code: str, message: str, *, path: str | None = None) -> dict[str, object]:
+        item: dict[str, object] = {"code": code, "message": message}
+        if path is not None:
+            item["path"] = path
+        return item
+
+    if not bundle_path.exists():
+        payload["issues"] = [build_issue("missing_bundle", f"Bundle path does not exist: {bundle_path}", path=str(bundle_path))]
+        payload["issue_count"] = 1
+        payload["launcher_review"] = {"status": "reject", "launcher_path": None, "issue_count": 0, "issues": []}
+        payload["launcher_status"] = "reject"
+        payload["launcher_issue_count"] = 0
+        payload["launcher_issue_codes"] = []
+        return payload
+
+    manifest_path = bundle_path / "manifest.json"
+    bundle_meta_path = bundle_path / "bundle_meta.json"
+    content_root_path = bundle_path / "content"
+    root_launcher_path = bundle_path / "run_with_patchops.ps1"
+    legacy_launchers = sorted((bundle_path / "launchers").glob("*.ps1")) if (bundle_path / "launchers").exists() else []
+    launcher_paths = [root_launcher_path] if root_launcher_path.exists() else legacy_launchers
+
+    issues: list[dict[str, object]] = []
+    launcher_issues: list[dict[str, object]] = []
+
+    payload["root_folder_name"] = bundle_path.name
+    payload["manifest_path"] = str(manifest_path.resolve()) if manifest_path.exists() else None
+    payload["bundle_meta_path"] = str(bundle_meta_path.resolve()) if bundle_meta_path.exists() else None
+    payload["content_root_path"] = str(content_root_path.resolve()) if content_root_path.exists() else None
+    payload["launcher_paths"] = [str(path.resolve()) for path in launcher_paths]
+    payload["launcher_path"] = payload["launcher_paths"][0] if payload["launcher_paths"] else None
+
+    if not manifest_path.exists():
+        issues.append(build_issue("missing_manifest", f"Bundle root is missing manifest.json: {manifest_path}", path=str(manifest_path)))
+    if not bundle_meta_path.exists():
+        issues.append(build_issue("missing_bundle_meta", f"Bundle root is missing bundle_meta.json: {bundle_meta_path}", path=str(bundle_meta_path)))
+    if not content_root_path.exists() or not any(path.is_file() for path in content_root_path.rglob("*")):
+        issues.append(build_issue("missing_content_root", f"Bundle root is missing content/ files: {content_root_path}", path=str(content_root_path)))
+    if not launcher_paths:
+        launcher_issues.append(build_issue("missing_root_launcher", f"Bundle root is missing saved root launcher: {root_launcher_path}", path=str(root_launcher_path)))
+
+    launcher_status = "safe" if not launcher_issues else "reject"
+    payload["launcher_review"] = {
+        "status": launcher_status,
+        "launcher_path": payload["launcher_path"],
+        "issue_count": len(launcher_issues),
+        "issues": launcher_issues,
+    }
+    payload["launcher_status"] = launcher_status
+    payload["launcher_issue_count"] = len(launcher_issues)
+    payload["launcher_issue_codes"] = [item["code"] for item in launcher_issues]
+    payload["issues"] = issues
+    payload["issue_count"] = len(issues)
+    payload["ok"] = len(issues) == 0 and launcher_status != "reject"
+    return payload
+
+_PATCHOPS_B1H_PREV_CHECK_BUNDLE_PAYLOAD = check_bundle_payload
+
+def check_bundle_payload(
+    bundle_zip_path,
+    wrapper_root=None,
+    profile=None,
+    timestamp_token=None,
+    requested_profile=None,
+):
+    bundle_path = _PATCHOPS_B1H_Path(bundle_zip_path)
+    effective_profile = requested_profile if requested_profile is not None else profile
+    if bundle_path.exists() and bundle_path.is_dir():
+        return _patchops_b1h_directory_payload(bundle_path, requested_profile=effective_profile)
+    return _PATCHOPS_B1H_PREV_CHECK_BUNDLE_PAYLOAD(
+        bundle_zip_path,
+        wrapper_root=wrapper_root,
+        profile=profile,
+        timestamp_token=timestamp_token,
+        requested_profile=requested_profile,
+    )
+
+if "check_bundle_cli_payload_compat" in globals():
+    def check_bundle_cli_payload_compat(*args, **kwargs):
+        if "profile" not in kwargs and "profile_name" in kwargs:
+            kwargs["profile"] = kwargs.pop("profile_name")
+        return check_bundle_payload(*args, **kwargs)
+
+# PATCHOPS_B5D_BUNDLE_REVIEW_PAYLOAD_NORMALIZATION_20260422
+_PATCHOPS_B5D_PREV_CHECK_BUNDLE_PAYLOAD = check_bundle_payload
+
+def check_bundle_payload(*args, **kwargs):
+    payload = _PATCHOPS_B5D_PREV_CHECK_BUNDLE_PAYLOAD(*args, **kwargs)
+
+    if isinstance(payload, dict):
+        launcher_review = payload.get("launcher_review")
+        if isinstance(launcher_review, dict):
+            status = launcher_review.get("status")
+            if status == "accept":
+                status = "safe"
+            launcher_review["status"] = status
+            payload["launcher_review"] = launcher_review
+            payload["launcher_status"] = status
+
+            launcher_issues = launcher_review.get("issues", ())
+            if not isinstance(launcher_issues, (list, tuple)):
+                launcher_issues = []
+            payload["launcher_issue_count"] = int(launcher_review.get("issue_count", len(launcher_issues)) or 0)
+
+            codes = []
+            for item in launcher_issues:
+                if isinstance(item, dict) and item.get("code"):
+                    codes.append(item["code"])
+            payload["launcher_issue_codes"] = codes
+
+            issues = payload.get("issues", ())
+            if not isinstance(issues, (list, tuple)):
+                issues = []
+            payload["issue_count"] = int(payload.get("issue_count", len(issues)) or 0)
+            payload["ok"] = bool(payload["issue_count"] == 0 and status != "reject")
+
+    return payload

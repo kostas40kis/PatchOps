@@ -43,3 +43,22 @@ Direct module recovery surface: `patchops.bootstrap_repair`
 CLI recovery surface: `patchops.cli bootstrap-repair`
 
 `bundle-doctor` is the preferred troubleshooting entrypoint for bundle shape validation and build verification before a final run-package invocation.
+
+## Operator-script surfaces
+
+Use `emit-operator-script` when the operator needs a repo-owned PowerShell helper instead of a hand-written launcher.
+
+Current maintained emitted surfaces:
+- `run-package-zip`
+- `maintenance-gate`
+
+Useful related maintained surfaces:
+- `patchops.bootstrap_repair`
+- `bootstrap-repair`
+- `Push-PatchOpsToGitHub.ps1`
+
+Reading anchors for the current operator flow:
+- `docs/root_launcher_shape_contract.md`
+- `docs/post_publish_snapshot.md`
+
+Return to the normal `check` / `inspect` / `plan` / `apply` / `verify` flow after the operator-only or recovery surface is no longer needed.

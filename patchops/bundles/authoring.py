@@ -205,6 +205,7 @@ def create_starter_bundle(
     manifest = {
         "manifest_version": "1",
         "patch_name": patch_name,
+        "bundle_mode": mode,
         "active_profile": recommended_profile,
         "target_project_root": target_project_root,
         "backup_files": [],
@@ -229,6 +230,7 @@ def create_starter_bundle(
     }
 
     bundle_meta = {
+        "schema_version": 1,
         "bundle_schema_version": 1,
         "patch_name": patch_name,
         "target_project": target_project,
@@ -823,3 +825,30 @@ __all__ = [
     "run_bundle_authoring_self_check",
     "run_bundle_execution_entry",
 ]
+
+# PATCHOPS_B2H_CREATE_PROOF_BUNDLE_WRAPPER_ROOT_DEFAULT_20260422
+_PATCHOPS_B2H_PREV_CREATE_PROOF_BUNDLE = create_proof_bundle
+
+def create_proof_bundle(
+    bundle_root,
+    *,
+    kind,
+    patch_name,
+    target_project,
+    target_project_root,
+    wrapper_project_root=None,
+    recommended_profile=None,
+):
+    if wrapper_project_root is None:
+        wrapper_project_root = target_project_root
+    if recommended_profile is None:
+        recommended_profile = "generic_python"
+    return _PATCHOPS_B2H_PREV_CREATE_PROOF_BUNDLE(
+        bundle_root,
+        kind=kind,
+        patch_name=patch_name,
+        target_project=target_project,
+        target_project_root=target_project_root,
+        wrapper_project_root=wrapper_project_root,
+        recommended_profile=recommended_profile,
+    )
