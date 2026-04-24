@@ -15,3 +15,6 @@ dist/
 build/
 *.egg-info/
 data/runtime/
+
+# Python generated files
+*.py[cod]

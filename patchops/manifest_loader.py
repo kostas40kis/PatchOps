@@ -8,14 +8,32 @@ from patchops.manifest_validator import validate_manifest_data
 from patchops.models import CommandSpec, FileWriteSpec, Manifest, ReportPreferences
 
 
+def _list_from_first(data: dict, *keys: str) -> list:
+    for key in keys:
+        if key in data and data[key] is not None:
+            value = data[key]
+            if isinstance(value, list):
+                return list(value)
+            return [value]
+    return []
+
+
+def _command_args_from_dict(data: dict) -> list[str]:
+    # `args` is the canonical key. `arguments` is accepted for older
+    # generated/bundled manifests so legacy bundles do not accidentally launch
+    # only the runtime executable and hang in an interactive Python REPL.
+    values = _list_from_first(data, "args", "arguments")
+    return [str(value) for value in values]
+
+
 def _command_from_dict(data: dict) -> CommandSpec:
     return CommandSpec(
         name=data["name"],
         program=data.get("program"),
-        args=list(data.get("args", [])),
+        args=_command_args_from_dict(data),
         working_directory=data.get("working_directory"),
         use_profile_runtime=bool(data.get("use_profile_runtime", False)),
-        allowed_exit_codes=list(data.get("allowed_exit_codes", [0])),
+        allowed_exit_codes=[int(value) for value in _list_from_first(data, "allowed_exit_codes") or [0]],
     )
 
 
@@ -45,8 +63,8 @@ def load_manifest(path: str | Path) -> Manifest:
         patch_name=raw["patch_name"],
         active_profile=raw["active_profile"],
         target_project_root=raw.get("target_project_root"),
-        backup_files=list(raw.get("backup_files", [])),
-        files_to_write=[_file_write_from_dict(item) for item in raw.get("files_to_write", [])],
+        backup_files=[str(value) for value in _list_from_first(raw, "backup_files", "files_to_backup", "backup_paths")],
+        files_to_write=[_file_write_from_dict(item) for item in _list_from_first(raw, "files_to_write", "file_writes", "writes")],
         validation_commands=[_command_from_dict(item) for item in raw.get("validation_commands", [])],
         smoke_commands=[_command_from_dict(item) for item in raw.get("smoke_commands", [])],
         audit_commands=[_command_from_dict(item) for item in raw.get("audit_commands", [])],

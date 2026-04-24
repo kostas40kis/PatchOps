@@ -55,20 +55,51 @@ def render_workflow_report(result: WorkflowResult) -> str:
 # PATCHOPS_C1E_FINAL_SAFE_EVIDENCE_OVERRIDE_20260423
 _PATCHOPS_C1E_BASE_RENDER_WORKFLOW_REPORT = render_workflow_report
 
+def _patchops_c1e_record_path(record, *names: str):
+    for name in names:
+        value = getattr(record, name, None)
+        if value is not None:
+            return value
+    return None
+
+
+def _patchops_c1e_norm_path(value) -> str | None:
+    if value is None:
+        return None
+    try:
+        return str(value).replace(chr(92), "/").lower()
+    except Exception:
+        return str(value).lower()
+
+
 def _patchops_c1e_build_file_evidence_lines(result) -> list[str]:
     lines: list[str] = []
 
     backup_records = list(getattr(result, "backup_records", ()) or ())
     write_records = list(getattr(result, "write_records", ()) or ())
 
-    for record in backup_records:
-        source = (
-            getattr(record, "source", None)
-            or getattr(record, "source_path", None)
-            or getattr(record, "target_path", None)
-            or getattr(record, "path", None)
+    written_targets: set[str] = set()
+    for record in write_records:
+        target = _patchops_c1e_record_path(
+            record,
+            "target",
+            "target_path",
+            "destination_path",
+            "path",
         )
-        destination = getattr(record, "destination", None) or getattr(record, "backup_path", None)
+        normalized = _patchops_c1e_norm_path(target)
+        if normalized:
+            written_targets.add(normalized)
+
+    for record in backup_records:
+        source = _patchops_c1e_record_path(
+            record,
+            "source",
+            "source_path",
+            "target_path",
+            "path",
+        )
+        destination = _patchops_c1e_record_path(record, "destination", "backup_path")
         existed = getattr(record, "existed", None)
         missing = bool(
             getattr(record, "missing", False)
@@ -83,18 +114,20 @@ def _patchops_c1e_build_file_evidence_lines(result) -> list[str]:
             lines.append(f"BACKUP : {source} -> {destination}")
 
     for record in write_records:
-        target = (
-            getattr(record, "target", None)
-            or getattr(record, "target_path", None)
-            or getattr(record, "destination_path", None)
-            or getattr(record, "path", None)
+        target = _patchops_c1e_record_path(
+            record,
+            "target",
+            "target_path",
+            "destination_path",
+            "path",
         )
         if target is None:
             continue
-        origin = (
-            getattr(record, "content_source", None)
-            or getattr(record, "source_kind", None)
-            or getattr(record, "content_origin", None)
+        origin = _patchops_c1e_record_path(
+            record,
+            "content_source",
+            "source_kind",
+            "content_origin",
         )
         if origin is not None:
             lines.append(f"WROTE : {target} ({origin})")
@@ -102,6 +135,7 @@ def _patchops_c1e_build_file_evidence_lines(result) -> list[str]:
             lines.append(f"WROTE : {target}")
 
     return lines
+
 
 def render_workflow_report(result):
     report_text = _PATCHOPS_C1E_BASE_RENDER_WORKFLOW_REPORT(result)
