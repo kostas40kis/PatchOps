@@ -41,3 +41,20 @@ The doc keeps the exact `ArgumentList` and `Arguments` terms here because that c
 - Do not let emitted scripts become a second apply engine.
 - Keep operator output grounded in the maintained command surface.
 - Prefer the repo-owned template over one-off pasteable rewrites when a supported emitted helper already exists.
+
+## Maintained emitted operator surfaces
+
+`emit-operator-script` is the maintained surface for repo-owned PowerShell helpers.
+
+Current emitted families include:
+- `run-package-zip`
+- `maintenance-gate`
+
+The emitted scripts are thin shims. They must forward JSON truth from Python rather than reinterpreting it in PowerShell.
+- `maintenance-gate` remains a current emitted operator script surface.
+- Keep emitted operator scripts thin and JSON-forwarding.
+Emitted operator scripts remain thin shims.
+They must forward JSON truthfully.
+They should not become a second workflow engine.
+
+- `patchops-entry-ps1`

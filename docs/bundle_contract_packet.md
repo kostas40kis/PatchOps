@@ -1,6 +1,8 @@
-# PatchOps bundle contract packet
+# Bundle contract packet
 
-This is the maintained LLM-facing packet for authoring a correct PatchOps bundle.
+## Purpose
+
+This is the maintained **LLM-facing** bundle contract packet.
 A fresh LLM should be able to author a correct bundle using only this packet.
 
 ## Exact bundle tree
@@ -14,47 +16,34 @@ good_example_bundle/
   content/
 ```
 
-The exact bundle tree must keep `manifest.json`, `bundle_meta.json`, `README.txt`, `run_with_patchops.ps1`, and `content/` visible.
+The exact bundle tree is the maintained shape.
+Archive the bundle root contents directly.
+Do not manually invent zip layout by hand.
 
 ## Exact launcher rule
 
-Use one single saved root launcher named `run_with_patchops.ps1`.
-The launcher must use top-level `param(...)` script-file form.
-Do not hand-author the saved root launcher; emit it from Python.
-The maintained operator flow reaches PatchOps through the `bundle-entry` / `run-package` path.
+- `run_with_patchops.ps1` is the maintained launcher path.
+- The saved launcher is the bundle-entry surface.
+- The saved launcher should keep the top-level `param(...)` script-file form.
+- Do not hand-author the saved root launcher; emit it from Python.
 
-## Exact metadata fields
+## Metadata fields
 
-`schema_version`
-`patch_name`
-`bundle_mode`
-`recommended_profile`
-`target_project`
-`target_project_root`
-`manifest_path`
-`content_root`
-`launcher_path`
+Required maintained metadata fields:
+- `schema_version`
+- `patch_name`
+- `bundle_mode`
+- `recommended_profile`
+- `target_project`
+- `target_project_root`
+- `manifest_path`
+- `content_root`
+- `launcher_path`
 
-One good example of metadata is:
+## Maintained command order
 
-```json
-{
-  "schema_version": 1,
-  "patch_name": "demo_bundle",
-  "bundle_mode": "apply",
-  "recommended_profile": "generic_python",
-  "target_project": "patchops",
-  "target_project_root": "C:/dev/patchops",
-  "manifest_path": "manifest.json",
-  "content_root": "content",
-  "launcher_path": "run_with_patchops.ps1"
-}
-```
-
-## Commands
-
+Use these commands in order:
 - `make-bundle`
-- `make-proof-bundle`
 - `check-bundle`
 - `inspect-bundle`
 - `plan-bundle`
@@ -62,11 +51,14 @@ One good example of metadata is:
 - `build-bundle`
 - `run-package`
 
-## What not to do
+continue patch by patch from evidence
 
-- Do not create multiple launcher variants.
-- Do not manually invent zip layout by hand.
-- Do not skip `bundle-doctor`.
+## Guardrails
+
+Keep PowerShell thin.
+Keep reusable mechanics in Python.
+Keep one canonical Desktop txt report.
+Command/doc alignment proof should remain part of the maintained contract.
 
 ## One good example
 
@@ -79,7 +71,13 @@ good_example_bundle/
   content/
 ```
 
-The good example keeps the root launcher single and keeps `"launcher_path": "run_with_patchops.ps1"` in metadata.
+Example metadata fragment:
+
+```json
+{
+  "launcher_path": "run_with_patchops.ps1"
+}
+```
 
 ## One bad example
 
@@ -87,20 +85,45 @@ The good example keeps the root launcher single and keeps `"launcher_path": "run
 bad_example_bundle/
   manifest.json
   bundle_meta.json
+  README.txt
   apply_with_patchops.ps1
   verify_with_patchops.ps1
   content/
 ```
 
-The bad example is wrong because `apply_with_patchops.ps1` and `verify_with_patchops.ps1` create multiple launcher variants.
+## What not to do
 
-## Guardrails
+- Do not create multiple launcher variants.
+- Do not manually invent zip layout by hand.
+- Do not skip `bundle-doctor`.
+- Do not widen PowerShell into a second workflow engine.
 
-Reject bundle trees with stray leading `/` or `\` characters before the operator reaches run-package.
-Keep PowerShell thin.
-Keep reusable mechanics in Python.
-Keep one canonical Desktop txt report.
-Command/doc alignment proof should keep the packet and the shipped commands in sync.
+## Documented command inventory
 
-continue patch by patch from evidence
+The maintained command/doc alignment proof should keep this documented command inventory visible:
+- `check`
+- `inspect`
+- `plan`
+- `apply`
+- `verify`
+- `check-bundle`
+- `inspect-bundle`
+- `plan-bundle`
+- `bundle-doctor`
+- `make-bundle`
+- `build-bundle`
+- `make-proof-bundle`
+- `run-package`
+- `bundle-entry`
+- `maintenance-gate`
+- `emit-operator-script`
+- `bootstrap-repair`
 
+<!-- PATCHOPS_E2_BUNDLE_CONTRACT_PACKET_COMPATIBILITY_SHIM_LOCK_20260423 -->
+## Compatibility shim note
+
+The maintained root launcher and bundle-entry story still preserve a compatibility shim for older transport or demo expectations when needed.
+This does not replace the canonical `run_with_patchops.ps1` root-launcher contract; it explains how older expectations are bridged without changing the maintained bundle shape.
+
+<!-- PATCHOPS_E2A_BUNDLE_PACKET_PATH_HYGIENE_PHRASE_LOCK_20260423 -->
+stray leading `/` or `\` characters

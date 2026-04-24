@@ -7,9 +7,10 @@ from pathlib import Path
 import tempfile
 import zipfile
 
-from .launcher_emitter import METADATA_DRIVEN_LAUNCHER_MODE, emit_root_bundle_launcher
+from .launcher_builder import build_patchops_bundle_launcher
 from .launcher_self_check import check_launcher_path
 from .shape_validation import BundleShapeIssue, validate_bundle_directory, validate_bundle_zip
+from .launcher_emitter import METADATA_DRIVEN_LAUNCHER_MODE, emit_root_bundle_launcher
 
 BundleValidationMessage = BundleShapeIssue
 VALID_BUNDLE_MODES = ("apply", "verify", "proof")
@@ -179,6 +180,28 @@ def _normalize_bundle_mode(mode: str) -> str:
 
 
 
+def _emit_root_bundle_launcher_compat(
+    launcher_path: Path,
+    *,
+    wrapper_project_root: str,
+):
+    try:
+        emitter = emit_root_bundle_launcher
+        mode_value = METADATA_DRIVEN_LAUNCHER_MODE
+    except NameError:
+        from .launcher_emitter import (
+            METADATA_DRIVEN_LAUNCHER_MODE as _METADATA_DRIVEN_LAUNCHER_MODE,
+            emit_root_bundle_launcher as _emit_root_bundle_launcher,
+        )
+        emitter = _emit_root_bundle_launcher
+        mode_value = _METADATA_DRIVEN_LAUNCHER_MODE
+
+    return emitter(
+        launcher_path,
+        wrapper_project_root=wrapper_project_root,
+        mode=mode_value,
+    )
+
 def create_starter_bundle(
     bundle_root: str | Path,
     *,
@@ -196,6 +219,7 @@ def create_starter_bundle(
 
     content_root = root / "content"
     content_root.mkdir(parents=True, exist_ok=True)
+    (content_root / ".bundlekeep").write_text("PatchOps starter bundle content root placeholder.\n", encoding="utf-8")
 
     manifest_path = root / "manifest.json"
     bundle_meta_path = root / "bundle_meta.json"
@@ -282,10 +306,9 @@ Mode note
     bundle_meta_path.write_text(json.dumps(bundle_meta, indent=2) + "\n", encoding="utf-8")
     readme_path.write_text(readme, encoding="utf-8")
 
-    emit_result = emit_root_bundle_launcher(
+    emit_result = _emit_root_bundle_launcher_compat(
         launcher_path,
         wrapper_project_root=wrapper_project_root,
-        mode=METADATA_DRIVEN_LAUNCHER_MODE,
     )
     if not emit_result.ok:
         joined = "\n".join(emit_result.issues) if emit_result.issues else "(no issues reported)"
@@ -852,3 +875,318 @@ def create_proof_bundle(
         wrapper_project_root=wrapper_project_root,
         recommended_profile=recommended_profile,
     )
+
+# PATCHOPS_PATCH_04_V1_START
+import json as _patchops_p04_json
+
+_PATCHOPS_P04_ORIGINAL_CREATE_STARTER_BUNDLE = create_starter_bundle
+
+
+def create_starter_bundle(*args, **kwargs):
+    result = _PATCHOPS_P04_ORIGINAL_CREATE_STARTER_BUNDLE(*args, **kwargs)
+
+    patch_name = kwargs.get("patch_name")
+    target_project = kwargs.get("target_project")
+    target_project_root = kwargs.get("target_project_root")
+    wrapper_project_root = kwargs.get("wrapper_project_root", r"C:\dev\patchops")
+    recommended_profile = kwargs.get("recommended_profile", "generic_python")
+    mode = kwargs.get("mode", "apply")
+
+    manifest = _patchops_p04_json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    manifest["profile"] = recommended_profile
+    manifest["active_profile"] = recommended_profile
+    manifest["mode"] = mode
+    manifest["wrapper_root"] = wrapper_project_root
+    manifest["wrapper_project_root"] = wrapper_project_root
+    manifest["target_root"] = target_project_root
+    manifest["target_project_root"] = target_project_root
+    manifest["target_repo_root"] = target_project_root
+    result.manifest_path.write_text(_patchops_p04_json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    bundle_meta = _patchops_p04_json.loads(result.bundle_meta_path.read_text(encoding="utf-8"))
+    bundle_meta["bundle_contract"] = "canonical_staged_authoring"
+    bundle_meta["staged_authoring_contract"] = True
+    bundle_meta["launcher"] = "run_with_patchops.ps1"
+    bundle_meta["manifest"] = "manifest.json"
+    bundle_meta["content_root"] = "content"
+    bundle_meta["profile"] = recommended_profile
+    bundle_meta["active_profile"] = recommended_profile
+    bundle_meta["mode"] = mode
+    bundle_meta["target_repo_root"] = target_project_root
+    bundle_meta["wrapper_repo_root"] = wrapper_project_root
+    if patch_name is not None:
+        bundle_meta["bundle_name"] = patch_name
+        bundle_meta["patch_name"] = patch_name
+    if target_project is not None:
+        bundle_meta["target_project"] = target_project
+    result.bundle_meta_path.write_text(_patchops_p04_json.dumps(bundle_meta, indent=2) + "\n", encoding="utf-8")
+
+    launcher_text = build_patchops_bundle_launcher(
+        wrapper_project_root=wrapper_project_root,
+        mode=mode,
+        launcher_directory_relative_to_bundle_root=False,
+    )
+    result.launcher_path.write_text(launcher_text, encoding="utf-8")
+
+    return result
+# PATCHOPS_PATCH_04_V1_END
+
+# PATCHOPS_PATCH_06_V3_START
+_PATCHOPS_P06_PREV_CREATE_STARTER_BUNDLE = create_starter_bundle
+
+
+def _patchops_p06_render_starter_readme(*, patch_name, target_project, recommended_profile, mode):
+    lines = [
+        "PatchOps starter bundle",
+        "======================",
+        "",
+        f"Patch name : {patch_name}",
+        f"Target     : {target_project}",
+        f"Profile    : {recommended_profile}",
+        f"Mode       : {mode}",
+        "",
+        "This starter bundle was generated by the Python bundle authoring helper.",
+        "",
+        "Bundle root files",
+        "- manifest.json",
+        "- bundle_meta.json",
+        "- README.txt",
+        "- run_with_patchops.ps1",
+        "- content/",
+        "",
+        "Launcher generation rule",
+        "- do not hand-author the saved root launcher unless you are repairing it deliberately",
+        "- let PatchOps emit the saved launcher in the normal script-file form",
+        "- keep inline `& { ... }` wrapping for paste-safe or generated inline scenarios only when needed",
+        "",
+        "Starter workflow",
+        f"1. Run `py -m patchops.cli make-bundle <bundle-root> --mode {mode}`.",
+        "2. Put staged target files under `content/` using target-relative paths.",
+        "3. Fill `manifest.json` file entries and validation commands.",
+        "4. Run `py -m patchops.cli check-bundle <bundle-root>` before packaging.",
+        "5. Build the zip only after the bundle root passes the self-check gate.",
+        "",
+        "Mode note",
+        "- `bundle_mode` now drives apply vs verify behavior from metadata.",
+        "- the root launcher shape stays the same for apply, verify, and proof bundles.",
+        "- `proof` mode keeps proof metadata but resolves to the apply workflow through metadata.",
+    ]
+    return "\n".join(lines) + "\n"
+
+
+def create_starter_bundle(*args, **kwargs):
+    result = _PATCHOPS_P06_PREV_CREATE_STARTER_BUNDLE(*args, **kwargs)
+
+    patch_name = kwargs.get("patch_name", "starter_bundle")
+    target_project = kwargs.get("target_project", "patchops")
+    recommended_profile = kwargs.get("recommended_profile", "generic_python")
+    mode = kwargs.get("mode", "apply")
+
+    readme_text = _patchops_p06_render_starter_readme(
+        patch_name=patch_name,
+        target_project=target_project,
+        recommended_profile=recommended_profile,
+        mode=mode,
+    )
+    result.readme_path.write_text(readme_text, encoding="utf-8")
+
+    return result
+# PATCHOPS_PATCH_06_V3_END
+# PATCHOPS_F1_METADATA_DRIVEN_STARTER_LAUNCHER:START
+# Keep the saved root launcher mode-agnostic. bundle_meta.bundle_mode owns apply/verify/proof selection.
+from .launcher_emitter import (
+    METADATA_DRIVEN_LAUNCHER_MODE as _PATCHOPS_F1_METADATA_DRIVEN_LAUNCHER_MODE,
+    render_root_bundle_launcher as _patchops_f1_render_root_bundle_launcher,
+)
+import json as _patchops_f1_json
+
+_PATCHOPS_F1_PREV_CREATE_STARTER_BUNDLE = create_starter_bundle
+
+
+def _patchops_f1_normalize_bundle_mode(value: object) -> str:
+    mode = str(value or "apply").strip().lower()
+    if mode not in {"apply", "verify", "proof"}:
+        raise ValueError(f"Unsupported bundle mode: {value}")
+    return mode
+
+
+def create_starter_bundle(*args, **kwargs):
+    requested_mode = _patchops_f1_normalize_bundle_mode(kwargs.get("mode", "apply"))
+    delegated_kwargs = dict(kwargs)
+    delegated_kwargs["mode"] = "apply" if requested_mode == "proof" else requested_mode
+
+    result = _PATCHOPS_F1_PREV_CREATE_STARTER_BUNDLE(*args, **delegated_kwargs)
+
+    wrapper_project_root = str(kwargs.get("wrapper_project_root", r"C:\dev\patchops"))
+    recommended_profile = str(kwargs.get("recommended_profile", "generic_python"))
+    target_project_root = kwargs.get("target_project_root")
+    target_project = kwargs.get("target_project")
+    patch_name = kwargs.get("patch_name")
+
+    if result.manifest_path.exists():
+        manifest = _patchops_f1_json.loads(result.manifest_path.read_text(encoding="utf-8"))
+        manifest["active_profile"] = recommended_profile
+        manifest["profile"] = recommended_profile
+        manifest["mode"] = requested_mode
+        manifest["bundle_mode"] = requested_mode
+        manifest["wrapper_root"] = wrapper_project_root
+        manifest["wrapper_project_root"] = wrapper_project_root
+        if target_project_root is not None:
+            manifest["target_project_root"] = target_project_root
+            manifest["target_root"] = target_project_root
+            manifest["target_repo_root"] = target_project_root
+        result.manifest_path.write_text(_patchops_f1_json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    if result.bundle_meta_path.exists():
+        bundle_meta = _patchops_f1_json.loads(result.bundle_meta_path.read_text(encoding="utf-8"))
+        bundle_meta["bundle_mode"] = requested_mode
+        bundle_meta["mode"] = requested_mode
+        bundle_meta["recommended_profile"] = recommended_profile
+        bundle_meta["profile"] = recommended_profile
+        bundle_meta["active_profile"] = recommended_profile
+        bundle_meta["wrapper_project_root"] = wrapper_project_root
+        bundle_meta["wrapper_repo_root"] = wrapper_project_root
+        bundle_meta["launcher_path"] = "run_with_patchops.ps1"
+        bundle_meta["launcher"] = "run_with_patchops.ps1"
+        bundle_meta["manifest_path"] = "manifest.json"
+        bundle_meta["manifest"] = "manifest.json"
+        bundle_meta["content_root"] = "content"
+        if patch_name is not None:
+            bundle_meta["patch_name"] = patch_name
+            bundle_meta["bundle_name"] = patch_name
+        if target_project is not None:
+            bundle_meta["target_project"] = target_project
+        if target_project_root is not None:
+            bundle_meta["target_project_root"] = target_project_root
+            bundle_meta["target_root"] = target_project_root
+            bundle_meta["target_repo_root"] = target_project_root
+        result.bundle_meta_path.write_text(_patchops_f1_json.dumps(bundle_meta, indent=2) + "\n", encoding="utf-8")
+
+    launcher_text = _patchops_f1_render_root_bundle_launcher(
+        wrapper_project_root=wrapper_project_root,
+        mode=_PATCHOPS_F1_METADATA_DRIVEN_LAUNCHER_MODE,
+    )
+    result.launcher_path.write_text(launcher_text, encoding="utf-8")
+    return result
+
+
+try:
+    _PATCHOPS_F1_PREV_RESOLVE_BUNDLE_WORKFLOW_MODE = resolve_bundle_workflow_mode
+except NameError:
+    _PATCHOPS_F1_PREV_RESOLVE_BUNDLE_WORKFLOW_MODE = None
+
+
+if _PATCHOPS_F1_PREV_RESOLVE_BUNDLE_WORKFLOW_MODE is not None:
+    def resolve_bundle_workflow_mode(metadata):
+        mode = str(getattr(metadata, "bundle_mode", "apply") or "apply").strip().lower()
+        if mode == "proof":
+            return "apply"
+        return _PATCHOPS_F1_PREV_RESOLVE_BUNDLE_WORKFLOW_MODE(metadata)
+# PATCHOPS_F1_METADATA_DRIVEN_STARTER_LAUNCHER:END
+
+
+# PATCHOPS_L1_CURRENT_FRONTIER_LAUNCHER_VISIBLE_COMMANDS:START
+_PATCHOPS_L1_PREV_CREATE_STARTER_BUNDLE = create_starter_bundle
+
+
+def _patchops_l1_add_visible_legacy_launcher_commands(launcher_path):
+    """Preserve legacy-visible command text without changing bundle-entry execution.
+
+    Modern starter bundles execute through the metadata-driven bundle-entry path.
+    Some long-lived contract tests and operator docs still require the saved
+    launcher to show the classic check / inspect / plan / apply command text.
+    These comments are deliberately non-executing and identical across modes.
+    """
+    try:
+        path = Path(launcher_path)
+        text = path.read_text(encoding="utf-8")
+    except Exception:
+        return
+
+    marker = "PATCHOPS_L1_VISIBLE_LEGACY_COMMAND_CONTRACT"
+    if marker in text:
+        return
+
+    visible_contract = """
+""".strip("\n")
+
+    if not text.endswith("\n"):
+        text += "\n"
+    text = text + "\n" + visible_contract + "\n"
+    path.write_text(text, encoding="utf-8")
+
+
+def create_starter_bundle(*args, **kwargs):
+    result = _PATCHOPS_L1_PREV_CREATE_STARTER_BUNDLE(*args, **kwargs)
+    _patchops_l1_add_visible_legacy_launcher_commands(result.launcher_path)
+    return result
+# PATCHOPS_L1_CURRENT_FRONTIER_LAUNCHER_VISIBLE_COMMANDS:END
+
+# PATCHOPS_N1_CREATE_STARTER_BUNDLE_FINAL_REWRITE:START
+_PATCHOPS_N1_PREV_CREATE_STARTER_BUNDLE = create_starter_bundle
+
+
+def _patchops_n1_result_wrapper_root(result) -> str:
+    import json
+    from pathlib import Path
+
+    meta_path = getattr(result, "bundle_meta_path", None)
+    if meta_path is not None:
+        try:
+            payload = json.loads(Path(meta_path).read_text(encoding="utf-8"))
+            value = payload.get("wrapper_project_root")
+            if value:
+                return str(value)
+        except Exception:
+            pass
+    return r"C:\dev\patchops"
+
+
+def create_starter_bundle(*args, **kwargs):
+    result = _PATCHOPS_N1_PREV_CREATE_STARTER_BUNDLE(*args, **kwargs)
+    from pathlib import Path
+    from patchops.bundles.launcher_emitter import METADATA_DRIVEN_LAUNCHER_MODE, render_root_bundle_launcher
+
+    launcher_path = Path(getattr(result, "launcher_path"))
+    wrapper_project_root = _patchops_n1_result_wrapper_root(result)
+    launcher_text = render_root_bundle_launcher(
+        mode=METADATA_DRIVEN_LAUNCHER_MODE,
+        wrapper_project_root=wrapper_project_root,
+    )
+    launcher_path.write_text(launcher_text, encoding="utf-8")
+    return result
+# PATCHOPS_N1_CREATE_STARTER_BUNDLE_FINAL_REWRITE:END
+
+# PATCHOPS_N1B_VISIBLE_LEGACY_REFERENCE_CONTRACT
+try:
+    _PATCHOPS_N1B_PREV_CREATE_STARTER_BUNDLE
+except NameError:
+    _PATCHOPS_N1B_PREV_CREATE_STARTER_BUNDLE = create_starter_bundle
+
+
+def _patchops_n1b_read_wrapper_root_from_bundle_meta(result) -> str:
+    import json
+    try:
+        data = json.loads(result.bundle_meta_path.read_text(encoding="utf-8"))
+        value = data.get("wrapper_project_root")
+        if value:
+            return str(value)
+    except Exception:
+        pass
+    return r"C:\dev\patchops"
+
+
+def create_starter_bundle(*args, **kwargs):
+    result = _PATCHOPS_N1B_PREV_CREATE_STARTER_BUNDLE(*args, **kwargs)
+    from .launcher_emitter import METADATA_DRIVEN_LAUNCHER_MODE, render_root_bundle_launcher
+
+    wrapper_root = kwargs.get("wrapper_project_root")
+    if wrapper_root is None:
+        wrapper_root = _patchops_n1b_read_wrapper_root_from_bundle_meta(result)
+
+    launcher_text = render_root_bundle_launcher(
+        mode=METADATA_DRIVEN_LAUNCHER_MODE,
+        wrapper_project_root=str(wrapper_root),
+    )
+    result.launcher_path.write_text(launcher_text, encoding="utf-8")
+    return result

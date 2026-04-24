@@ -32,3 +32,4 @@ It exists so release-readiness and maintenance-gate do not have to guess hidden 
 
 A green release-readiness result means the bundle docs, bundle workflows, and bundle tests are present together.
 A not-ready result should stay explicit about missing bundle release docs, missing bundle release workflows, and missing bundle release tests.
+A shippable bundle release should still end with one canonical Desktop txt report and should continue patch by patch from evidence.

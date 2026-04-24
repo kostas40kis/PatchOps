@@ -225,3 +225,137 @@ def format_bundle_launcher(
         starts_with_safe_block=normalized.lstrip().startswith("& {"),
         wrapper_normalized=wrapper_normalized,
     )
+
+# PATCHOPS_B3_SAFE_WRAPPER_COMPAT_20260423
+def is_launcher_safely_wrapped(text: str) -> bool:
+    trimmed = strip_leading_launcher_artifacts(text).strip()
+    return (trimmed.startswith("& {") and trimmed.endswith("}")) or is_top_level_param_script(trimmed)
+
+def needs_safe_launcher_wrapper(text: str) -> bool:
+    trimmed = strip_leading_launcher_artifacts(text).strip()
+    return bool(trimmed) and not is_launcher_safely_wrapped(trimmed)
+
+# PATCHOPS_B3A_LAUNCHER_WRAPPER_COMPAT_20260423
+def strip_leading_launcher_artifacts(text: str) -> str:
+    cleaned = str(text or "")
+    cleaned = cleaned.lstrip("\ufeff")
+    while cleaned.startswith("/") or cleaned.startswith("\\"):
+        cleaned = cleaned[1:]
+    return cleaned
+
+def is_launcher_safely_wrapped(text: str) -> bool:
+    trimmed = strip_leading_launcher_artifacts(text).lstrip()
+    return trimmed.startswith("& {")
+
+def needs_safe_launcher_wrapper(text: str) -> bool:
+    trimmed = strip_leading_launcher_artifacts(text).strip()
+    return bool(trimmed) and not is_launcher_safely_wrapped(trimmed)
+
+def ensure_safe_launcher_wrapper(text: str) -> str:
+    cleaned = strip_leading_launcher_artifacts(text).strip()
+    if not cleaned:
+        return "& {\n}\n"
+    if cleaned.startswith("& {"):
+        return cleaned if cleaned.endswith("\n") else cleaned + "\n"
+    inner = cleaned
+    if not inner.endswith("\n"):
+        inner += "\n"
+    return "& {\n" + inner + "}\n"
+
+def build_standard_bundle_launcher(*args, **kwargs) -> str:
+    wrapper_repo_root = kwargs.get("wrapper_repo_root", r"C:\dev\patchops")
+    body = (
+        "param(\n"
+        f"    [string]$WrapperRepoRoot = '{wrapper_repo_root}'\n"
+        ")\n\n"
+        "$ErrorActionPreference = 'Stop'\n"
+        "Set-StrictMode -Version Latest\n"
+        "$bundleRoot = $PSScriptRoot\n"
+        "$manifestPath = Join-Path $bundleRoot 'manifest.json'\n\n"
+        "Push-Location -LiteralPath $WrapperRepoRoot\n"
+        "try {\n"
+        "    & py -m patchops.cli check $manifestPath\n"
+        "    & py -m patchops.cli inspect $manifestPath\n"
+        "    & py -m patchops.cli plan $manifestPath\n"
+        "    & py -m patchops.cli apply $manifestPath\n"
+        "}\n"
+        "finally {\n"
+        "    Pop-Location\n"
+        "}\n"
+    )
+    return ensure_safe_launcher_wrapper(body)
+
+# PATCHOPS_B3B_LAUNCHER_FORMATTER_COMPAT_20260423
+def strip_leading_launcher_artifacts(text: str) -> str:
+    cleaned = str(text or "")
+    cleaned = cleaned.lstrip("\ufeff")
+    while True:
+        previous = cleaned
+        cleaned = cleaned.lstrip("/\\")
+        cleaned = cleaned.lstrip("\r\n")
+        if cleaned == previous:
+            break
+    return cleaned
+
+def _b3b_is_top_level_param_script(text: str) -> bool:
+    return strip_leading_launcher_artifacts(text).lstrip().startswith("param(")
+
+def is_launcher_safely_wrapped(text: str) -> bool:
+    trimmed = strip_leading_launcher_artifacts(text).lstrip()
+    return trimmed.startswith("& {") or _b3b_is_top_level_param_script(trimmed)
+
+def needs_safe_launcher_wrapper(text: str) -> bool:
+    trimmed = strip_leading_launcher_artifacts(text).strip()
+    return bool(trimmed) and not trimmed.startswith("& {")
+
+def ensure_safe_launcher_wrapper(text: str) -> str:
+    cleaned = strip_leading_launcher_artifacts(text).strip()
+    if not cleaned:
+        return "& {\n}\n"
+    if cleaned.startswith("& {"):
+        return cleaned if cleaned.endswith("\n") else cleaned + "\n"
+    inner = cleaned
+    if not inner.endswith("\n"):
+        inner += "\n"
+    return "& {\n" + inner + "}\n"
+
+def build_standard_bundle_launcher(*args, **kwargs) -> str:
+    wrapper_repo_root = kwargs.get("wrapper_repo_root", r"C:\dev\patchops")
+    cli_mode = kwargs.get("cli_mode", "apply")
+    safe_wrapper_mode = kwargs.get("safe_wrapper_mode", "always")
+
+    if cli_mode == "verify":
+        command_lines = [
+            "    & py -m patchops.cli verify $manifestPath",
+        ]
+    else:
+        command_lines = [
+            "    & py -m patchops.cli check $manifestPath",
+            "    & py -m patchops.cli inspect $manifestPath",
+            "    & py -m patchops.cli plan $manifestPath",
+            "    & py -m patchops.cli apply $manifestPath",
+        ]
+
+    body = "\n".join([
+        "param(",
+        f"    [string]$WrapperRepoRoot = '{wrapper_repo_root}'",
+        ")",
+        "",
+        "$ErrorActionPreference = 'Stop'",
+        "Set-StrictMode -Version Latest",
+        "$bundleRoot = $PSScriptRoot",
+        "$manifestPath = Join-Path $bundleRoot 'manifest.json'",
+        "",
+        "Push-Location -LiteralPath $WrapperRepoRoot",
+        "try {",
+        *command_lines,
+        "}",
+        "finally {",
+        "    Pop-Location",
+        "}",
+        "",
+    ])
+
+    if safe_wrapper_mode == "never":
+        return body
+    return ensure_safe_launcher_wrapper(body)

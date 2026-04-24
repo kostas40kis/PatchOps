@@ -42,3 +42,5 @@ repo is bootable again.
 
 The correct long-term path is still the maintained PatchOps command surface, not the
 bootstrap helper itself.
+`bootstrap-repair` is not a second apply engine.
+Use it only for narrow recovery and then return to the normal flow.

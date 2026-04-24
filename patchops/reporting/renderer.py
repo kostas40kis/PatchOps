@@ -51,3 +51,177 @@ def render_workflow_report(result: WorkflowResult) -> str:
         render_summary(int(effective["exit_code"]), str(effective["result_label"])),
     ]
     return "\n\n".join(section for section in sections if section)
+
+# PATCHOPS_C1E_FINAL_SAFE_EVIDENCE_OVERRIDE_20260423
+_PATCHOPS_C1E_BASE_RENDER_WORKFLOW_REPORT = render_workflow_report
+
+def _patchops_c1e_build_file_evidence_lines(result) -> list[str]:
+    lines: list[str] = []
+
+    backup_records = list(getattr(result, "backup_records", ()) or ())
+    write_records = list(getattr(result, "write_records", ()) or ())
+
+    for record in backup_records:
+        source = (
+            getattr(record, "source", None)
+            or getattr(record, "source_path", None)
+            or getattr(record, "target_path", None)
+            or getattr(record, "path", None)
+        )
+        destination = getattr(record, "destination", None) or getattr(record, "backup_path", None)
+        existed = getattr(record, "existed", None)
+        missing = bool(
+            getattr(record, "missing", False)
+            or getattr(record, "was_missing", False)
+            or existed is False
+            or str(getattr(record, "status", "") or "").upper() == "MISSING"
+        )
+
+        if missing and source is not None:
+            lines.append(f"MISSING: {source}")
+        elif source is not None and destination is not None:
+            lines.append(f"BACKUP : {source} -> {destination}")
+
+    for record in write_records:
+        target = (
+            getattr(record, "target", None)
+            or getattr(record, "target_path", None)
+            or getattr(record, "destination_path", None)
+            or getattr(record, "path", None)
+        )
+        if target is None:
+            continue
+        origin = (
+            getattr(record, "content_source", None)
+            or getattr(record, "source_kind", None)
+            or getattr(record, "content_origin", None)
+        )
+        if origin is not None:
+            lines.append(f"WROTE : {target} ({origin})")
+        else:
+            lines.append(f"WROTE : {target}")
+
+    return lines
+
+def render_workflow_report(result):
+    report_text = _PATCHOPS_C1E_BASE_RENDER_WORKFLOW_REPORT(result)
+    evidence_lines = _patchops_c1e_build_file_evidence_lines(result)
+    if not evidence_lines:
+        return report_text
+
+    existing_lines = set(report_text.splitlines())
+    pending = [line for line in evidence_lines if line not in existing_lines]
+    if not pending:
+        return report_text
+
+    evidence_block = "FILE EVIDENCE\n-------------\n" + "\n".join(pending) + "\n\n"
+
+    anchors = [
+        "\nFAILURE DETAILS\n---------------\n",
+        "\nSUMMARY\n-------\n",
+    ]
+    for anchor in anchors:
+        if anchor in report_text:
+            return report_text.replace(anchor, "\n" + evidence_block + anchor, 1)
+
+    return report_text.rstrip() + "\n\n" + evidence_block
+
+
+# PATCHOPS_D1A_LEGACY_RESULT_SUMMARY_LINE
+_PATCHOPS_D1A_BASE_RENDER_WORKFLOW_REPORT = render_workflow_report
+
+
+def _patchops_d1a_result_label_for_legacy_line(result) -> str:
+    try:
+        from patchops.result_integrity import derive_effective_summary_fields
+
+        effective = derive_effective_summary_fields(result)
+        return str(effective.get("result_label") or getattr(result, "result_label", "UNKNOWN"))
+    except Exception:
+        return str(getattr(result, "result_label", "UNKNOWN"))
+
+
+def _patchops_d1a_add_legacy_result_summary_line(report_text: str, result) -> str:
+    label = _patchops_d1a_result_label_for_legacy_line(result)
+    compact_line = f"Result : {label}"
+    canonical_line = f"Result   : {label}"
+
+    if compact_line in report_text:
+        return report_text
+
+    if canonical_line in report_text:
+        return report_text.replace(canonical_line, canonical_line + "\n" + compact_line, 1)
+
+    summary_anchor = "\nSUMMARY\n-------\n"
+    if summary_anchor in report_text:
+        return report_text.replace(summary_anchor, summary_anchor + compact_line + "\n", 1)
+
+    return report_text.rstrip() + "\n" + compact_line
+
+
+def render_workflow_report(result):
+    report_text = _PATCHOPS_D1A_BASE_RENDER_WORKFLOW_REPORT(result)
+    return _patchops_d1a_add_legacy_result_summary_line(report_text, result)
+
+# PATCHOPS_D1C_RELATIVE_WRITE_PATH_REPORT_COMPAT
+_PATCHOPS_D1C_BASE_RENDER_WORKFLOW_REPORT = render_workflow_report
+
+
+def _patchops_d1c_manifest_write_relative_paths(result) -> list[str]:
+    manifest = getattr(result, "manifest", None)
+    specs = getattr(manifest, "files_to_write", None) or []
+    paths: list[str] = []
+    for spec in specs:
+        value = getattr(spec, "path", None)
+        if value is None and isinstance(spec, dict):
+            value = spec.get("path")
+        if value is None:
+            continue
+        rendered = str(value).replace("\\", "/")
+        if rendered and rendered not in paths:
+            paths.append(rendered)
+    return paths
+
+
+def _patchops_d1c_insert_before_summary(rendered: str, block: str) -> str:
+    marker = "\n\nSUMMARY\n-------"
+    if marker in rendered:
+        return rendered.replace(marker, "\n\n" + block + marker, 1)
+    return rendered.rstrip() + "\n\n" + block
+
+
+def _patchops_d1c_ensure_compact_result_line(rendered: str, result) -> str:
+    try:
+        effective = derive_effective_summary_fields(result)
+        label = str(effective.get("result_label", getattr(result, "result_label", "")))
+    except Exception:
+        label = str(getattr(result, "result_label", ""))
+
+    if not label:
+        return rendered
+
+    compact = f"Result : {label}"
+    if compact in rendered:
+        return rendered
+
+    canonical = f"Result   : {label}"
+    if canonical in rendered:
+        return rendered.replace(canonical, canonical + "\n" + compact, 1)
+
+    if rendered.endswith("\n"):
+        return rendered + compact
+    return rendered + "\n" + compact
+
+
+def render_workflow_report(result) -> str:
+    rendered = _PATCHOPS_D1C_BASE_RENDER_WORKFLOW_REPORT(result)
+    relative_paths = _patchops_d1c_manifest_write_relative_paths(result)
+
+    missing_paths = [path for path in relative_paths if path not in rendered]
+    if missing_paths:
+        lines = ["WRITE RELATIVE PATHS", "--------------------"]
+        lines.extend(missing_paths)
+        rendered = _patchops_d1c_insert_before_summary(rendered, "\n".join(lines))
+
+    rendered = _patchops_d1c_ensure_compact_result_line(rendered, result)
+    return rendered

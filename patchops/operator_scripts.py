@@ -328,3 +328,501 @@ def emit_operator_script(
         issue_count=len(issues),
         issues=tuple(issues),
     )
+
+# PATCHOPS_D2_OPERATOR_SCRIPT_EMITTER_RUNTIME_OVERRIDE_20260423
+from dataclasses import dataclass as _patchops_d2_dataclass
+from pathlib import Path as _patchops_d2_Path
+
+@_patchops_d2_dataclass
+class OperatorScriptEmissionResult:
+    ok: bool
+    issue_count: int
+    output_path: _patchops_d2_Path
+    script_kind: str
+
+SUPPORTED_OPERATOR_SCRIPT_KINDS = (
+    "run-package-zip",
+    "maintenance-gate",
+    "patchops-entry-ps1",
+)
+
+def _patchops_d2_run_package_script(*, wrapper_project_root: str, default_bundle_zip_path: str | None = None) -> str:
+    bundle_default = default_bundle_zip_path or r"D:\patch_bundle.zip"
+    return f"""[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$false)][string]$WrapperRepoRoot = "{wrapper_project_root}",
+    [Parameter(Mandatory=$false)][string]$BundleZipPath = "{bundle_default}"
+)
+
+function ConvertTo-PatchOpsPsArgument {{
+    param([AllowNull()][string]$Value)
+    if ($null -eq $Value) {{ return '""' }}
+    if ($Value -match '[\s"]') {{
+        return '"' + ($Value -replace '"', '\"') + '"'
+    }}
+    return $Value
+}}
+
+function Invoke-PatchOpsNative {{
+    param(
+        [Parameter(Mandatory=$true)][string]$FilePath,
+        [Parameter(Mandatory=$true)][string[]]$Arguments
+    )
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $FilePath
+    $psi.WorkingDirectory = $WrapperRepoRoot
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+
+    if ($psi.PSObject.Properties['ArgumentList'] -and $null -ne $psi.ArgumentList) {{
+        foreach ($arg in $Arguments) {{
+            $null = $psi.ArgumentList.Add([string]$arg)
+        }}
+    }}
+    else {{
+        $converted = foreach ($arg in $Arguments) {{
+            ConvertTo-PatchOpsPsArgument -Value $arg
+        }}
+        $psi.Arguments = [string]::Join(' ', $converted)
+    }}
+
+    $p = New-Object System.Diagnostics.Process
+    $p.StartInfo = $psi
+    $null = $p.Start()
+    $stdout = $p.StandardOutput.ReadToEnd()
+    $stderr = $p.StandardError.ReadToEnd()
+    $p.WaitForExit()
+    if ($stdout) {{ [Console]::Out.Write($stdout) }}
+    if ($stderr) {{ [Console]::Error.Write($stderr) }}
+    return $p.ExitCode
+}}
+
+Set-Location -LiteralPath $WrapperRepoRoot
+$exitCode = Invoke-PatchOpsNative -FilePath "py" -Arguments @(
+    "-m", "patchops.cli", "run-package", $BundleZipPath, "--wrapper-root", $WrapperRepoRoot
+)
+exit $exitCode
+"""
+
+def _patchops_d2_maintenance_gate_script(*, wrapper_project_root: str) -> str:
+    return f"""[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$false)][string]$WrapperRepoRoot = "{wrapper_project_root}",
+    [Parameter(Mandatory=$false)][string]$ReportPath = "",
+    [Parameter(Mandatory=$false)][string]$CoreTestsGreen = ""
+)
+
+function ConvertTo-PatchOpsPsArgument {{
+    param([AllowNull()][string]$Value)
+    if ($null -eq $Value) {{ return '""' }}
+    if ($Value -match '[\s"]') {{
+        return '"' + ($Value -replace '"', '\"') + '"'
+    }}
+    return $Value
+}}
+
+function Invoke-PatchOpsNative {{
+    param(
+        [Parameter(Mandatory=$true)][string]$FilePath,
+        [Parameter(Mandatory=$true)][string[]]$Arguments
+    )
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $FilePath
+    $psi.WorkingDirectory = $WrapperRepoRoot
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+
+    if ($psi.PSObject.Properties['ArgumentList'] -and $null -ne $psi.ArgumentList) {{
+        foreach ($arg in $Arguments) {{
+            $null = $psi.ArgumentList.Add([string]$arg)
+        }}
+    }}
+    else {{
+        $converted = foreach ($arg in $Arguments) {{
+            ConvertTo-PatchOpsPsArgument -Value $arg
+        }}
+        $psi.Arguments = [string]::Join(' ', $converted)
+    }}
+
+    $p = New-Object System.Diagnostics.Process
+    $p.StartInfo = $psi
+    $null = $p.Start()
+    $stdout = $p.StandardOutput.ReadToEnd()
+    $stderr = $p.StandardError.ReadToEnd()
+    $p.WaitForExit()
+    if ($stdout) {{ [Console]::Out.Write($stdout) }}
+    if ($stderr) {{ [Console]::Error.Write($stderr) }}
+    return $p.ExitCode
+}}
+
+Set-Location -LiteralPath $WrapperRepoRoot
+$argsList = @("-m", "patchops.cli", "maintenance-gate", "--wrapper-root", $WrapperRepoRoot)
+if ($CoreTestsGreen) {{
+    $argsList += @("--core-tests-green", $CoreTestsGreen)
+}}
+if ($ReportPath) {{
+    $argsList += @("--report-path", $ReportPath)
+}}
+$exitCode = Invoke-PatchOpsNative -FilePath "py" -Arguments $argsList
+exit $exitCode
+"""
+
+def _patchops_d2_patchops_entry_script(*, wrapper_project_root: str) -> str:
+    return f"""[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$false)][string]$WrapperRepoRoot = "{wrapper_project_root}",
+    [Parameter(ValueFromRemainingArguments=$true)][string[]]$PatchOpsArguments
+)
+
+function ConvertTo-PatchOpsPsArgument {{
+    param([AllowNull()][string]$Value)
+    if ($null -eq $Value) {{ return '""' }}
+    if ($Value -match '[\s"]') {{
+        return '"' + ($Value -replace '"', '\"') + '"'
+    }}
+    return $Value
+}}
+
+function Invoke-PatchOpsNative {{
+    param(
+        [Parameter(Mandatory=$true)][string]$FilePath,
+        [Parameter(Mandatory=$true)][string[]]$Arguments
+    )
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $FilePath
+    $psi.WorkingDirectory = $WrapperRepoRoot
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+
+    if ($psi.PSObject.Properties['ArgumentList'] -and $null -ne $psi.ArgumentList) {{
+        foreach ($arg in $Arguments) {{
+            $null = $psi.ArgumentList.Add([string]$arg)
+        }}
+    }}
+    else {{
+        $converted = foreach ($arg in $Arguments) {{
+            ConvertTo-PatchOpsPsArgument -Value $arg
+        }}
+        $psi.Arguments = [string]::Join(' ', $converted)
+    }}
+
+    $p = New-Object System.Diagnostics.Process
+    $p.StartInfo = $psi
+    $null = $p.Start()
+    $stdout = $p.StandardOutput.ReadToEnd()
+    $stderr = $p.StandardError.ReadToEnd()
+    $p.WaitForExit()
+    if ($stdout) {{ [Console]::Out.Write($stdout) }}
+    if ($stderr) {{ [Console]::Error.Write($stderr) }}
+    return $p.ExitCode
+}}
+
+Set-Location -LiteralPath $WrapperRepoRoot
+$exitCode = Invoke-PatchOpsNative -FilePath "py" -Arguments (@("-m", "patchops.cli") + $PatchOpsArguments)
+exit $exitCode
+"""
+
+def render_operator_script(script_kind: str, *, wrapper_project_root: str, default_bundle_zip_path: str | None = None) -> str:
+    if script_kind == "run-package-zip":
+        return _patchops_d2_run_package_script(
+            wrapper_project_root=wrapper_project_root,
+            default_bundle_zip_path=default_bundle_zip_path,
+        )
+    if script_kind == "maintenance-gate":
+        return _patchops_d2_maintenance_gate_script(
+            wrapper_project_root=wrapper_project_root,
+        )
+    if script_kind == "patchops-entry-ps1":
+        return _patchops_d2_patchops_entry_script(
+            wrapper_project_root=wrapper_project_root,
+        )
+    raise ValueError(f"Unsupported operator script kind: {script_kind}")
+
+def emit_operator_script(
+    output_path,
+    *,
+    script_kind: str,
+    wrapper_project_root: str,
+    default_bundle_zip_path: str | None = None,
+):
+    rendered = render_operator_script(
+        script_kind,
+        wrapper_project_root=wrapper_project_root,
+        default_bundle_zip_path=default_bundle_zip_path,
+    )
+    output = _patchops_d2_Path(output_path).resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(rendered, encoding="utf-8", newline="\n")
+    return OperatorScriptEmissionResult(
+        ok=True,
+        issue_count=0,
+        output_path=output,
+        script_kind=script_kind,
+    )
+
+# PATCHOPS_D2A_OPERATOR_SCRIPT_RUNTIME_OVERRIDE_20260423
+def _patchops_d2a_run_package_script(*, wrapper_project_root: str, default_bundle_zip_path: str | None = None) -> str:
+    bundle_default = default_bundle_zip_path or r"D:\patch_bundle.zip"
+    return f"""[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$false)][string]$WrapperRepoRoot = "{wrapper_project_root}",
+    [Parameter(Mandatory=$false)][string]$BundleZipPath = "{bundle_default}"
+)
+
+function ConvertTo-PatchOpsPsArgument {{
+    param([AllowNull()][string]$Value)
+    if ($null -eq $Value) {{ return '""' }}
+    if ($Value -match '[\\s"]') {{
+        return '"' + ($Value -replace '"', '\\"') + '"'
+    }}
+    return $Value
+}}
+
+function Invoke-PatchOpsNative {{
+    param(
+        [Parameter(Mandatory=$true)][string]$FilePath,
+        [Parameter(Mandatory=$true)][string[]]$Arguments
+    )
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $FilePath
+    $psi.WorkingDirectory = $WrapperRepoRoot
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+
+    if ($psi.PSObject.Properties['ArgumentList'] -and $null -ne $psi.ArgumentList) {{
+        foreach ($arg in $Arguments) {{
+            $null = $psi.ArgumentList.Add([string]$arg)
+        }}
+    }}
+    else {{
+        $converted = foreach ($arg in $Arguments) {{
+            ConvertTo-PatchOpsPsArgument -Value $arg
+        }}
+        $psi.Arguments = [string]::Join(' ', $converted)
+    }}
+
+    $p = New-Object System.Diagnostics.Process
+    $p.StartInfo = $psi
+    $null = $p.Start()
+    $stdout = $p.StandardOutput.ReadToEnd()
+    $stderr = $p.StandardError.ReadToEnd()
+    $p.WaitForExit()
+    if ($stdout) {{ [Console]::Out.Write($stdout) }}
+    if ($stderr) {{ [Console]::Error.Write($stderr) }}
+    return $p.ExitCode
+}}
+
+Set-Location -LiteralPath $WrapperRepoRoot
+$exitCode = Invoke-PatchOpsNative -FilePath 'py' -Arguments @(
+    '-m', 'patchops.cli', 'run-package', $BundleZipPath, '--wrapper-root', $WrapperRepoRoot
+)
+exit $exitCode
+"""
+
+def _patchops_d2a_maintenance_gate_script(*, wrapper_project_root: str) -> str:
+    return f"""[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$false)][string]$WrapperRepoRoot = "{wrapper_project_root}",
+    [Parameter(Mandatory=$false)][string]$ReportPath = "",
+    [Parameter(Mandatory=$false)][string]$CoreTestsGreen = ""
+)
+
+function ConvertTo-PatchOpsPsArgument {{
+    param([AllowNull()][string]$Value)
+    if ($null -eq $Value) {{ return '""' }}
+    if ($Value -match '[\\s"]') {{
+        return '"' + ($Value -replace '"', '\\"') + '"'
+    }}
+    return $Value
+}}
+
+function Invoke-PatchOpsNative {{
+    param(
+        [Parameter(Mandatory=$true)][string]$FilePath,
+        [Parameter(Mandatory=$true)][string[]]$Arguments
+    )
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $FilePath
+    $psi.WorkingDirectory = $WrapperRepoRoot
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+
+    if ($psi.PSObject.Properties['ArgumentList'] -and $null -ne $psi.ArgumentList) {{
+        foreach ($arg in $Arguments) {{
+            $null = $psi.ArgumentList.Add([string]$arg)
+        }}
+    }}
+    else {{
+        $converted = foreach ($arg in $Arguments) {{
+            ConvertTo-PatchOpsPsArgument -Value $arg
+        }}
+        $psi.Arguments = [string]::Join(' ', $converted)
+    }}
+
+    $p = New-Object System.Diagnostics.Process
+    $p.StartInfo = $psi
+    $null = $p.Start()
+    $stdout = $p.StandardOutput.ReadToEnd()
+    $stderr = $p.StandardError.ReadToEnd()
+    $p.WaitForExit()
+    if ($stdout) {{ [Console]::Out.Write($stdout) }}
+    if ($stderr) {{ [Console]::Error.Write($stderr) }}
+    return $p.ExitCode
+}}
+
+Set-Location -LiteralPath $WrapperRepoRoot
+$argsList = @('-m', 'patchops.cli', 'maintenance-gate', '--wrapper-root', $WrapperRepoRoot)
+if ($CoreTestsGreen) {{
+    $argsList += @('--core-tests-green', $CoreTestsGreen)
+}}
+if ($ReportPath) {{
+    $argsList += @('--report-path', $ReportPath)
+}}
+$exitCode = Invoke-PatchOpsNative -FilePath 'py' -Arguments $argsList
+exit $exitCode
+"""
+
+def _patchops_d2a_patchops_entry_script(*, wrapper_project_root: str) -> str:
+    return f"""[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$false)][string]$WrapperRepoRoot = "{wrapper_project_root}",
+    [Parameter(ValueFromRemainingArguments=$true)][string[]]$PatchOpsArguments
+)
+
+function ConvertTo-PatchOpsPsArgument {{
+    param([AllowNull()][string]$Value)
+    if ($null -eq $Value) {{ return '""' }}
+    if ($Value -match '[\\s"]') {{
+        return '"' + ($Value -replace '"', '\\"') + '"'
+    }}
+    return $Value
+}}
+
+function Invoke-PatchOpsNative {{
+    param(
+        [Parameter(Mandatory=$true)][string]$FilePath,
+        [Parameter(Mandatory=$true)][string[]]$Arguments
+    )
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $FilePath
+    $psi.WorkingDirectory = $WrapperRepoRoot
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+
+    if ($psi.PSObject.Properties['ArgumentList'] -and $null -ne $psi.ArgumentList) {{
+        foreach ($arg in $Arguments) {{
+            $null = $psi.ArgumentList.Add([string]$arg)
+        }}
+    }}
+    else {{
+        $converted = foreach ($arg in $Arguments) {{
+            ConvertTo-PatchOpsPsArgument -Value $arg
+        }}
+        $psi.Arguments = [string]::Join(' ', $converted)
+    }}
+
+    $p = New-Object System.Diagnostics.Process
+    $p.StartInfo = $psi
+    $null = $p.Start()
+    $stdout = $p.StandardOutput.ReadToEnd()
+    $stderr = $p.StandardError.ReadToEnd()
+    $p.WaitForExit()
+    if ($stdout) {{ [Console]::Out.Write($stdout) }}
+    if ($stderr) {{ [Console]::Error.Write($stderr) }}
+    return $p.ExitCode
+}}
+
+Set-Location -LiteralPath $WrapperRepoRoot
+$forwarded = @($PatchOpsArguments)
+if ($forwarded.Count -gt 0 -and $forwarded[0] -eq 'maintenance-gate') {{
+    $remaining = @()
+    if ($forwarded.Count -gt 1) {{
+        $remaining = $forwarded[1..($forwarded.Count - 1)]
+    }}
+    $hasWrapperRoot = $false
+    foreach ($item in $remaining) {{
+        if ($item -eq '--wrapper-root') {{
+            $hasWrapperRoot = $true
+            break
+        }}
+    }}
+    if (-not $hasWrapperRoot) {{
+        $forwarded = @('maintenance-gate', '--wrapper-root', $WrapperRepoRoot) + $remaining
+    }}
+}}
+$exitCode = Invoke-PatchOpsNative -FilePath 'py' -Arguments (@('-m', 'patchops.cli') + $forwarded)
+exit $exitCode
+"""
+
+def render_operator_script(script_kind: str, *, wrapper_project_root: str, default_bundle_zip_path: str | None = None) -> str:
+    if script_kind == "run-package-zip":
+        return _patchops_d2a_run_package_script(
+            wrapper_project_root=wrapper_project_root,
+            default_bundle_zip_path=default_bundle_zip_path,
+        )
+    if script_kind == "maintenance-gate":
+        return _patchops_d2a_maintenance_gate_script(
+            wrapper_project_root=wrapper_project_root,
+        )
+    if script_kind == "patchops-entry-ps1":
+        return _patchops_d2a_patchops_entry_script(
+            wrapper_project_root=wrapper_project_root,
+        )
+    raise ValueError(f"Unsupported operator script kind: {script_kind}")
+
+def emit_operator_script(
+    output_path,
+    *,
+    script_kind: str,
+    wrapper_project_root: str,
+    default_bundle_zip_path: str | None = None,
+):
+    rendered = render_operator_script(
+        script_kind,
+        wrapper_project_root=wrapper_project_root,
+        default_bundle_zip_path=default_bundle_zip_path,
+    )
+    output = _patchops_d2_Path(output_path).resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(rendered, encoding="utf-8", newline="\n".encode("utf-8").decode("unicode_escape"))
+    return OperatorScriptEmissionResult(
+        ok=True,
+        issue_count=0,
+        output_path=output,
+        script_kind=script_kind,
+    )
+
+# PATCHOPS_D2B_OPERATOR_SCRIPT_WRITE_NEWLINE_OVERRIDE_20260423
+def emit_operator_script(
+    output_path,
+    *,
+    script_kind: str,
+    wrapper_project_root: str,
+    default_bundle_zip_path: str | None = None,
+):
+    rendered = render_operator_script(
+        script_kind,
+        wrapper_project_root=wrapper_project_root,
+        default_bundle_zip_path=default_bundle_zip_path,
+    )
+    output = _patchops_d2_Path(output_path).resolve()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(rendered, encoding="utf-8", newline="\n".encode("utf-8").decode("unicode_escape"))
+    return OperatorScriptEmissionResult(
+        ok=True,
+        issue_count=0,
+        output_path=output,
+        script_kind=script_kind,
+    )

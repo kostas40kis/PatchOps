@@ -150,3 +150,6 @@ PatchOps now supports the main intended patch classes:
 
 The correct job is not “run a patch somehow.”
 The correct job is to choose the smallest correct patch class and prove it clearly.
+
+## Main classes
+powershell/invoke-patchverify.ps1

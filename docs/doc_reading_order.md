@@ -49,3 +49,13 @@ Use these after the first-read surfaces:
 Older buildout plans, finalization plans, old freeze prompts, and source bundles are context only.
 They help explain how the repo got here.
 They should not be the first place an operator or LLM reconstructs current truth.
+- `docs/operator_quickstart.md`
+- `docs/failure_repair_guide.md`
+- `docs/post_publish_snapshot.md`
+- `README.md`
+- `docs/quiet_run_package_helper.md`
+- `docs/maintenance_gate.md`
+- `docs/failure_repair_guide.md` before widening after a red report
+- `docs/maintenance_gate.md` for current wrapper health
+- `docs/quiet_run_package_helper.md` for quiet operator execution
+- `docs/operator_script_emitter.md` for emitted helper surfaces

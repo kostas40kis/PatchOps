@@ -6,35 +6,38 @@ param(
 
     [string]$PythonExe = "py",
 
-    [switch]$PassThruRawOutput
+    [switch]$PassThruRawOutput,
+
+    [switch]$VerboseConsole
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-function Convert-ToWindowsArgumentString {
-    param([Parameter(Mandatory = $true)][string[]]$Args)
+function Resolve-ReportField {
+    param(
+        [string]$Text,
+        [string]$Name
+    )
 
-    $escaped = foreach ($arg in $Args) {
-        if ($null -eq $arg -or $arg -eq '') {
-            '""'
-        }
-        elseif ($arg -notmatch '[\s"]') {
-            $arg
-        }
-        else {
-            '"' + (($arg -replace '(\\*)"', '$1$1\\"') -replace '(\\+)$', '$1$1') + '"'
-        }
+    if ([string]::IsNullOrWhiteSpace($Text)) {
+        return $null
     }
 
-    $escaped -join ' '
+    $pattern = '(?m)^\s*' + [regex]::Escape($Name) + '\s*:\s*(.+?)\s*$'
+    $match = [regex]::Match($Text, $pattern)
+    if ($match.Success) {
+        return $match.Groups[1].Value.Trim()
+    }
+
+    return $null
 }
 
 function Invoke-NativeCapture {
     param(
-        [Parameter(Mandatory = $true)][string]$FilePath,
-        [Parameter(Mandatory = $true)][string[]]$Arguments,
-        [Parameter(Mandatory = $true)][string]$WorkingDirectory
+        [string]$FilePath,
+        [string[]]$Arguments,
+        [string]$WorkingDirectory
     )
 
     $psi = New-Object System.Diagnostics.ProcessStartInfo
@@ -44,97 +47,88 @@ function Invoke-NativeCapture {
     $psi.RedirectStandardOutput = $true
     $psi.RedirectStandardError = $true
     $psi.CreateNoWindow = $true
-    $psi.Arguments = Convert-ToWindowsArgumentString -Args $Arguments
+
+    $escaped = foreach ($argument in $Arguments) {
+        if ($argument -match '[\s"]') {
+            '"' + ($argument -replace '"', '\"') + '"'
+        }
+        else {
+            $argument
+        }
+    }
+    $psi.Arguments = [string]::Join(' ', $escaped)
 
     $process = New-Object System.Diagnostics.Process
     $process.StartInfo = $psi
     [void]$process.Start()
-
     $stdout = $process.StandardOutput.ReadToEnd()
     $stderr = $process.StandardError.ReadToEnd()
     $process.WaitForExit()
 
     [pscustomobject]@{
-        ExitCode = $process.ExitCode
+        ExitCode = [int]$process.ExitCode
         StdOut   = $stdout
         StdErr   = $stderr
     }
 }
 
-function Get-ReportField {
-    param(
-        [Parameter(Mandatory = $true)][string]$Text,
-        [Parameter(Mandatory = $true)][string]$Name
-    )
-
-    $pattern = '(?m)^{0}\s*:\s*(.+)$' -f [regex]::Escape($Name)
-    $match = [regex]::Match($Text, $pattern)
-    if ($match.Success) {
-        return $match.Groups[1].Value.Trim()
-    }
-
-    return $null
+$resolvedWrapperRoot = [System.IO.Path]::GetFullPath($WrapperRepoRoot)
+$resolvedPackage = if ([System.IO.Path]::IsPathRooted($PackagePath)) {
+    [System.IO.Path]::GetFullPath($PackagePath)
+}
+else {
+    [System.IO.Path]::GetFullPath((Join-Path $PWD $PackagePath))
 }
 
-if (-not (Test-Path -LiteralPath $PackagePath)) {
-    throw ("Package path does not exist: {0}" -f $PackagePath)
-}
-if (-not (Test-Path -LiteralPath $WrapperRepoRoot)) {
-    throw ("Wrapper repo root does not exist: {0}" -f $WrapperRepoRoot)
+if (-not (Test-Path -LiteralPath $resolvedPackage)) {
+    throw ("Package path not found: {0}" -f $resolvedPackage)
 }
 
-$resolvedPackage = (Resolve-Path -LiteralPath $PackagePath).Path
-$resolvedWrapper = (Resolve-Path -LiteralPath $WrapperRepoRoot).Path
+$arguments = @('-m', 'patchops.cli', 'run-package', $resolvedPackage, '--wrapper-root', $resolvedWrapperRoot)
 
-$cmdArgs = @(
-    '-m',
-    'patchops.cli',
-    'run-package',
-    $resolvedPackage,
-    '--wrapper-root',
-    $resolvedWrapper
-)
+$result = Invoke-NativeCapture -FilePath $PythonExe -Arguments $arguments -WorkingDirectory $resolvedWrapperRoot
 
-$result = Invoke-NativeCapture -FilePath $PythonExe -Arguments $cmdArgs -WorkingDirectory $resolvedWrapper
-
-$reportPath = Get-ReportField -Text $result.StdOut -Name 'Canonical Report Path'
-if ([string]::IsNullOrWhiteSpace($reportPath)) {
-    $reportPath = Get-ReportField -Text $result.StdOut -Name 'Report Path'
+$canonicalReportPath = Resolve-ReportField -Text $result.StdOut -Name 'Canonical Report Path'
+if ([string]::IsNullOrWhiteSpace($canonicalReportPath)) {
+    $canonicalReportPath = Resolve-ReportField -Text $result.StdOut -Name 'Report Path'
 }
 
 $summaryText = $result.StdOut
-if (-not [string]::IsNullOrWhiteSpace($reportPath) -and (Test-Path -LiteralPath $reportPath)) {
-    $summaryText = Get-Content -LiteralPath $reportPath -Raw -Encoding UTF8
+if (-not [string]::IsNullOrWhiteSpace($canonicalReportPath) -and (Test-Path -LiteralPath $canonicalReportPath)) {
+    $summaryText = Get-Content -LiteralPath $canonicalReportPath -Raw -Encoding UTF8
 }
 
-$patchName = Get-ReportField -Text $summaryText -Name 'Patch Name'
+$patchName = Resolve-ReportField -Text $summaryText -Name 'Patch Name'
 if ([string]::IsNullOrWhiteSpace($patchName)) {
     $patchName = [IO.Path]::GetFileNameWithoutExtension($resolvedPackage)
 }
-$runResult = Get-ReportField -Text $summaryText -Name 'Result'
+
+$runResult = Resolve-ReportField -Text $summaryText -Name 'Result'
 if ([string]::IsNullOrWhiteSpace($runResult)) {
     $runResult = $(if ($result.ExitCode -eq 0) { 'PASS' } else { 'FAIL' })
 }
-$exitCodeText = Get-ReportField -Text $summaryText -Name 'ExitCode'
+
+$exitCodeText = Resolve-ReportField -Text $summaryText -Name 'ExitCode'
 if ([string]::IsNullOrWhiteSpace($exitCodeText)) {
     $exitCodeText = [string]$result.ExitCode
 }
-$failureCategory = Get-ReportField -Text $summaryText -Name 'Failure Category'
+
+$failureCategory = Resolve-ReportField -Text $summaryText -Name 'Failure Category'
 if ([string]::IsNullOrWhiteSpace($failureCategory)) {
     $failureCategory = '(none)'
 }
 
-if ($PassThruRawOutput) {
+if ($PassThruRawOutput -or $VerboseConsole) {
     if (-not [string]::IsNullOrWhiteSpace($result.StdOut)) { Write-Host $result.StdOut }
     if (-not [string]::IsNullOrWhiteSpace($result.StdErr)) { Write-Host $result.StdErr }
 }
 
-Write-Host 'PATCHOPS RUN-PACKAGE'
-Write-Host '--------------------'
-Write-Host ('Patch      : {0}' -f $patchName)
-Write-Host ('Result     : {0}' -f $runResult)
-Write-Host ('ExitCode   : {0}' -f $exitCodeText)
-Write-Host ('Failure    : {0}' -f $failureCategory)
-Write-Host ('ReportPath : {0}' -f $(if ([string]::IsNullOrWhiteSpace($reportPath)) { '(not found)' } else { $reportPath }))
+Write-Host 'PATCHOPS QUIET RUN SUMMARY'
+Write-Host '-------------------------'
+Write-Host ('Patch        : {0}' -f $patchName)
+Write-Host ('Result       : {0}' -f $runResult)
+Write-Host ('ExitCode     : {0}' -f $exitCodeText)
+Write-Host ('Failure      : {0}' -f $failureCategory)
+Write-Host ('ReportPath   : {0}' -f $(if ([string]::IsNullOrWhiteSpace($canonicalReportPath)) { '(not found)' } else { $canonicalReportPath }))
 
 exit $result.ExitCode

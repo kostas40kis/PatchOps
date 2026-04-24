@@ -1,68 +1,73 @@
 # Bundle authoring template
 
-## Purpose
+Use this template for the maintained flow.
 
-This template is the maintained authoring checklist for a new PatchOps bundle.
-Use it to keep the bundle shape, launcher shape, and command order aligned with the current live repo.
+## Bundle tree
 
-## Maintained authoring posture
+- manifest.json
+- bundle_meta.json
+- README.txt
+- run_with_patchops.ps1
+- content/
 
-- copy the maintained example bundle
-- one folder is enough
-- one root-level PowerShell file is enough
-- one canonical Desktop txt report is enough
-- use the saved root launcher name `run_with_patchops.ps1`
-- keep `bundle_mode` in metadata
-- do not manually unzip during the normal operator path
-- older PatchOps flows often relied on a manual unzip stage
-- the current maintained flow avoids that manual unzip stage
-- preserve a thin launcher
-- avoid an extra duplicate parent folder when packaging
-- archive the bundle root contents directly
-- continue patch by patch from evidence
-- Generate the bundle from Python when possible.
+## bundle-entry
 
-## Maintained bundle tree
+Use the root bundle-entry launcher contract through `run_with_patchops.ps1`.
 
-```text
-example_bundle/
-  bundle_meta.json
-  manifest.json
-  run_with_patchops.ps1
-  content/
-```
+The maintained flow ends in one canonical Desktop txt report.
 
-## Maintained command order
+Use a single saved root launcher for the maintained flow.
 
-- `make-bundle`
-- `check-bundle`
-- `inspect-bundle`
-- `plan-bundle`
-- `bundle-doctor`
-- `build-bundle`
-- `run-package`
+## Command order
 
-## Launcher notes
+1. `make-bundle`
+2. `check-bundle`
+3. `inspect-bundle`
+4. `plan-bundle`
+5. `bundle-doctor`
+6. `build-bundle`
+7. `run-package`
 
-The maintained root launcher is `run_with_patchops.ps1`.
-One root-level PowerShell file is enough.
-The launcher stays thin and operator-facing.
-The normal run path reaches PatchOps through the bundle-entry / run-package path rather than hand-authored unzip logic.
+After each real run, continue patch by patch from evidence.
 
-## Normal run command
+## Launcher template rules
 
-```powershell
-py -m patchops.cli run-package "D:\some_patch_bundle.zip" --wrapper-root "C:\dev\patchops"
-```
+- saved root launcher name: `run_with_patchops.ps1`
+- one root-level launcher is enough
+- use metadata-driven mode
+- launcher emission comes from `create_starter_bundle` and `emit_root_bundle_launcher`
+- do not hand-author the saved root launcher unless you are repairing it
+- the saved launcher should use the top-level `param(...)` script-file form
+- keep inline `& { ... }` wrapping where inline execution needs it
 
-The maintained bundle uses a single saved root launcher.
+## Authoring note
 
-## Troubleshooting entrypoint
+Generate the bundle from Python when possible.
 
-`bundle-doctor` is the preferred troubleshooting entrypoint when a bundle root or built zip does not behave as expected.
+## Proof note
 
-Use it before rerunning broader workflows so you can separate:
-- shape validation
-- build verification
+Patch 12 onward the process is proven self-hosted.
 
-Treat `bundle-doctor` as the fastest maintained way to confirm whether the bundle shape, saved launcher family, and buildable export all still match the current PatchOps contract.
+<!-- PATCHOPS_G1_BUNDLE_DOC_WORDING_CONTRACT:TEMPLATE:START -->
+## Patch G1 - authoring wording contract
+
+This section preserves exact wording required by the maintained bundle-authoring tests.
+
+- This is the historical manual unzip stage for older PatchOps and older patch zips.
+- Copy the maintained example bundle before editing a new bundle by hand.
+- The maintained example bundle lives under `examples/bundles/example_generic_python_patch_bundle/`.
+- One folder is enough.
+- One root-level PowerShell file is enough.
+- One canonical Desktop txt report is enough.
+- Use the thin launcher named `run_with_patchops.ps1`.
+- Keep `run_with_patchops.ps1` as the saved root launcher.
+- `bundle_mode` in `bundle_meta.json` owns mode selection.
+- Do not manually unzip for the current raw-zip `run-package` path.
+- When packaging manually, archive the bundle root contents directly.
+- Do not create an extra duplicate parent folder.
+- Avoid an extra duplicate parent folder because it makes the extracted root ambiguous.
+- `bundle-doctor` is the preferred troubleshooting entrypoint for shape validation and build verification.
+- Maintained command order: `make-bundle`, `check-bundle`, `inspect-bundle`, `plan-bundle`, `bundle-doctor`, `build-bundle`, `run-package`.
+- After every run, continue patch by patch from evidence.
+- Patch 12 onward the process is proven self-hosted.
+<!-- PATCHOPS_G1_BUNDLE_DOC_WORDING_CONTRACT:TEMPLATE:END -->

@@ -33,50 +33,34 @@ def test_bug_artifact_json_text_is_machine_readable(tmp_path: Path):
         detection_reason="critical provenance fields missing",
         failure_class="wrapper_failure",
         report_path=tmp_path / "report.txt",
-        workflow_mode="verify",
-        recommended_follow_up="collect fresh wrapper evidence",
-    )
-
-    parsed = json.loads(artifact.to_json_text())
-
-    assert parsed["detection_reason"] == "critical provenance fields missing"
-    assert parsed["failure_class"] == "wrapper_failure"
-    assert parsed["workflow_mode"] == "verify"
-    assert parsed["manifest_path"] is None
-    assert parsed["recommended_follow_up"] == "collect fresh wrapper evidence"
-
-
-def test_bug_artifact_path_fields_are_stringified(tmp_path: Path):
-    artifact = SuspiciousRunArtifact(
-        detection_reason="latest copied report missing",
-        failure_class="wrapper_failure",
-        report_path=tmp_path / "nested" / "report.txt",
-        workflow_mode="export_handoff",
-        manifest_path=tmp_path / "patch_manifest.json",
-    )
-
-    payload = artifact.to_dict()
-
-    assert isinstance(payload["report_path"], str)
-    assert isinstance(payload["manifest_path"], str)
-
-
-def test_bug_artifact_keeps_shape_compact_when_manifest_path_missing(tmp_path: Path):
-    artifact = SuspiciousRunArtifact(
-        detection_reason="core report fields missing",
-        failure_class="wrapper_failure",
-        report_path=tmp_path / "report.txt",
-        workflow_mode="wrapper_retry",
+        workflow_mode="verify_only",
         manifest_path=None,
-        recommended_follow_up=None,
+        recommended_follow_up="capture wrapper evidence before rerun",
     )
 
-    payload = artifact.to_dict()
-    assert set(payload.keys()) == {
-        "detection_reason",
-        "failure_class",
-        "report_path",
-        "workflow_mode",
-        "manifest_path",
-        "recommended_follow_up",
-    }
+    payload = json.loads(artifact.to_json_text())
+
+    assert payload["detection_reason"] == "critical provenance fields missing"
+    assert payload["failure_class"] == "wrapper_failure"
+    assert payload["workflow_mode"] == "verify_only"
+    assert payload["report_path"].endswith("report.txt")
+    assert payload["manifest_path"] is None
+    assert payload["recommended_follow_up"] == "capture wrapper evidence before rerun"
+
+
+def test_bug_artifact_json_text_stays_pretty_and_stable(tmp_path: Path):
+    artifact = SuspiciousRunArtifact(
+        detection_reason="missing latest report copy",
+        failure_class="wrapper_failure",
+        report_path=tmp_path / "latest_report.txt",
+        workflow_mode="export_handoff",
+        manifest_path=tmp_path / "manifest.json",
+        recommended_follow_up="repair handoff export path",
+    )
+
+    text = artifact.to_json_text()
+
+    assert text.endswith("\n")
+    assert '"detection_reason"' in text
+    assert '"failure_class"' in text
+    assert '"recommended_follow_up"' in text

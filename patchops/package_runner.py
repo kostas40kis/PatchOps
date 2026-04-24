@@ -866,3 +866,166 @@ def cli_main(argv=None):
     )
     print(json.dumps(asdict(result), indent=2))
     return int(result.exit_code if result.exit_code else 0)
+
+# PATCHOPS_PATCH_01_V8_START
+import inspect as _patchops_p01_inspect
+from types import SimpleNamespace as _patchops_p01_SimpleNamespace
+
+_PATCHOPS_P01_V8_ORIGINAL_RUN_DELIVERY_PACKAGE = run_delivery_package
+
+
+def _patchops_p01_extract_call_arguments(original_fn, args, kwargs):
+    try:
+        signature = _patchops_p01_inspect.signature(original_fn)
+        bound = signature.bind_partial(*args, **kwargs)
+        data = dict(bound.arguments)
+    except Exception:
+        data = dict(kwargs)
+        if args:
+            if "source_path" not in data:
+                data["source_path"] = args[0]
+            if len(args) > 1 and "wrapper_root" not in data:
+                data["wrapper_root"] = args[1]
+            if len(args) > 2 and "report_path" not in data:
+                data["report_path"] = args[2]
+            if len(args) > 3 and "desktop_dir" not in data:
+                data["desktop_dir"] = args[3]
+    return data
+
+
+def _patchops_p01_should_preflight_reject(source_path):
+    try:
+        path_obj = Path(str(source_path))
+    except Exception:
+        return False, None
+    if path_obj.suffix.lower() != ".zip":
+        return False, None
+    try:
+        from patchops import bundle_review as _patchops_p01_bundle_review
+    except Exception:
+        return False, None
+    try:
+        payload = _patchops_p01_bundle_review.inspect_bundle_payload(path_obj)
+    except Exception:
+        return False, None
+    if not isinstance(payload, dict):
+        return False, None
+    launcher_status = str(payload.get("launcher_status") or "").strip().lower()
+    if not launcher_status:
+        launcher_review = payload.get("launcher_review")
+        if isinstance(launcher_review, dict):
+            launcher_status = str(launcher_review.get("status") or "").strip().lower()
+    return launcher_status == "reject", payload
+
+
+def _patchops_p01_build_notes(payload):
+    notes = ["Launcher execution skipped due to bundle review rejection."]
+    issue_codes = payload.get("launcher_issue_codes")
+    if isinstance(issue_codes, list) and issue_codes:
+        notes.append("Launcher review issue codes: " + ", ".join(str(item) for item in issue_codes))
+    launcher_review = payload.get("launcher_review")
+    review_issues = launcher_review.get("issues") if isinstance(launcher_review, dict) else None
+    if isinstance(review_issues, list):
+        for item in review_issues:
+            if isinstance(item, dict):
+                parts = []
+                code = item.get("code")
+                message = item.get("message")
+                path = item.get("path")
+                if code:
+                    parts.append(f"code={code}")
+                if path:
+                    parts.append(f"path={path}")
+                if message:
+                    parts.append(str(message))
+                if parts:
+                    notes.append("Launcher review: " + " | ".join(parts))
+            elif item:
+                notes.append(f"Launcher review: {item}")
+    payload_issues = payload.get("issues")
+    if isinstance(payload_issues, list):
+        for item in payload_issues:
+            if isinstance(item, str) and item.strip():
+                notes.append(f"Bundle review issue: {item.strip()}")
+    return notes
+
+
+def _patchops_p01_write_report(report_path, source_path, payload, notes, stderr_text):
+    if not report_path:
+        return
+    try:
+        report_obj = Path(str(report_path))
+    except Exception:
+        return
+    try:
+        report_obj.parent.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
+    launcher_review = payload.get("launcher_review") if isinstance(payload, dict) else None
+    launcher_path = None
+    if isinstance(launcher_review, dict):
+        launcher_path = launcher_review.get("launcher_path")
+    lines = [
+        "PATCHOPS RUN-PACKAGE OUTER REPORT",
+        "Result              : FAIL",
+        "Failure Category    : package_authoring_failure",
+        f"Source Path         : {source_path}",
+        "Source Kind         : zip",
+        "Extracted Path      : (not applicable)",
+        "Bundle Root         : (preflight rejected before extraction)",
+        f"Launcher Path       : {launcher_path or '(unknown)'}",
+        "Inner Report Path   : (not detected)",
+        "InnerReportFound   : False",
+        "Inner Result        : (not detected)",
+        "Inner Exit Code     : (not detected)",
+        "Inner Failure       : (none)",
+        f"Outer Report Path   : {report_obj}",
+        "Exit Code           : 1",
+        "",
+        "STDERR",
+        "------",
+        stderr_text or "(none)",
+        "",
+        "NOTES",
+        "-----",
+    ]
+    if notes:
+        lines.extend(notes)
+    else:
+        lines.append("(none)")
+    report_obj.write_text("\n".join(str(item) for item in lines) + "\n", encoding="utf-8")
+
+
+def run_delivery_package(*args, **kwargs):
+    call_data = _patchops_p01_extract_call_arguments(_PATCHOPS_P01_V8_ORIGINAL_RUN_DELIVERY_PACKAGE, args, kwargs)
+    source_path = call_data.get("source_path") or call_data.get("package_path") or call_data.get("source") or (args[0] if args else None)
+    report_path = call_data.get("report_path")
+    should_reject, payload = _patchops_p01_should_preflight_reject(source_path)
+    if not should_reject:
+        return _PATCHOPS_P01_V8_ORIGINAL_RUN_DELIVERY_PACKAGE(*args, **kwargs)
+    notes = _patchops_p01_build_notes(payload or {})
+    stderr_text = "\n".join(notes)
+    _patchops_p01_write_report(report_path, source_path, payload or {}, notes, stderr_text)
+    launcher_path = None
+    if isinstance(payload, dict):
+        launcher_review = payload.get("launcher_review")
+        if isinstance(launcher_review, dict):
+            launcher_path = launcher_review.get("launcher_path")
+    return _patchops_p01_SimpleNamespace(
+        ok=False,
+        exit_code=1,
+        failure_category="package_authoring_failure",
+        inner_report_path=None,
+        stderr=stderr_text,
+        notes=notes,
+        stdout="",
+        launcher_path=launcher_path,
+        source_kind="zip",
+        extracted_path=None,
+        bundle_root=None,
+        inner_result=None,
+        inner_exit_code=None,
+        inner_failure_category=None,
+        outer_report_path=str(report_path) if report_path else None,
+    )
+# PATCHOPS_PATCH_01_V8_END

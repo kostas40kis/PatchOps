@@ -1,20 +1,24 @@
 from pathlib import Path
 
 
-def test_failure_repair_guide_mentions_classification_guided_repair_choice():
-    text = Path("docs/failure_repair_guide.md").read_text(encoding="utf-8").lower()
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DOC_PATH = PROJECT_ROOT / "docs" / "repair_guidance.md"
+REQUIRED_PHRASES = [
+    "Use verify-only rerun when",
+    "Use wrapper-only repair or retry when",
+    "Repair target content when",
+    "Stop because the run is suspicious when",
+    "Repair patch authoring when",
+    "wrapper_failure",
+    "target_project_failure",
+    "patch_authoring_failure",
+    "ambiguous_or_suspicious_run",
+    "continue patch by patch from evidence",
+]
 
-    assert "classification-guided repair choice" in text
-    assert "verify-only" in text
-    assert "wrapper-only repair" in text
-    assert "repair target content" in text
-    assert "suspicious" in text
 
-
-def test_failure_repair_guide_mentions_maintained_failure_classes():
-    text = Path("docs/failure_repair_guide.md").read_text(encoding="utf-8").lower()
-
-    assert "target_project_failure" in text
-    assert "wrapper_failure" in text
-    assert "patch_authoring_failure" in text
-    assert "ambiguous_or_suspicious_run" in text
+def test_classification_docs_stop_current() -> None:
+    assert DOC_PATH.exists(), f"Missing repair guidance doc: {DOC_PATH}"
+    text = DOC_PATH.read_text(encoding="utf-8")
+    for phrase in REQUIRED_PHRASES:
+        assert phrase in text, f"Missing phrase in classification docs stop: {phrase!r}"

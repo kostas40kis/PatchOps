@@ -1,101 +1,90 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
+from types import SimpleNamespace
 
-from patchops.reporting import RunOriginMetadata, build_report_header_metadata, render_report_header
-from patchops.workflows.apply_patch import apply_manifest
+from patchops.reporting import (
+    ReportHeaderMetadata,
+    RunOriginMetadata,
+    build_report_header_metadata,
+    render_report_header,
+    render_report_header_lines,
+)
 
 
-def test_report_header_metadata_carries_run_origin_fields(tmp_path: Path) -> None:
-    wrapper_root = tmp_path / "wrapper_root"
-    manifest_root = tmp_path / "manifest_root"
-    target_root = tmp_path / "target_root"
-    report_dir = tmp_path / "reports"
-
-    wrapper_root.mkdir(parents=True, exist_ok=True)
-    manifest_root.mkdir(parents=True, exist_ok=True)
-    target_root.mkdir(parents=True, exist_ok=True)
-    report_dir.mkdir(parents=True, exist_ok=True)
-
-    manifest_path = manifest_root / "patch_manifest.json"
-    manifest_data = {
-        "manifest_version": "1",
-        "patch_name": "mp27_header_provenance_contract",
-        "active_profile": "generic_python",
-        "target_project_root": str(target_root),
-        "backup_files": [],
-        "files_to_write": [],
-        "validation_commands": [],
-        "smoke_commands": [],
-        "audit_commands": [],
-        "cleanup_commands": [],
-        "archive_commands": [],
-        "failure_policy": {},
-        "report_preferences": {
-            "report_dir": str(report_dir),
-            "report_name_prefix": "mp27_header_provenance_contract",
-            "write_to_desktop": False,
-        },
-    }
-    manifest_path.write_text(json.dumps(manifest_data, indent=2) + "\n", encoding="utf-8")
-
-    result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
-    metadata = build_report_header_metadata(result)
-
-    assert metadata.run_origin == RunOriginMetadata(
-        workflow_mode="apply",
-        manifest_path=manifest_path.resolve(),
+def test_render_report_header_lines_include_run_origin_fields() -> None:
+    manifest_path = Path("C:/bundle/manifest.json")
+    metadata = ReportHeaderMetadata(
+        patch_name="mp27_report_header_provenance_contract",
+        timestamp="2026-04-24 15:31:05",
+        workspace_root=Path("C:/dev"),
+        wrapper_project_root=Path("C:/dev/patchops"),
+        target_project_root=Path("C:/dev/patchops"),
         active_profile="generic_python",
-        resolved_runtime=None,
-        wrapper_project_root=wrapper_root.resolve(),
-        target_project_root=target_root,
+        runtime_path=None,
+        report_path=Path("C:/Users/kostas/Desktop/report.txt"),
+        manifest_path=manifest_path,
+        mode="apply",
+        backup_root=Path("C:/dev/patchops/data/runtime/patch_backups/mp27"),
+        manifest_version="1",
+        run_origin=RunOriginMetadata(
+            workflow_mode="apply",
+            manifest_path=manifest_path,
+            active_profile="generic_python",
+            resolved_runtime=None,
+            wrapper_project_root=Path("C:/dev/patchops"),
+            target_project_root=Path("C:/dev/patchops"),
+        ),
     )
 
-    text = render_report_header(metadata)
+    lines = render_report_header_lines(metadata)
+    text = "\n".join(lines)
+
+    assert lines[0] == "PATCHOPS APPLY"
+    assert "Patch Name           : mp27_report_header_provenance_contract" in text
     assert "Wrapper Mode Used    : apply" in text
-    assert f"Manifest Path Used   : {manifest_path.resolve()}" in text
+    assert f"Manifest Path Used   : {manifest_path}" in text
     assert "Profile Resolved     : generic_python" in text
     assert "Runtime Resolved     : (none)" in text
+    assert "Manifest Version     : 1" in text
 
 
-def test_canonical_report_header_shows_provenance_fields(tmp_path: Path) -> None:
-    wrapper_root = tmp_path / "wrapper_root"
-    manifest_root = tmp_path / "manifest_root"
-    target_root = tmp_path / "target_root"
-    report_dir = tmp_path / "reports"
+def test_build_report_header_metadata_keeps_run_origin_visible() -> None:
+    result = SimpleNamespace(
+        manifest=SimpleNamespace(
+            patch_name="mp27_report_header_provenance_contract",
+            manifest_version=1,
+        ),
+        workspace_root=Path("C:/dev"),
+        wrapper_project_root=Path("C:/dev/patchops"),
+        target_project_root=Path("C:/dev/patchops"),
+        resolved_profile=SimpleNamespace(name="generic_python"),
+        runtime_path=None,
+        report_path=Path("C:/Users/kostas/Desktop/report.txt"),
+        manifest_path=Path("C:/bundle/manifest.json"),
+        mode="apply",
+        backup_root=Path("C:/dev/patchops/data/runtime/patch_backups/mp27"),
+        run_origin=RunOriginMetadata(
+            workflow_mode="apply",
+            manifest_path=Path("C:/bundle/manifest.json"),
+            active_profile="generic_python",
+            resolved_runtime=None,
+            wrapper_project_root=Path("C:/dev/patchops"),
+            target_project_root=Path("C:/dev/patchops"),
+        ),
+        write_records=[],
+    )
 
-    wrapper_root.mkdir(parents=True, exist_ok=True)
-    manifest_root.mkdir(parents=True, exist_ok=True)
-    target_root.mkdir(parents=True, exist_ok=True)
-    report_dir.mkdir(parents=True, exist_ok=True)
+    metadata = build_report_header_metadata(result)
+    header = render_report_header(metadata)
 
-    manifest_path = manifest_root / "patch_manifest.json"
-    manifest_data = {
-        "manifest_version": "1",
-        "patch_name": "mp27_header_rendered_provenance_contract",
-        "active_profile": "generic_python",
-        "target_project_root": str(target_root),
-        "backup_files": [],
-        "files_to_write": [],
-        "validation_commands": [],
-        "smoke_commands": [],
-        "audit_commands": [],
-        "cleanup_commands": [],
-        "archive_commands": [],
-        "failure_policy": {},
-        "report_preferences": {
-            "report_dir": str(report_dir),
-            "report_name_prefix": "mp27_header_rendered_provenance_contract",
-            "write_to_desktop": False,
-        },
-    }
-    manifest_path.write_text(json.dumps(manifest_data, indent=2) + "\n", encoding="utf-8")
-
-    result = apply_manifest(manifest_path, wrapper_project_root=wrapper_root)
-    report_text = result.report_path.read_text(encoding="utf-8")
-
-    assert "Wrapper Mode Used    : apply" in report_text
-    assert f"Manifest Path Used   : {manifest_path.resolve()}" in report_text
-    assert "Profile Resolved     : generic_python" in report_text
-    assert "Runtime Resolved     : (none)" in report_text
+    assert metadata.patch_name == "mp27_report_header_provenance_contract"
+    assert metadata.manifest_version == "1"
+    assert metadata.active_profile == "generic_python"
+    assert metadata.run_origin is not None
+    assert metadata.run_origin.workflow_mode == "apply"
+    assert metadata.run_origin.manifest_path == Path("C:/bundle/manifest.json")
+    assert "Wrapper Mode Used    : apply" in header
+    assert f"Manifest Path Used   : {result.manifest_path}" in header
+    assert "Profile Resolved     : generic_python" in header
+    assert "Runtime Resolved     : (none)" in header

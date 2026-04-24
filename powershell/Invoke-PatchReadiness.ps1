@@ -1,57 +1,72 @@
 [CmdletBinding()]
 param(
-    [string]$WrapperRoot = "",
-    [string]$Profile = "",
-    [switch]$CoreTestsGreen,
-    [string]$ReportPath = "",
-    [string]$PythonExe = ""
+    [Parameter(Mandatory=$false)][Alias("WrapperProjectRoot","WrapperRepoRoot")][string]$WrapperRoot = (Split-Path -Path $PSScriptRoot -Parent),
+    [Parameter(Mandatory=$false)][string]$Profile = "",
+    [Parameter(Mandatory=$false)][switch]$CoreTestsGreen,
+    [Parameter(Mandatory=$false)][string]$ReportPath = ""
 )
 
-$ErrorActionPreference = 'Stop'
+$PatchOpsRepoRoot = Split-Path -Path $PSScriptRoot -Parent
 
-if ([string]::IsNullOrWhiteSpace($WrapperRoot)) {
-    $WrapperRoot = Split-Path -Path $PSScriptRoot -Parent
+function ConvertTo-PatchOpsPsArgument {
+    param([AllowNull()][string]$Value)
+    if ($null -eq $Value) { return '""' }
+    if ($Value -match '[\s"]') {
+        return '"' + ($Value -replace '"', '\"') + '"'
+    }
+    return $Value
 }
 
-# Example usage:
-# .\powershell\Invoke-PatchReadiness.ps1 -Profile trader -CoreTestsGreen -ReportPath C:\Users\Public\patchops_release_readiness.txt
+function Invoke-PatchOpsNative {
+    param(
+        [Parameter(Mandatory=$true)][string]$FilePath,
+        [Parameter(Mandatory=$true)][string[]]$Arguments
+    )
 
-$arguments = @('-m', 'patchops.cli')
-$arguments += @("release-readiness", "--wrapper-root", $WrapperRoot)
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName = $FilePath
+    $psi.WorkingDirectory = $PatchOpsRepoRoot
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
 
-if (-not [string]::IsNullOrWhiteSpace($Profile)) {
-    $arguments += @("--profile", $Profile)
-}
-
-if ($CoreTestsGreen.IsPresent) {
-    $arguments += @("--core-tests-green")
-}
-
-if (-not [string]::IsNullOrWhiteSpace($ReportPath)) {
-    $arguments += @("--report-path", $ReportPath)
-}
-
-if ([string]::IsNullOrWhiteSpace($PythonExe)) {
-    $py = Get-Command py -ErrorAction SilentlyContinue | Select-Object -First 1
-    if ($null -ne $py) {
-        $PythonExe = $py.Source
-        $prefixArgs = @('-3')
+    if ($psi.PSObject.Properties['ArgumentList'] -and $null -ne $psi.ArgumentList) {
+        foreach ($arg in $Arguments) {
+            $null = $psi.ArgumentList.Add([string]$arg)
+        }
     }
     else {
-        $python = Get-Command python -ErrorAction SilentlyContinue | Select-Object -First 1
-        if ($null -eq $python) {
-            throw 'Could not find py or python on PATH.'
+        $converted = foreach ($arg in $Arguments) {
+            ConvertTo-PatchOpsPsArgument -Value $arg
         }
-        $PythonExe = $python.Source
-        $prefixArgs = @()
+        $psi.Arguments = [string]::Join(' ', $converted)
     }
-}
-else {
-    $prefixArgs = @()
+
+    $p = New-Object System.Diagnostics.Process
+    $p.StartInfo = $psi
+    $null = $p.Start()
+    $stdout = $p.StandardOutput.ReadToEnd()
+    $stderr = $p.StandardError.ReadToEnd()
+    $p.WaitForExit()
+    if ($stdout) { [Console]::Out.Write($stdout) }
+    if ($stderr) { [Console]::Error.Write($stderr) }
+    return $p.ExitCode
 }
 
-& $PythonExe @($prefixArgs + $arguments)
-if ($null -eq $LASTEXITCODE) {
-    exit 0
+Set-Location -LiteralPath $PatchOpsRepoRoot
+$arguments = @('-m', 'patchops.cli')
+$arguments += @("release-readiness")
+$arguments += @('--wrapper-root', $WrapperRoot)
+if ($Profile) {
+    $arguments += @('--profile', $Profile)
 }
-exit $LASTEXITCODE
+if ($CoreTestsGreen) {
+    $arguments += @('--core-tests-green')
+}
+if ($ReportPath) {
+    $arguments += @('--report-path', $ReportPath)
+}
+
+# Usage note: -ReportPath forwards to --report-path on release-readiness.
+$exitCode = Invoke-PatchOpsNative -FilePath "py" -Arguments $arguments
+exit $exitCode

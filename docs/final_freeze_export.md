@@ -28,3 +28,8 @@ The freeze-export artifact does not replace:
 
 Use the handoff bundle for immediate run-state continuation.
 Use `handoff/final_future_llm_source_bundle.txt` when one durable history-compression artifact is preferred.
+Use `handoff/final_future_llm_source_bundle.txt` as the preferred history-compression artifact when one durable upload file is preferred.
+The freeze export should keep `handoff/current_handoff.md`, `handoff/current_handoff.json`, and `handoff/latest_report_copy.txt` visible as immediate continuation surfaces.
+The freeze export should also point to `docs/project_packet_workflow.md`, `docs/project_packet_contract.md`, `docs/projects/wrapper_self_hosted.md`, `examples/generic_python_powershell_patch.json`, `examples/trader_first_verify_patch.json`, `powershell/Invoke-QuietRunPackage.ps1`, and `powershell/Push-PatchOpsToGitHub.ps1`.
+handoff/final_future_llm_source_bundle.txt is the preferred history-compression artifact when one durable upload file is preferred.
+docs/projects/trader.md

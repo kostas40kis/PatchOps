@@ -45,3 +45,33 @@ Tags and notes are useful for operator context, but they do not replace manifest
 
 A zip bundle is the carrier.
 The manifest remains the execution contract inside that bundle.
+
+## Current manifest rules
+
+Current manifest guidance should reflect the shipped runtime rules:
+
+- `content_path` is authored relative to the wrapper project root
+- manifest-local resolution is compatibility fallback, not the primary contract
+- `allowed_exit_codes` belongs on validation commands when nonzero success is expected
+- classify failures honestly as:
+  - `target_project_failure`
+  - `wrapper_failure`
+  - `patch_authoring_failure`
+- Prefer explicit examples over inferred path rules.
+
+## Example references
+
+Current manifest guidance should point to real shipped examples:
+
+- `examples/generic_allowed_exit_patch.json`
+- `examples/generic_smoke_audit_patch.json`
+- `examples/generic_content_path_patch.json`
+
+For `files_to_write` entries, use wrapper-relative paths from the wrapper project root for `content_path`.
+- `allowed_exit_codes` is shown in `generic_allowed_exit_patch.json`.
+- Command-group examples are shown in `generic_smoke_audit_patch.json`.
+- `files_to_write entries` using `content_path` should be authored as wrapper-relative paths from the wrapper project root.
+- The runtime falls back to manifest-local resolution only as compatibility behavior, not as the primary rule.
+- For `files_to_write entries`, use wrapper-relative paths from the wrapper project root for `content_path`.
+- `examples/generic_cleanup_archive_patch.json` extends the command-group examples for cleanup/archive flows.
+- Manifest-local resolution remains a compatibility fallback rather than the primary contract.

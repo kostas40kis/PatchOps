@@ -1,44 +1,6 @@
 # Zip bundle standard
 
-## Purpose
-
-This file describes the maintained PatchOps zip bundle shape for the current live repo.
-A bundle is **bundle transport**, not a replacement for the manifest, profile, report, or project packet concepts.
-Keep the wrapper / target / project packet boundaries explicit.
-
-## Core distinction
-
-- the **manifest** is the execution contract
-- the **profile** selects wrapper behavior
-- the **report** is the final evidence artifact
-- the zip bundle is transport around those maintained surfaces
-- the project packet remains a separate maintained surface from bundle transport
-
-## Maintained root shape
-
-Archive the bundle root contents directly.
-Do not add an extra duplicate parent folder.
-Do not depend on a manual unzip stage.
-Do not require a manual unzip guess.
-
-Maintained bundle root:
-
-```text
-example_bundle/
-  bundle_meta.json
-  manifest.json
-  run_with_patchops.ps1
-  content/
-  launchers/
-```
-
-`run_with_patchops.ps1` is the one maintained root launcher.
-One root-level launcher is enough.
-One canonical Desktop txt report is enough.
-
-## Command sequence
-
-Use the maintained sequence:
+The maintained zip bundle process is:
 
 - `make-bundle`
 - `check-bundle`
@@ -48,33 +10,56 @@ Use the maintained sequence:
 - `build-bundle`
 - `run-package`
 
-Continue patch by patch from evidence.
-In lower-case contract wording: continue patch by patch from evidence.
+Always continue patch by patch from evidence.
 
-## Launcher and compatibility notes
+## Maintained bundle tree
 
-The saved root launcher is a thin launcher and a compatibility shim.
-Keep reusable mechanics in Python.
-Keep PowerShell thin and operator-facing.
-The launcher should preserve the normal bundle-entry path and end with one canonical Desktop txt report.
+- `manifest.json`
+- `bundle_meta.json`
+- `README.txt`
+- `run_with_patchops.ps1`
+- `content/`
 
-## Bundle doctor posture
+## Launcher standard
 
-`bundle-doctor` is the preferred troubleshooting entrypoint for shape validation and build verification before `run-package`.
+- `run_with_patchops.ps1`
+- one root-level launcher is enough
+- do not manually unzip in the maintained flow
+- use metadata-driven mode through `bundle_mode`
+- the compatibility shim remains documented only as a historical compatibility shim, not the maintained authoring path.
+- the compatibility shim also guards against stray leading `/` or `\` characters in pasted or generated command surfaces.
+- `create_starter_bundle` and `emit_root_bundle_launcher` are the maintained emission surfaces
+- do not hand-author the saved root launcher unless you are deliberately repairing it
+- use a top-level `param(...)` script-file form for the saved launcher
+- keep inline `& { ... }` wrapping only for inline or paste-safe scenarios
 
-## Path hygiene
+## Authoring note
 
-Reject malformed bundle shapes early.
-Be careful with stray leading `/` or `\` characters in path inputs.
-Avoid stale assumptions about older PatchOps launcher layouts.
+Generate the bundle from Python when possible.
 
-## Maintained run example
+## Proof note
 
-```powershell
-py -m patchops.cli run-package "D:\some_patch_bundle.zip" --wrapper-root "C:\dev\patchops"
-```
+Patch 12 onward the process is proven self-hosted.
 
-That normal bundle-entry path should end with one canonical Desktop txt report.
+<!-- PATCHOPS_G1_BUNDLE_DOC_WORDING_CONTRACT:STANDARD:START -->
+## Patch G1 - bundle standard wording contract
 
-Patch 12 onward this standardized bundle flow is treated as proven self-hosted.
+This section locks the current bundle documentation wording without redesigning the bundle system.
 
+- `manifest`, `profile`, `report`, and `project packet` are distinct PatchOps concepts.
+- The `bundle transport` is the zip or folder package that carries the manifest, metadata, launcher, and content.
+- The historical `manual unzip` stage remains documented for older PatchOps and old delivered bundles.
+- For the maintained raw-zip path, do not manually unzip before the normal command; use `py -m patchops.cli run-package "D:\some_patch_bundle.zip" --wrapper-root "C:\dev\patchops"`.
+- A normal delivery is one patch zip.
+- Archive the bundle root contents directly.
+- Do not add an extra duplicate parent folder.
+- `run_with_patchops.ps1` is the maintained saved root launcher.
+- One root-level launcher is enough.
+- `bundle_mode` in metadata owns apply, verify, and proof mode selection.
+- The legacy `launchers/` folder can still appear in examples or compatibility material, but the maintained root launcher is `run_with_patchops.ps1`.
+- Every normal run must end in one canonical Desktop txt report.
+- `bundle-doctor` is the preferred troubleshooting entrypoint for shape validation and build verification.
+- Maintained command order: `make-bundle`, `check-bundle`, `inspect-bundle`, `plan-bundle`, `bundle-doctor`, `build-bundle`, `run-package`.
+- After every run, continue patch by patch from evidence.
+- Patch 12 onward the process is proven self-hosted.
+<!-- PATCHOPS_G1_BUNDLE_DOC_WORDING_CONTRACT:STANDARD:END -->

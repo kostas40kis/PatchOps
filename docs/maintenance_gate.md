@@ -36,3 +36,17 @@ The command returns stable JSON and can also write a deterministic text artifact
 - this command is the maintained combined entrypoint
 - continue patch by patch from evidence
 - keep PowerShell thin and keep the reusable gate logic in Python
+
+## Operator-facing entrypoints
+
+Use `maintenance-gate` directly from the CLI or through repo-owned entry launchers emitted by `emit-operator-script`.
+
+Those entrypoints must agree on:
+- payload shape
+- wrapper-root forwarding
+- JSON stdout truth
+- exit behavior
+The maintenance gate is the combined wrapper health gate.
+It should remain trustworthy in maintenance mode.
+It should not reinterpret the canonical report or broaden PowerShell logic.
+Use it as a validation-first answer to current wrapper health.

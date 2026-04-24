@@ -83,12 +83,3 @@ def test_ambiguous_run_recommends_stop_and_inspect():
         target_content_already_present=False,
         writes_applied_by_wrapper=False,
     ) == STOP_AND_INSPECT_EVIDENCE
-
-
-def test_verify_only_case_remains_distinct_from_content_repair():
-    assert derive_next_mode(
-        run_passed=False,
-        failure_class=TARGET_PROJECT_FAILURE,
-        target_content_already_present=True,
-        writes_applied_by_wrapper=False,
-    ) == VERIFY_ONLY

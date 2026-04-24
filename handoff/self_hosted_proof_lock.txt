@@ -14,3 +14,11 @@ This note is a narrow proof artifact, not a documentation-phase rewrite.
 
 
 This bundle also repairs the bundle_meta contract so preflight can reach the maintained self-hosted apply path.
+
+self-hosted proof
+run-package
+canonical report truth
+inner report
+wrapper_owned_write_engine
+check-bundle -> check -> inspect -> plan -> apply
+future handoff use

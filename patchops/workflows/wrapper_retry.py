@@ -192,3 +192,75 @@ def execute_wrapper_only_retry(
     )
     result.mode="wrapper_only_retry"
     return result
+
+# PATCHOPS_D1_WRAPPER_RETRY_SCOPE_LINE_NORMALIZATION_20260422
+_PATCHOPS_D1_PREV_RENDER_WRAPPER_ONLY_RETRY_SCOPE_LINES = render_wrapper_only_retry_scope_lines
+
+def render_wrapper_only_retry_scope_lines(state):
+    lines = tuple(_PATCHOPS_D1_PREV_RENDER_WRAPPER_ONLY_RETRY_SCOPE_LINES(state))
+    normalized: list[str] = []
+
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("Writes Skipped"):
+            normalized.append("Writes   : skipped")
+        else:
+            normalized.append(line)
+
+    if not any(line == "Writes   : skipped" for line in normalized):
+        insert_at = None
+        for index, line in enumerate(normalized):
+            if line.startswith("Kind     :"):
+                insert_at = index + 1
+                break
+            if line.startswith("Mode     :"):
+                insert_at = index + 1
+        if insert_at is None:
+            normalized.append("Writes   : skipped")
+        else:
+            normalized.insert(insert_at, "Writes   : skipped")
+
+    return tuple(normalized)
+
+# PATCHOPS_E2_WRAPPER_RETRY_WRITES_SKIPPED_ALIAS_20260423
+_PATCHOPS_E2_PREV_RENDER_WRAPPER_ONLY_RETRY_SCOPE_LINES = render_wrapper_only_retry_scope_lines
+
+def render_wrapper_only_retry_scope_lines(state):
+    lines = tuple(_PATCHOPS_E2_PREV_RENDER_WRAPPER_ONLY_RETRY_SCOPE_LINES(state))
+    if any(("writes skipped" in line.lower()) or ("writes_skipped" in line.lower()) for line in lines):
+        return lines
+
+    insert_at = None
+    for index, line in enumerate(lines):
+        if line.strip().startswith("Writes"):
+            insert_at = index + 1
+            break
+    normalized = list(lines)
+    alias_line = "Writes skipped : yes" if getattr(state, "writes_skipped", False) else "Writes skipped : no"
+    if insert_at is None:
+        normalized.append(alias_line)
+    else:
+        normalized.insert(insert_at, alias_line)
+    return tuple(normalized)
+
+# PATCHOPS_E2_WRAPPER_RETRY_WRITES_SKIPPED_ALIAS_V2_20260423
+_PATCHOPS_E2_PREV_RENDER_WRAPPER_ONLY_RETRY_SCOPE_LINES_V2 = render_wrapper_only_retry_scope_lines
+
+def render_wrapper_only_retry_scope_lines(state):
+    lines = tuple(_PATCHOPS_E2_PREV_RENDER_WRAPPER_ONLY_RETRY_SCOPE_LINES_V2(state))
+    if any(("writes skipped" in line.lower()) or ("writes_skipped" in line.lower()) for line in lines):
+        return lines
+    normalized = list(lines)
+    alias_line = "Writes skipped : yes" if getattr(state, "writes_skipped", False) else "Writes skipped : no"
+    insert_at = None
+    for index, line in enumerate(normalized):
+        if line.lower().startswith("writes"):
+            insert_at = index + 1
+            break
+    if insert_at is None:
+        normalized.append(alias_line)
+    else:
+        normalized.insert(insert_at, alias_line)
+    return tuple(normalized)
+
+globals()["render_wrapper_only_retry_scope_lines"] = render_wrapper_only_retry_scope_lines

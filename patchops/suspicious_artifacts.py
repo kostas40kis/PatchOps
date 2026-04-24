@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-MARKER = "PATCHOPS_MP46A_ARTIFACT_REPORT_MENTION_REPAIR"
+MARKER = "PATCHOPS_MP45_OPTIONAL_ARTIFACT_EMISSION"
 
 
 @dataclass(slots=True)
@@ -43,10 +43,14 @@ def emit_suspicious_run_artifact(
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_text(artifact.to_json_text(), encoding="utf-8")
     return destination
-
-
+# PATCHOPS_A2R_SUSPICIOUS_ARTIFACT_REPORT_LINES
 def suspicious_run_artifact_report_lines(artifact_path: str | Path | None) -> list[str]:
+    """Return compact report lines for an emitted suspicious-run artifact.
+
+    This helper is intentionally small and path-only. It does not parse the
+    artifact JSON and it avoids putting the word "report" in the label because
+    the current contract test checks for compact artifact wording.
+    """
     if artifact_path is None:
         return []
-    path = Path(artifact_path)
-    return [f"Suspicious-run artifact emitted : {path}"]
+    return [f"Suspicious-run artifact emitted : {artifact_path}"]

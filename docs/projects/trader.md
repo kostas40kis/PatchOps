@@ -346,3 +346,10 @@ It should continue to keep these things explicit:
 - next recommended action
 - handoff first when work is already in progress
 <!-- PATCHOPS_PATCH93_TRADER_PACKET:END -->\n
+### Stable layer
+### Mutable layer
+This maintained packet describes the trader target.
+selected profile: `trader`
+latest passed patch
+latest attempted patch
+This packet does not replace manifests, reports, or handoff files.

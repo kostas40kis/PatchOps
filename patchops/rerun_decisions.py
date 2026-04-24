@@ -18,6 +18,7 @@ def should_recommend_verify_only(*, failure_class: str | None, target_content_al
         return False
     return True
 
+
 def should_recommend_wrapper_only_repair(*, failure_class: str | None, target_content_already_present: bool, writes_applied_by_wrapper: bool) -> bool:
     """Return True when wrapper-only repair is the narrow truthful next mode."""
     if failure_class != 'wrapper_failure':

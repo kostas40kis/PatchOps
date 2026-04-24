@@ -43,7 +43,11 @@ def _write_workflow_report(report_path: Path, report_text: str) -> None:
         report_path.write_text(report_text, encoding="utf-8")
 
 
-def apply_manifest(manifest_path: str | Path, wrapper_project_root: str | Path | None = None) -> WorkflowResult:
+def apply_manifest(manifest_path: str | Path, wrapper_project_root: str | Path | None = None, wrapper_root: str | Path | None = None) -> WorkflowResult:
+    # PATCHOPS_D1_WRAPPER_ROOT_ALIAS
+    if wrapper_project_root is None and wrapper_root is not None:
+        wrapper_project_root = wrapper_root
+
     manifest_path = Path(manifest_path).resolve()
     wrapper_root = Path(wrapper_project_root).resolve() if wrapper_project_root else Path(__file__).resolve().parents[2]
     manifest = load_manifest(manifest_path)

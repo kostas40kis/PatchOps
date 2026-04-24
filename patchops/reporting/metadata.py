@@ -147,3 +147,69 @@ def build_backup_write_evidence_lines(result) -> list[str]:
             lines.append(f"WRITE  : {target_path}")
 
     return lines
+
+# PATCHOPS_PATCH_13_V2_START
+_PATCHOPS_P13_ORIGINAL_BUILD_RUN_ORIGIN_METADATA = build_run_origin_metadata
+
+
+def _patchops_p13_detect_file_write_origin(result) -> str | None:
+    explicit = getattr(result, "file_write_origin", None)
+    if explicit:
+        return str(explicit)
+
+    existing_origin = getattr(result, "run_origin", None)
+    if existing_origin is not None:
+        existing_value = getattr(existing_origin, "file_write_origin", None)
+        if existing_value:
+            return str(existing_value)
+
+    write_records = list(getattr(result, "write_records", ()) or ())
+    for record in write_records:
+        for attr_name in ("file_write_origin", "write_origin", "origin"):
+            value = getattr(record, attr_name, None)
+            if value:
+                return str(value)
+
+    return None
+
+
+def build_run_origin_metadata(result: WorkflowResult) -> RunOriginMetadata:
+    origin = _PATCHOPS_P13_ORIGINAL_BUILD_RUN_ORIGIN_METADATA(result)
+    file_write_origin = _patchops_p13_detect_file_write_origin(result)
+
+    if file_write_origin == origin.file_write_origin:
+        return origin
+
+    return RunOriginMetadata(
+        workflow_mode=origin.workflow_mode,
+        manifest_path=origin.manifest_path,
+        active_profile=origin.active_profile,
+        resolved_runtime=origin.resolved_runtime,
+        wrapper_project_root=origin.wrapper_project_root,
+        target_project_root=origin.target_project_root,
+        file_write_origin=file_write_origin,
+    )
+# PATCHOPS_PATCH_13_V2_END
+# PATCHOPS_D1_FILE_WRITE_ORIGIN_FALLBACK
+_PATCHOPS_D1_PREV_BUILD_RUN_ORIGIN_METADATA = build_run_origin_metadata
+
+
+def build_run_origin_metadata(result: WorkflowResult) -> RunOriginMetadata:
+    origin = _PATCHOPS_D1_PREV_BUILD_RUN_ORIGIN_METADATA(result)
+    if origin.file_write_origin:
+        return origin
+
+    write_records = list(getattr(result, "write_records", ()) or ())
+    if not write_records:
+        return origin
+
+    return RunOriginMetadata(
+        workflow_mode=origin.workflow_mode,
+        manifest_path=origin.manifest_path,
+        active_profile=origin.active_profile,
+        resolved_runtime=origin.resolved_runtime,
+        wrapper_project_root=origin.wrapper_project_root,
+        target_project_root=origin.target_project_root,
+        file_write_origin="wrapper_owned_write_engine",
+    )
+# PATCHOPS_D1_FILE_WRITE_ORIGIN_FALLBACK_END

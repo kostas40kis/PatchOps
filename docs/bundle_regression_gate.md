@@ -7,6 +7,9 @@ It must keep both worlds visible at the same time:
 - classic manifest review surfaces
 - bundle review/build surfaces
 
+This is a release gate for the maintained workflow, not a redesign note.
+A shippable repo should keep the manifest and bundle worlds aligned instead of letting one drift.
+
 ## Regression matrix
 
 ### Classic manifest review surfaces
@@ -23,7 +26,6 @@ It must keep both worlds visible at the same time:
 
 ## Gate posture
 
-This is a release gate for the maintained workflow, not a redesign note.
 Keep PowerShell thin and operator-facing.
 Keep reusable mechanics in Python.
 continue patch by patch from evidence

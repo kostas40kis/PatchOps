@@ -601,3 +601,16 @@ PatchOps is no longer best understood as an architecture experiment. It is best 
 ---
 
 PatchOps should now be treated as a maintained wrapper product. No broad redesign is currently justified. Optional future work is additive only. Future LLMs should begin from the current handoff for active work or the generic onboarding flow for new targets.
+
+## Pythonization maintenance addendum
+
+PatchOps now carries a small Python-owned suspicious-run support layer.
+That layer is conservative by design:
+
+- it detects only a narrow set of suspicious wrapper contradictions,
+- it can emit a compact structured suspicious-run artifact,
+- artifact emission is opt-in in the first release,
+- and the canonical report can mention the emitted artifact with one short line.
+
+This support should be read as wrapper-health support only.
+It is not target-project business logic and it is not a product redesign.

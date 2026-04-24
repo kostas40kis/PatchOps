@@ -77,3 +77,5 @@ The practical default is:
 - lock wording with tests when needed,
 - preserve one canonical Desktop txt report,
 - and keep PowerShell thin while keeping reusable mechanics in Python.
+The final release / maintenance gate should point to `README.md`, `docs/project_status.md`, `docs/finalization_master_plan.md`, `docs/post_publish_snapshot.md`, and `docs/maintenance_freeze_packet.md` as the current verdict surfaces.
+The maintenance gate remains validation-first, keeps one canonical Desktop txt report, and must not widen the product.

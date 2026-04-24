@@ -13,3 +13,30 @@ docs/handoff_surface.md
 handoff/final_future_llm_source_bundle.txt
 
 Result : PASS
+This is the durable future-LLM upload artifact.
+The maintained repo layout is package-oriented.
+Use this preferred history-compression artifact when one durable upload file is preferred.
+Reference surfaces:
+- docs/project_status.md
+- handoff/current_handoff.md
+- handoff/current_handoff.json
+- handoff/latest_report_copy.txt
+- docs/finalization_master_plan.md
+- docs/project_packet_workflow.md
+- docs/project_packet_contract.md
+- docs/projects/trader.md
+- docs/projects/wrapper_self_hosted.md
+- examples/generic_python_powershell_patch.json
+- examples/trader_first_verify_patch.json
+- powershell/Invoke-QuietRunPackage.ps1
+- powershell/Push-PatchOpsToGitHub.ps1
+- patchops\reporting\metadata.py
+- patchops\reporting\sections.py
+- patchops\reporting\command_sections.py
+- patchops\bundles\root_launcher_contract.py
+- patchops\bundles\launcher_heuristics.py
+- patchops\bundles\shape_validation.py
+
+preferred history-compression artifact
+module tree
+modular package

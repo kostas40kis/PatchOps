@@ -30,3 +30,5 @@ Before touching trader, prove the flow in this order:
 ## Generic Python + PowerShell apply proof
 
 A dedicated apply-flow test now proves that `generic_python_powershell` can execute a PowerShell validation command plus a Python smoke command and still produce a clean PASS report.
+Prefer `generic_python_powershell` when the repo stays generic but the validation or smoke surface needs both runtimes.
+Start with the smallest correct profile.

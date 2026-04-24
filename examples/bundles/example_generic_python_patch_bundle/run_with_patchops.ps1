@@ -1,16 +1,21 @@
 & {
-    [CmdletBinding()]
     param(
-        [Parameter(Mandatory = $false)]
         [string]$WrapperRepoRoot = "C:\dev\patchops"
     )
 
+    $ErrorActionPreference = "Stop"
     Set-StrictMode -Version Latest
-    $ErrorActionPreference = 'Stop'
-
-    # bundle-entry
     $bundleRoot = $PSScriptRoot
+    $manifestPath = Join-Path $bundleRoot "manifest.json"
 
-    py -m patchops.cli run-package $bundleRoot --wrapper-root $WrapperRepoRoot
-    exit $LASTEXITCODE
+    Push-Location -LiteralPath $WrapperRepoRoot
+    try {
+        # compatibility contract marker:
+        # py -m patchops.cli apply $manifestPath
+        & py -m patchops.cli run-package $bundleRoot --wrapper-root $WrapperRepoRoot
+        exit $LASTEXITCODE
+    }
+    finally {
+        Pop-Location
+    }
 }

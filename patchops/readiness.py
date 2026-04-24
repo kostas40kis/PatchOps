@@ -503,3 +503,335 @@ def write_release_readiness_report(
     ) + "\n"
     path.write_text(text, encoding="utf-8")
     return str(path)
+
+# PATCHOPS_D3C_RELEASE_READINESS_RUNTIME_SAFE_OVERRIDE_20260423
+from dataclasses import asdict as _patchops_d3c_asdict
+from dataclasses import dataclass as _patchops_d3c_dataclass
+from pathlib import Path as _patchops_d3c_Path
+from typing import Iterable as _patchops_d3c_Iterable
+
+REQUIRED_BUNDLE_RELEASE_DOCS = (
+    "docs/bundle_contract_packet.md",
+    "docs/bundle_regression_gate.md",
+    "docs/bundle_smoke_gate.md",
+    "docs/self_hosted_bundle_proof.md",
+    "docs/bundle_release_readiness.md",
+)
+
+REQUIRED_BUNDLE_RELEASE_WORKFLOWS = (
+    "patchops/bundles/authoring.py",
+    "patchops/bundles/launcher_emitter.py",
+)
+
+REQUIRED_BUNDLE_RELEASE_TESTS = (
+    "tests/test_bundle_contract_packet_current.py",
+    "tests/test_bundle_manifest_regression_gate_current.py",
+    "tests/test_bundle_post_build_smoke_gate_current.py",
+    "tests/test_self_hosted_bundle_authoring_proof_current.py",
+)
+
+MAINTENANCE_GATE_REGRESSION_TESTS = (
+    "tests/test_bundle_manifest_regression_gate_current.py",
+)
+
+MAINTENANCE_GATE_SMOKE_TESTS = (
+    "tests/test_bundle_post_build_smoke_gate_current.py",
+)
+
+@_patchops_d3c_dataclass(frozen=True)
+class ReleaseReadinessSnapshot:
+    status: str
+    core_tests_state: str
+    release_docs_ok: bool
+    release_examples_ok: bool
+    release_workflows_ok: bool
+    release_launchers_ok: bool
+    release_tests_ok: bool
+    profiles_ok: bool
+    bundle_release_docs_ok: bool
+    bundle_release_workflows_ok: bool
+    bundle_release_tests_ok: bool
+    missing_release_docs: tuple[str, ...]
+    missing_release_examples: tuple[str, ...]
+    missing_release_workflows: tuple[str, ...]
+    missing_release_launchers: tuple[str, ...]
+    missing_release_tests: tuple[str, ...]
+    missing_profiles: tuple[str, ...]
+    missing_bundle_release_docs: tuple[str, ...]
+    missing_bundle_release_workflows: tuple[str, ...]
+    missing_bundle_release_tests: tuple[str, ...]
+    issues: tuple[str, ...]
+
+def build_release_readiness_snapshot(
+    wrapper_project_root: str | Path,
+    available_profiles: _patchops_d3c_Iterable[str],
+    core_tests_state: str = "unknown",
+) -> ReleaseReadinessSnapshot:
+    if core_tests_state not in {"green", "unknown", "not_green"}:
+        raise ValueError(
+            "core_tests_state must be one of 'green', 'unknown', or 'not_green'."
+        )
+
+    wrapper_root = Path(wrapper_project_root).resolve()
+
+    missing_release_docs = _missing_paths(wrapper_root, REQUIRED_RELEASE_DOCS)
+    missing_release_examples = _missing_paths(wrapper_root, REQUIRED_RELEASE_EXAMPLES)
+    missing_release_workflows = _missing_paths(wrapper_root, REQUIRED_RELEASE_WORKFLOWS)
+    missing_release_launchers = _missing_paths(wrapper_root, REQUIRED_RELEASE_LAUNCHERS)
+    missing_release_tests = _missing_paths(wrapper_root, REQUIRED_RELEASE_TESTS)
+    missing_profiles = _missing_profile_names(
+        available_profiles,
+        REQUIRED_RELEASE_PROFILES,
+    )
+    missing_bundle_release_docs = _missing_paths(wrapper_root, REQUIRED_BUNDLE_RELEASE_DOCS)
+    missing_bundle_release_workflows = _missing_paths(
+        wrapper_root,
+        REQUIRED_BUNDLE_RELEASE_WORKFLOWS,
+    )
+    missing_bundle_release_tests = _missing_paths(
+        wrapper_root,
+        REQUIRED_BUNDLE_RELEASE_TESTS,
+    )
+
+    release_docs_ok = not missing_release_docs
+    release_examples_ok = not missing_release_examples
+    release_workflows_ok = not missing_release_workflows
+    release_launchers_ok = not missing_release_launchers
+    release_tests_ok = not missing_release_tests
+    profiles_ok = not missing_profiles
+    bundle_release_docs_ok = not missing_bundle_release_docs
+    bundle_release_workflows_ok = not missing_bundle_release_workflows
+    bundle_release_tests_ok = not missing_bundle_release_tests
+
+    issues: list[str] = []
+    if not release_docs_ok:
+        issues.append("missing release docs")
+    if not release_examples_ok:
+        issues.append("missing release examples")
+    if not release_workflows_ok:
+        issues.append("missing release workflows")
+    if not release_launchers_ok:
+        issues.append("missing release launchers")
+    if not release_tests_ok:
+        issues.append("missing release tests")
+    if not profiles_ok:
+        issues.append("missing expected profiles")
+    if not bundle_release_docs_ok:
+        issues.append("missing bundle release docs")
+    if not bundle_release_workflows_ok:
+        issues.append("missing bundle release workflows")
+    if not bundle_release_tests_ok:
+        issues.append("missing bundle release tests")
+    if core_tests_state == "unknown":
+        issues.append("core test state not provided")
+    elif core_tests_state == "not_green":
+        issues.append("core test state is not_green")
+
+    hard_missing = any(
+        (
+            not release_docs_ok,
+            not release_examples_ok,
+            not release_workflows_ok,
+            not release_launchers_ok,
+            not release_tests_ok,
+            not profiles_ok,
+            not bundle_release_docs_ok,
+            not bundle_release_workflows_ok,
+            not bundle_release_tests_ok,
+        )
+    )
+
+    if hard_missing:
+        status = "not_ready"
+    elif core_tests_state == "green":
+        status = "green"
+    else:
+        status = "review_required"
+
+    return ReleaseReadinessSnapshot(
+        status=status,
+        core_tests_state=core_tests_state,
+        release_docs_ok=release_docs_ok,
+        release_examples_ok=release_examples_ok,
+        release_workflows_ok=release_workflows_ok,
+        release_launchers_ok=release_launchers_ok,
+        release_tests_ok=release_tests_ok,
+        profiles_ok=profiles_ok,
+        bundle_release_docs_ok=bundle_release_docs_ok,
+        bundle_release_workflows_ok=bundle_release_workflows_ok,
+        bundle_release_tests_ok=bundle_release_tests_ok,
+        missing_release_docs=missing_release_docs,
+        missing_release_examples=missing_release_examples,
+        missing_release_workflows=missing_release_workflows,
+        missing_release_launchers=missing_release_launchers,
+        missing_release_tests=missing_release_tests,
+        missing_profiles=missing_profiles,
+        missing_bundle_release_docs=missing_bundle_release_docs,
+        missing_bundle_release_workflows=missing_bundle_release_workflows,
+        missing_bundle_release_tests=missing_bundle_release_tests,
+        issues=tuple(issues),
+    )
+
+def render_release_readiness_scope_lines(
+    snapshot: ReleaseReadinessSnapshot,
+) -> tuple[str, ...]:
+    return (
+        "Surface     : release-readiness",
+        f"Status      : {snapshot.status}",
+        f"CoreTests   : {snapshot.core_tests_state}",
+        f"Docs        : {'ok' if snapshot.release_docs_ok else 'missing'}",
+        f"Examples    : {'ok' if snapshot.release_examples_ok else 'missing'}",
+        f"Workflows   : {'ok' if snapshot.release_workflows_ok else 'missing'}",
+        f"Launchers   : {'ok' if snapshot.release_launchers_ok else 'missing'}",
+        f"Tests       : {'ok' if snapshot.release_tests_ok else 'missing'}",
+        f"Profiles    : {'ok' if snapshot.profiles_ok else 'missing'}",
+        f"BundleDocs  : {'ok' if snapshot.bundle_release_docs_ok else 'missing'}",
+        f"BundleFlows : {'ok' if snapshot.bundle_release_workflows_ok else 'missing'}",
+        f"BundleTests : {'ok' if snapshot.bundle_release_tests_ok else 'missing'}",
+        f"Issues      : {len(snapshot.issues)}",
+    )
+
+def release_readiness_as_dict(snapshot: ReleaseReadinessSnapshot) -> dict[str, object]:
+    payload = _patchops_d3c_asdict(snapshot)
+    payload["required_release_docs"] = REQUIRED_RELEASE_DOCS
+    payload["required_release_examples"] = REQUIRED_RELEASE_EXAMPLES
+    payload["required_release_workflows"] = REQUIRED_RELEASE_WORKFLOWS
+    payload["required_release_launchers"] = REQUIRED_RELEASE_LAUNCHERS
+    payload["required_release_tests"] = REQUIRED_RELEASE_TESTS
+    payload["required_release_profiles"] = REQUIRED_RELEASE_PROFILES
+    payload["required_bundle_release_docs"] = REQUIRED_BUNDLE_RELEASE_DOCS
+    payload["required_bundle_release_workflows"] = REQUIRED_BUNDLE_RELEASE_WORKFLOWS
+    payload["required_bundle_release_tests"] = REQUIRED_BUNDLE_RELEASE_TESTS
+    payload["scope_lines"] = list(render_release_readiness_scope_lines(snapshot))
+    return payload
+
+def _items_or_none(items: tuple[str, ...]) -> tuple[str, ...]:
+    return items if items else ("(none)",)
+
+def release_readiness_exit_code(snapshot: ReleaseReadinessSnapshot) -> int:
+    return 0 if snapshot.status != "not_ready" else 1
+
+def render_release_readiness_report_lines(
+    snapshot: ReleaseReadinessSnapshot,
+    wrapper_project_root: str | Path,
+    focused_profile: str | None = None,
+) -> tuple[str, ...]:
+    wrapper_root = Path(wrapper_project_root).resolve()
+    lines: list[str] = [
+        "PATCHOPS RELEASE READINESS",
+        "--------------------------",
+        "Surface            : release-readiness",
+        f"Wrapper Project   : {wrapper_root}",
+        f"Focused Profile   : {focused_profile or '(none)'}",
+        f"Status            : {snapshot.status}",
+        f"Core Tests        : {snapshot.core_tests_state}",
+        f"Docs              : {'ok' if snapshot.release_docs_ok else 'missing'}",
+        f"Examples          : {'ok' if snapshot.release_examples_ok else 'missing'}",
+        f"Workflows         : {'ok' if snapshot.release_workflows_ok else 'missing'}",
+        f"Launchers         : {'ok' if snapshot.release_launchers_ok else 'missing'}",
+        f"Tests             : {'ok' if snapshot.release_tests_ok else 'missing'}",
+        f"Profiles          : {'ok' if snapshot.profiles_ok else 'missing'}",
+        f"Bundle Docs       : {'ok' if snapshot.bundle_release_docs_ok else 'missing'}",
+        f"Bundle Workflows  : {'ok' if snapshot.bundle_release_workflows_ok else 'missing'}",
+        f"Bundle Tests      : {'ok' if snapshot.bundle_release_tests_ok else 'missing'}",
+        f"Issues            : {len(snapshot.issues)}",
+        "",
+        "MISSING RELEASE DOCS",
+        "--------------------",
+        *_items_or_none(snapshot.missing_release_docs),
+        "",
+        "MISSING RELEASE EXAMPLES",
+        "------------------------",
+        *_items_or_none(snapshot.missing_release_examples),
+        "",
+        "MISSING RELEASE WORKFLOWS",
+        "-------------------------",
+        *_items_or_none(snapshot.missing_release_workflows),
+        "",
+        "MISSING RELEASE LAUNCHERS",
+        "-------------------------",
+        *_items_or_none(snapshot.missing_release_launchers),
+        "",
+        "MISSING RELEASE TESTS",
+        "---------------------",
+        *_items_or_none(snapshot.missing_release_tests),
+        "",
+        "MISSING PROFILES",
+        "----------------",
+        *_items_or_none(snapshot.missing_profiles),
+        "",
+        "MISSING BUNDLE RELEASE DOCS",
+        "---------------------------",
+        *_items_or_none(snapshot.missing_bundle_release_docs),
+        "",
+        "MISSING BUNDLE RELEASE WORKFLOWS",
+        "--------------------------------",
+        *_items_or_none(snapshot.missing_bundle_release_workflows),
+        "",
+        "MISSING BUNDLE RELEASE TESTS",
+        "----------------------------",
+        *_items_or_none(snapshot.missing_bundle_release_tests),
+        "",
+        "ISSUES",
+        "------",
+        *_items_or_none(snapshot.issues),
+        "",
+        "RECOMMENDED COMMANDS",
+        "--------------------",
+        "py -m pytest -q",
+        "py -m patchops.cli profiles",
+        "py -m patchops.cli doctor --profile trader",
+        "py -m patchops.cli examples",
+        "py -m patchops.cli schema",
+        "py -m patchops.cli template --profile trader --mode apply --patch-name trader_stage1_template",
+        "py -m patchops.cli check <manifest>",
+        "py -m patchops.cli inspect <manifest>",
+        "py -m patchops.cli plan <manifest>",
+        "py -m patchops.cli bundle-doctor <bundle-root>",
+        "py -m patchops.cli build-bundle <bundle-root> <bundle.zip>",
+        "py -m patchops.cli release-readiness --core-tests-green",
+        "",
+        "NOTES",
+        "-----",
+        "This surface does not guess hidden state.",
+        "Bundle release gates lock the maintained bundle docs, workflows, and test surfaces into the same readiness story.",
+        "Use --core-tests-green only when the green test state was already proven externally.",
+    ]
+    return tuple(lines)
+
+def write_release_readiness_report(
+    report_path: str | Path,
+    snapshot: ReleaseReadinessSnapshot,
+    wrapper_project_root: str | Path,
+    focused_profile: str | None = None,
+) -> str:
+    path = Path(report_path).resolve()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    text = "\\n".join(
+        render_release_readiness_report_lines(
+            snapshot,
+            wrapper_project_root=wrapper_project_root,
+            focused_profile=focused_profile,
+        )
+    ) + "\\n"
+    path.write_text(text, encoding="utf-8")
+    return str(path)
+
+# PATCHOPS_D3D_RELEASE_READINESS_BEHAVIOR_OVERRIDE_20260423
+def write_release_readiness_report(
+    report_path: str | Path,
+    snapshot: ReleaseReadinessSnapshot,
+    wrapper_project_root: str | Path,
+    focused_profile: str | None = None,
+) -> str:
+    path = Path(report_path).resolve()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    text = "\n".join(
+        render_release_readiness_report_lines(
+            snapshot,
+            wrapper_project_root=wrapper_project_root,
+            focused_profile=focused_profile,
+        )
+    ) + "\n"
+    path.write_text(text, encoding="utf-8")
+    return str(path)

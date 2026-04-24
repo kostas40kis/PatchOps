@@ -207,3 +207,83 @@ try:
         return lines
 except NameError:
     pass
+
+# PATCHOPS_C1A_BACKUP_WRITE_EVIDENCE_SECTIONS_OVERRIDE_20260423
+def _patchops_c1a_backup_write_lines(result) -> list[str]:
+    lines: list[str] = []
+
+    backup_records = list(getattr(result, "backup_records", ()) or ())
+    write_records = list(getattr(result, "write_records", ()) or ())
+
+    for record in backup_records:
+        source_path = (
+            getattr(record, "source", None)
+            or getattr(record, "source_path", None)
+            or getattr(record, "target_path", None)
+            or getattr(record, "path", None)
+        )
+        backup_path = getattr(record, "destination", None) or getattr(record, "backup_path", None)
+        existed = getattr(record, "existed", None)
+        missing = bool(
+            getattr(record, "missing", False)
+            or getattr(record, "was_missing", False)
+            or existed is False
+            or str(getattr(record, "status", "") or "").upper() == "MISSING"
+        )
+
+        if missing and source_path is not None:
+            lines.append(f"MISSING: {source_path}")
+        elif source_path is not None and backup_path is not None:
+            lines.append(f"BACKUP : {source_path} -> {backup_path}")
+
+    for record in write_records:
+        target_path = (
+            getattr(record, "target", None)
+            or getattr(record, "target_path", None)
+            or getattr(record, "destination_path", None)
+            or getattr(record, "path", None)
+        )
+        if target_path is None:
+            continue
+        origin = (
+            getattr(record, "content_source", None)
+            or getattr(record, "source_kind", None)
+            or getattr(record, "content_origin", None)
+        )
+        if origin is not None:
+            lines.append(f"WRITE  : {target_path} ({origin})")
+        else:
+            lines.append(f"WRITE  : {target_path}")
+
+    return lines
+
+# PATCHOPS_PATCH_31_V1_START
+_PATCHOPS_MP46_ORIGINAL_FAILURE_SECTION = failure_section
+
+
+def _patchops_mp46_detect_artifact_path(result) -> str | None:
+    for attr_name in (
+        "suspicious_run_artifact_path",
+        "suspicious_artifact_path",
+        "bug_artifact_path",
+    ):
+        value = getattr(result, attr_name, None)
+        if value:
+            return str(value)
+    return None
+
+
+def failure_section(result) -> str:
+    rendered = _PATCHOPS_MP46_ORIGINAL_FAILURE_SECTION(result)
+    artifact_path = _patchops_mp46_detect_artifact_path(result)
+    if not artifact_path:
+        return rendered
+
+    line = f"Suspicious Run Artifact : {artifact_path}"
+    if line in rendered:
+        return rendered
+
+    if rendered.endswith("\n"):
+        return rendered + line + "\n"
+    return rendered + "\n" + line + "\n"
+# PATCHOPS_PATCH_31_V1_END

@@ -810,6 +810,7 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = build_parser()
     args = parser.parse_args(argv)
+    from dataclasses import asdict as _patchops_d3a_asdict
 
     # PATCHOPS_B2E_COMPAT_START
     if args.command == "inspect-bundle":
@@ -915,7 +916,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command == "inspect":
         manifest = load_manifest(Path(args.manifest))
-        print(json.dumps(asdict(manifest), indent=2))
+        print(json.dumps(_patchops_d3a_asdict(manifest), indent=2))
         return 0
 
     if args.command == "check":
@@ -1038,6 +1039,7 @@ def main(argv: list[str] | None = None) -> int:
             render_release_readiness_report_lines(
                 snapshot,
                 wrapper_project_root=wrapper_root,
+                focused_profile=args.profile,
             )
         )
         if args.report_path:
@@ -1045,6 +1047,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.report_path,
                 snapshot,
                 wrapper_project_root=wrapper_root,
+                focused_profile=args.profile,
             )
 
         print(json.dumps(payload, indent=2))
@@ -1105,6 +1108,59 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
 
+
+    if args.command == "template":
+        from pathlib import Path as _Path
+        from patchops.manifest_templates import build_manifest_template
+
+        payload = build_manifest_template(
+            profile_name=args.profile,
+            wrapper_project_root=args.wrapper_root,
+            mode=args.mode,
+            patch_name=args.patch_name,
+            target_root=args.target_root,
+        )
+
+        if args.output_path:
+            output_path = _Path(args.output_path)
+            if not output_path.is_absolute():
+                output_path = (Path.cwd() / output_path).resolve()
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+            print(json.dumps({
+                "written": True,
+                "output_path": str(output_path.resolve()),
+                "patch_name": payload["patch_name"],
+                "active_profile": payload["active_profile"],
+                "mode": args.mode,
+            }, indent=2))
+            return 0
+
+        print(json.dumps(payload, indent=2))
+        return 0
+
+
+    if args.command == "refresh-project-doc":
+        from patchops.project_packets import refresh_project_packet
+
+        payload = refresh_project_packet(
+            project_name=args.project_name,
+            wrapper_project_root=args.wrapper_root,
+            packet_path=getattr(args, "packet_path", None),
+            handoff_json_path=getattr(args, "handoff_json_path", None),
+            latest_report_path=getattr(args, "report_path", None),
+            current_phase=getattr(args, "current_phase", None),
+            current_objective=getattr(args, "current_objective", None),
+            latest_passed_patch=getattr(args, "latest_passed_patch", None),
+            latest_attempted_patch=getattr(args, "latest_attempted_patch", None),
+            current_recommendation=getattr(args, "current_recommendation", None),
+            next_action=getattr(args, "next_action", None),
+            current_blockers=list(getattr(args, "blocker", []) or []),
+            outstanding_risks=list(getattr(args, "risk", []) or []),
+        )
+        print(json.dumps(payload, indent=2))
+        return 0
+
     if args.command == "maintenance-gate":
         from pathlib import Path as _Path
         from patchops.maintenance_gate import (
@@ -1125,7 +1181,7 @@ def main(argv: list[str] | None = None) -> int:
         if isinstance(snapshot, dict):
             payload = dict(snapshot)
         else:
-            payload = asdict(snapshot)
+            payload = _patchops_d3a_asdict(snapshot)
 
         try:
             report_lines = list(render_maintenance_gate_report_lines(snapshot, wrapper_project_root=_Path(args.wrapper_root), focused_profile=getattr(args, "profile", None)))
@@ -1375,3 +1431,221 @@ if __name__ == "__main__":
 
     raise SystemExit(main())
 
+
+# PATCHOPS_D2_EMIT_OPERATOR_SCRIPT_COMMAND_OVERRIDE_20260423
+def _patchops_d2_emit_operator_script_command(args):
+    from patchops.operator_scripts import emit_operator_script
+    payload = emit_operator_script(
+        args.output_path,
+        script_kind=args.script_kind,
+        wrapper_project_root=args.wrapper_root,
+        default_bundle_zip_path=getattr(args, "bundle_zip_path", None),
+    )
+    print(json.dumps({
+        "ok": payload.ok,
+        "issue_count": payload.issue_count,
+        "output_path": str(payload.output_path),
+        "script_kind": payload.script_kind,
+    }, indent=2))
+    return 0
+
+# PATCHOPS_D3_CLI_RELEASE_MAINTENANCE_GATE_OVERRIDE_20260423
+_PATCHOPS_D3_PREV_MAIN = main
+
+def _patchops_d3_available_profile_summaries(wrapper_root) -> list[dict[str, object]]:
+    from pathlib import Path
+    profiles_dir = Path(wrapper_root) / "patchops" / "profiles"
+    summaries: list[dict[str, object]] = []
+    if profiles_dir.exists():
+        for path in sorted(profiles_dir.glob("*.py")):
+            if path.name in {"__init__.py", "base.py"}:
+                continue
+            summaries.append({"name": path.stem})
+    return summaries
+
+def _patchops_d3_release_readiness_main(argv):
+    import argparse
+    import json
+    from patchops.readiness import (
+        build_release_readiness_snapshot,
+        release_readiness_as_dict,
+        release_readiness_exit_code,
+        write_release_readiness_report,
+        render_release_readiness_report_lines,
+    )
+    parser = argparse.ArgumentParser(prog="patchops release-readiness")
+    parser.add_argument("--wrapper-root", default=None)
+    parser.add_argument("--profile", default=None)
+    parser.add_argument("--core-tests-green", action="store_true")
+    parser.add_argument("--report-path", default=None)
+    args = parser.parse_args(argv)
+
+    wrapper_root = args.wrapper_root
+    profile_summaries = _patchops_d3_available_profile_summaries(wrapper_root)
+    profile_names = [item["name"] for item in profile_summaries]
+    snapshot = build_release_readiness_snapshot(
+        wrapper_root,
+        available_profiles=profile_names,
+        core_tests_state="green" if args.core_tests_green else "unknown",
+    )
+    payload = release_readiness_as_dict(snapshot)
+    payload["profile_summaries"] = profile_summaries
+    if args.profile:
+        payload["profile_summaries"] = [item for item in profile_summaries if item["name"] == args.profile] or [{"name": args.profile}]
+    payload["report_lines"] = list(render_release_readiness_report_lines(snapshot, wrapper_root, args.profile))
+    if args.report_path:
+        payload["report_path"] = write_release_readiness_report(args.report_path, snapshot, wrapper_root, args.profile)
+    print(json.dumps(payload, indent=2))
+    return release_readiness_exit_code(snapshot)
+
+def _patchops_d3_maintenance_gate_main(argv):
+    import argparse
+    import json
+    from patchops.maintenance_gate import (
+        build_maintenance_gate_snapshot,
+        maintenance_gate_as_dict,
+        write_maintenance_gate_report,
+    )
+    parser = argparse.ArgumentParser(prog="patchops maintenance-gate")
+    parser.add_argument("--wrapper-root", default=None)
+    parser.add_argument("--profile", default=None)
+    parser.add_argument("--core-tests-green", action="store_true")
+    parser.add_argument("--report-path", default=None)
+    args = parser.parse_args(argv)
+
+    wrapper_root = args.wrapper_root
+    profile_summaries = _patchops_d3_available_profile_summaries(wrapper_root)
+    profile_names = [item["name"] for item in profile_summaries]
+    snapshot = build_maintenance_gate_snapshot(
+        wrapper_root,
+        available_profiles=profile_names,
+        core_tests_state="green" if args.core_tests_green else "unknown",
+        focused_profile=args.profile,
+        python_executable="py",
+    )
+    payload = maintenance_gate_as_dict(snapshot)
+    if args.report_path:
+        payload["report_path"] = write_maintenance_gate_report(
+            args.report_path,
+            snapshot,
+            wrapper_project_root=wrapper_root,
+            focused_profile=args.profile,
+        )
+    print(json.dumps(payload, indent=2))
+    return 0 if snapshot.status != "not_ready" else 1
+
+def main(argv=None):
+    argv_list = list(argv or [])
+    if argv_list:
+        command = argv_list[0]
+        rest = argv_list[1:]
+        if command == "release-readiness":
+            return _patchops_d3_release_readiness_main(rest)
+        if command == "maintenance-gate":
+            return _patchops_d3_maintenance_gate_main(rest)
+    return _PATCHOPS_D3_PREV_MAIN(argv)
+
+# PATCHOPS_D3D_CLI_RELEASE_MAINTENANCE_BEHAVIOR_OVERRIDE_20260423
+_PATCHOPS_D3D_PREV_MAIN = main
+
+def _patchops_d3d_default_profile_summaries() -> list[dict[str, object]]:
+    return [
+        {"name": "generic_python"},
+        {"name": "generic_python_powershell"},
+        {"name": "trader"},
+    ]
+
+def _patchops_d3d_available_profile_summaries(wrapper_root) -> list[dict[str, object]]:
+    from pathlib import Path
+    profiles_dir = Path(wrapper_root) / "patchops" / "profiles"
+    summaries: list[dict[str, object]] = []
+    if profiles_dir.exists():
+        for path in sorted(profiles_dir.glob("*.py")):
+            if path.name in {"__init__.py", "base.py"}:
+                continue
+            summaries.append({"name": path.stem})
+    if summaries:
+        return summaries
+    return _patchops_d3d_default_profile_summaries()
+
+def _patchops_d3d_release_readiness_main(argv):
+    import argparse
+    import json
+    from patchops.readiness import (
+        build_release_readiness_snapshot,
+        release_readiness_as_dict,
+        release_readiness_exit_code,
+        write_release_readiness_report,
+        render_release_readiness_report_lines,
+    )
+    parser = argparse.ArgumentParser(prog="patchops release-readiness")
+    parser.add_argument("--wrapper-root", default=None)
+    parser.add_argument("--profile", default=None)
+    parser.add_argument("--core-tests-green", action="store_true")
+    parser.add_argument("--report-path", default=None)
+    args = parser.parse_args(argv)
+
+    wrapper_root = args.wrapper_root
+    profile_summaries = _patchops_d3d_available_profile_summaries(wrapper_root)
+    profile_names = [item["name"] for item in profile_summaries]
+    snapshot = build_release_readiness_snapshot(
+        wrapper_root,
+        available_profiles=profile_names,
+        core_tests_state="green" if args.core_tests_green else "unknown",
+    )
+    payload = release_readiness_as_dict(snapshot)
+    filtered = profile_summaries
+    if args.profile:
+        filtered = [item for item in profile_summaries if item["name"] == args.profile] or [{"name": args.profile}]
+    payload["profile_summaries"] = filtered
+    payload["report_lines"] = list(render_release_readiness_report_lines(snapshot, wrapper_root, args.profile))
+    if args.report_path:
+        payload["report_path"] = write_release_readiness_report(args.report_path, snapshot, wrapper_root, args.profile)
+    print(json.dumps(payload, indent=2))
+    return release_readiness_exit_code(snapshot)
+
+def _patchops_d3d_maintenance_gate_main(argv):
+    import argparse
+    import json
+    from patchops.maintenance_gate import (
+        build_maintenance_gate_snapshot,
+        maintenance_gate_as_dict,
+        write_maintenance_gate_report,
+    )
+    parser = argparse.ArgumentParser(prog="patchops maintenance-gate")
+    parser.add_argument("--wrapper-root", default=None)
+    parser.add_argument("--profile", default=None)
+    parser.add_argument("--core-tests-green", action="store_true")
+    parser.add_argument("--report-path", default=None)
+    args = parser.parse_args(argv)
+
+    wrapper_root = args.wrapper_root
+    profile_summaries = _patchops_d3d_available_profile_summaries(wrapper_root)
+    profile_names = [item["name"] for item in profile_summaries]
+    snapshot = build_maintenance_gate_snapshot(
+        wrapper_root,
+        available_profiles=profile_names,
+        core_tests_state="green" if args.core_tests_green else "unknown",
+        python_executable="py",
+    )
+    payload = maintenance_gate_as_dict(snapshot)
+    if args.report_path:
+        payload["report_path"] = write_maintenance_gate_report(
+            args.report_path,
+            snapshot,
+            wrapper_project_root=wrapper_root,
+            focused_profile=args.profile,
+        )
+    print(json.dumps(payload, indent=2))
+    return 0 if snapshot.status != "not_ready" else 1
+
+def main(argv=None):
+    argv_list = list(argv or [])
+    if argv_list:
+        command = argv_list[0]
+        rest = argv_list[1:]
+        if command == "release-readiness":
+            return _patchops_d3d_release_readiness_main(rest)
+        if command == "maintenance-gate":
+            return _patchops_d3d_maintenance_gate_main(rest)
+    return _PATCHOPS_D3D_PREV_MAIN(argv)
