@@ -71,3 +71,17 @@ This section preserves exact wording required by the maintained bundle-authoring
 - After every run, continue patch by patch from evidence.
 - Patch 12 onward the process is proven self-hosted.
 <!-- PATCHOPS_G1_BUNDLE_DOC_WORDING_CONTRACT:TEMPLATE:END -->
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS -->
+## Hardened bundle authoring rules
+
+Future bundles should follow the maintained staged-authoring contract.
+
+- Keep `manifest.json`, `bundle_meta.json`, `README.txt`, `run_with_patchops.ps1`, and `content/` at the canonical bundle root.
+- `bundle_meta.json` should advertise the canonical staged-authoring contract by including fields such as `manifest_path`, `content_root`, and `launcher_path`, or by setting `canonical_staged_authoring_contract` to true.
+- If a bundle looks like a PatchOps bundle but does not advertise that contract, bundle review reports `canonical_staged_authoring_preflight_skipped` as a warning.
+- Use `files_to_write` in `manifest.json`; do not use `files` or `writes`.
+- Use `manifest_version: "1"`; do not use `"1.0"`.
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS_END -->
+

@@ -172,3 +172,17 @@ PatchOps now includes helper-owned Pythonization maintenance surfaces for:
 
 These are maintenance-grade wrapper-health aids.
 They do not widen PatchOps into target-project policy logic and they do not turn PowerShell into a second workflow engine.
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS -->
+## Current hardening notes
+
+Recent hardening work closed several wrapper-authoring and reporting seams:
+
+- safe `run-package` result serialization for dataclass, dict, primitive, `None`, object, and path-like result shapes,
+- stricter manifest validation for `"1"` versus `"1.0"`, non-empty `active_profile`, and `files_to_write` versus `files` / `writes`,
+- visible bundle preflight skip warnings for non-advertised canonical staged-authoring bundles,
+- clearer `FILE EVIDENCE` semantics with `CREATED` separated from truly `MISSING`,
+- built-in post-apply direct existence checks for every `files_to_write` target.
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS_END -->
+

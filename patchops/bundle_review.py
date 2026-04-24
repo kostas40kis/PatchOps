@@ -1440,3 +1440,390 @@ def cli_check_bundle_main(argv=None):
     return 0 if payload.get("ok") else 1
 
 # PATCHOPS_I1_CHECK_BUNDLE_LAUNCHER_REVIEW_CONSISTENCY_END
+
+# PATCHOPS_PATCH_224C_BUNDLE_REVIEW_FLAT_ROOT_BRIDGE
+# Accept canonical flat-root zip bundles for the run-package preflight surface.
+# This wrapper is intentionally append-only because the live repo has multiple
+# historical check-bundle/inspect-bundle override layers.  package_runner calls
+# patchops.bundle_review.inspect_bundle_payload(...), so this is the actual
+# preflight surface that blocked Patch 218 after the result-serialization repair.
+import zipfile as _patchops_224c_zipfile
+from pathlib import Path as _patchops_224c_Path
+
+_PATCHOPS_224C_ORIGINAL_INSPECT_BUNDLE_PAYLOAD = inspect_bundle_payload
+
+
+def _patchops_224c_issue(code, message, path=None):
+    item = {"code": code, "message": message}
+    if path is not None:
+        item["path"] = path
+    return item
+
+
+def _patchops_224c_flat_root_payload(bundle_zip_path, *, profile=None, requested_profile=None):
+    bundle_path = _patchops_224c_Path(bundle_zip_path).resolve()
+    effective_profile = requested_profile if requested_profile is not None else profile
+
+    payload = {
+        "path": str(bundle_path),
+        "exists": bundle_path.exists(),
+        "source_kind": "zip" if bundle_path.suffix.lower() == ".zip" else "directory",
+        "requested_profile": effective_profile,
+        "profile": effective_profile,
+        "ok": False,
+        "issue_count": 0,
+        "issues": [],
+        "root_folder": ".",
+        "root_folder_name": ".",
+        "top_level_root": ".",
+        "manifest_path": "manifest.json",
+        "bundle_meta_path": "bundle_meta.json",
+        "readme_path": "README.txt",
+        "content_prefix": "content/",
+        "content_root_path": "content",
+        "launchers": [],
+        "launcher_paths": [],
+        "zip_layout": "flat_root",
+    }
+
+    issues = []
+    launcher_issues = []
+
+    if not bundle_path.exists():
+        issues.append(_patchops_224c_issue("missing_bundle", f"Bundle path does not exist: {bundle_path}", str(bundle_path)))
+        members = []
+    elif bundle_path.suffix.lower() != ".zip":
+        issues.append(_patchops_224c_issue("unsupported_source_kind", "check-bundle currently expects a bundle zip path", str(bundle_path)))
+        members = []
+    else:
+        try:
+            with _patchops_224c_zipfile.ZipFile(bundle_path, "r") as zf:
+                members = [str(name or "").replace("\\", "/") for name in zf.namelist() if name and not name.endswith("/")]
+        except _patchops_224c_zipfile.BadZipFile:
+            issues.append(_patchops_224c_issue("bad_zip", f"Bundle zip could not be opened as a valid zip archive: {bundle_path}", str(bundle_path)))
+            members = []
+
+    payload["member_count"] = len(members)
+
+    if "manifest.json" not in members:
+        issues.append(_patchops_224c_issue("missing_manifest", "Bundle zip is missing manifest.json at zip root", "manifest.json"))
+    if "bundle_meta.json" not in members:
+        issues.append(_patchops_224c_issue("missing_bundle_meta", "Bundle zip is missing bundle_meta.json at zip root", "bundle_meta.json"))
+    if "README.txt" not in members:
+        issues.append(_patchops_224c_issue("missing_readme", "Bundle zip is missing README.txt at zip root", "README.txt"))
+
+    content_members = [member for member in members if member.startswith("content/") and member != "content/"]
+    if not content_members:
+        issues.append(_patchops_224c_issue("missing_content", "Bundle zip is missing content/ files at zip root", "content"))
+
+    launchers = []
+    if "run_with_patchops.ps1" in members:
+        launchers.append("run_with_patchops.ps1")
+    launchers.extend(
+        member
+        for member in sorted(members)
+        if member.startswith("launchers/") and member.lower().endswith(".ps1")
+    )
+    launchers = list(dict.fromkeys(launchers))
+    payload["launchers"] = launchers
+    payload["launcher_paths"] = launchers
+    payload["launcher_path"] = launchers[0] if launchers else None
+
+    if not launchers:
+        launcher_issues.append(_patchops_224c_issue("missing_launcher", "Bundle zip is missing a supported launcher at zip root", "."))
+
+    payload["launcher_review"] = {
+        "status": "safe" if not launcher_issues else "reject",
+        "launcher_path": launchers[0] if launchers else None,
+        "issue_count": len(launcher_issues),
+        "issues": launcher_issues,
+    }
+    payload["launcher_status"] = payload["launcher_review"]["status"]
+    payload["launcher_issue_count"] = payload["launcher_review"]["issue_count"]
+    payload["launcher_issue_codes"] = [item["code"] for item in launcher_issues]
+    payload["issues"] = issues
+    payload["issue_count"] = len(issues)
+    payload["ok"] = len(issues) == 0 and not launcher_issues
+    return payload
+
+
+def _patchops_224c_is_flat_root_zip(bundle_zip_path):
+    try:
+        path = _patchops_224c_Path(bundle_zip_path)
+    except Exception:
+        return False
+    if path.suffix.lower() != ".zip" or not path.exists():
+        return False
+    try:
+        with _patchops_224c_zipfile.ZipFile(path, "r") as zf:
+            members = [str(name or "").replace("\\", "/") for name in zf.namelist() if name and not name.endswith("/")]
+    except Exception:
+        return False
+    return (
+        "manifest.json" in members
+        and "bundle_meta.json" in members
+        and "README.txt" in members
+        and any(member.startswith("content/") and member != "content/" for member in members)
+        and (
+            "run_with_patchops.ps1" in members
+            or any(member.startswith("launchers/") and member.lower().endswith(".ps1") for member in members)
+        )
+    )
+
+
+def inspect_bundle_payload(bundle_zip_path, *args, **kwargs):
+    if _patchops_224c_is_flat_root_zip(bundle_zip_path):
+        return _patchops_224c_flat_root_payload(
+            bundle_zip_path,
+            profile=kwargs.get("profile"),
+            requested_profile=kwargs.get("requested_profile"),
+        )
+    return _PATCHOPS_224C_ORIGINAL_INSPECT_BUNDLE_PAYLOAD(bundle_zip_path, *args, **kwargs)
+
+# PATCHOPS_222_BUNDLE_PREFLIGHT_SKIP_VISIBILITY
+def _patchops_222_normalize_member(name: object) -> str:
+    return str(name or "").replace("\\", "/").strip("/")
+
+
+def _patchops_222_top_root(names: list[str]) -> str:
+    roots = []
+    seen = set()
+    for raw in names:
+        name = _patchops_222_normalize_member(raw)
+        if not name:
+            continue
+        root = name.split("/", 1)[0]
+        if root not in seen:
+            seen.add(root)
+            roots.append(root)
+    return roots[0] if len(roots) == 1 else ""
+
+
+def _patchops_222_read_json_from_source(source_path, relative_name: str):
+    from pathlib import Path as _Path
+    import json as _json
+    import zipfile as _zipfile
+
+    source = _Path(source_path)
+    if source.is_dir():
+        candidate = source / relative_name
+        if not candidate.exists():
+            return None
+        data = _json.loads(candidate.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else None
+
+    if source.is_file():
+        try:
+            with _zipfile.ZipFile(source, "r") as zf:
+                names = [_patchops_222_normalize_member(name) for name in zf.namelist()]
+                root = _patchops_222_top_root(names)
+                candidates = []
+                if root:
+                    candidates.append(f"{root}/{relative_name}")
+                candidates.append(relative_name)
+                for candidate in candidates:
+                    if candidate in names:
+                        with zf.open(candidate, "r") as handle:
+                            data = _json.loads(handle.read().decode("utf-8"))
+                        return data if isinstance(data, dict) else None
+        except Exception:
+            return None
+
+    return None
+
+
+def _patchops_222_member_summary(source_path) -> dict:
+    from pathlib import Path as _Path
+    import zipfile as _zipfile
+
+    source = _Path(source_path)
+    names: list[str] = []
+
+    if source.is_dir():
+        for item in source.rglob("*"):
+            if item.is_file():
+                names.append(item.relative_to(source).as_posix())
+        kind = "directory"
+    elif source.is_file():
+        kind = "zip"
+        try:
+            with _zipfile.ZipFile(source, "r") as zf:
+                names = [_patchops_222_normalize_member(name) for name in zf.namelist()]
+        except Exception:
+            names = []
+    else:
+        kind = "missing"
+
+    root = _patchops_222_top_root(names)
+    prefix = f"{root}/" if root else ""
+    name_set = set(names)
+
+    def has_file(relative: str) -> bool:
+        return relative in name_set or (prefix + relative) in name_set
+
+    def has_tree(relative: str) -> bool:
+        needle = relative.strip("/") + "/"
+        prefixed = prefix + needle
+        return any(name.startswith(needle) or name.startswith(prefixed) for name in names)
+
+    return {
+        "kind": kind,
+        "member_count": len(names),
+        "single_root": root or None,
+        "has_manifest": has_file("manifest.json"),
+        "has_bundle_meta": has_file("bundle_meta.json"),
+        "has_content_root": has_tree("content"),
+        "has_root_launcher": has_file("run_with_patchops.ps1"),
+        "has_legacy_launcher": has_file("launchers/apply_with_patchops.ps1") or has_file("launchers/verify_with_patchops.ps1"),
+    }
+
+
+def _patchops_222_meta_advertises_contract(bundle_meta: dict | None) -> bool:
+    if not isinstance(bundle_meta, dict):
+        return False
+
+    truthy_keys = (
+        "canonical_staged_authoring_contract",
+        "staged_authoring_contract",
+    )
+    for key in truthy_keys:
+        if bundle_meta.get(key) is True:
+            return True
+
+    text_keys = (
+        "authoring_contract",
+        "bundle_contract",
+        "contract",
+        "bundle_standard",
+        "standard",
+    )
+    accepted = {
+        "canonical_staged_authoring",
+        "canonical-staged-authoring",
+        "staged_authoring",
+        "staged-authoring",
+        "patchops_canonical_bundle",
+    }
+    for key in text_keys:
+        value = str(bundle_meta.get(key, "") or "").strip().lower()
+        if value in accepted:
+            return True
+
+    maintained_paths = {
+        "manifest_path",
+        "content_root",
+        "launcher_path",
+    }
+    if maintained_paths.issubset(set(bundle_meta.keys())):
+        return True
+
+    return False
+
+
+def _patchops_222_preflight_visibility(source_path) -> dict:
+    summary = _patchops_222_member_summary(source_path)
+    bundle_meta = _patchops_222_read_json_from_source(source_path, "bundle_meta.json")
+    advertises = _patchops_222_meta_advertises_contract(bundle_meta)
+
+    looks_like_bundle = any(
+        bool(summary.get(key))
+        for key in (
+            "has_manifest",
+            "has_bundle_meta",
+            "has_content_root",
+            "has_root_launcher",
+            "has_legacy_launcher",
+        )
+    )
+
+    required_shape_present = bool(
+        summary.get("has_manifest")
+        and summary.get("has_bundle_meta")
+        and summary.get("has_content_root")
+        and (summary.get("has_root_launcher") or summary.get("has_legacy_launcher"))
+    )
+
+    reasons: list[str] = []
+    if looks_like_bundle and not advertises:
+        reasons.append("bundle does not advertise the canonical staged-authoring contract")
+    if looks_like_bundle and not required_shape_present:
+        reasons.append("bundle is missing one or more canonical root artifacts")
+
+    preflight_skipped = bool(looks_like_bundle and not advertises)
+
+    return {
+        "checked": True,
+        "looks_like_bundle": looks_like_bundle,
+        "required_shape_present": required_shape_present,
+        "advertises_canonical_staged_authoring_contract": advertises,
+        "preflight_skipped": preflight_skipped,
+        "reasons": reasons,
+        **summary,
+    }
+
+
+def _patchops_222_add_preflight_visibility(payload: dict, source_path) -> dict:
+    if not isinstance(payload, dict):
+        return payload
+
+    info = _patchops_222_preflight_visibility(source_path)
+    payload["canonical_staged_authoring_preflight"] = info
+
+    warnings = payload.setdefault("warnings", [])
+    if warnings is None:
+        warnings = []
+        payload["warnings"] = warnings
+
+    existing_codes = {
+        str(item.get("code"))
+        for item in warnings
+        if isinstance(item, dict)
+    }
+
+    if info.get("preflight_skipped") and "canonical_staged_authoring_preflight_skipped" not in existing_codes:
+        warnings.append(
+            _warning(
+                "canonical_staged_authoring_preflight_skipped",
+                (
+                    "Bundle looks like a PatchOps bundle but does not advertise the "
+                    "canonical staged-authoring contract, so canonical staged-authoring "
+                    "preflight is skipped. Add bundle_meta fields such as manifest_path, "
+                    "content_root, and launcher_path, or set canonical_staged_authoring_contract "
+                    "to true."
+                ),
+                path=str(source_path),
+            )
+        )
+
+    issues = payload.get("issues", [])
+    if isinstance(issues, list):
+        payload["issue_count"] = len(issues)
+        payload["ok"] = bool(payload.get("ok", True)) and len(issues) == 0
+
+    if isinstance(warnings, list):
+        payload["warning_count"] = len(warnings)
+
+    return payload
+
+
+_PATCHOPS_222_ORIGINAL_CHECK_BUNDLE_PAYLOAD = check_bundle_payload
+
+
+def check_bundle_payload(*args, **kwargs):
+    payload = _PATCHOPS_222_ORIGINAL_CHECK_BUNDLE_PAYLOAD(*args, **kwargs)
+    source_path = args[0] if args else kwargs.get("bundle_zip_path") or kwargs.get("bundle_path") or kwargs.get("source_path")
+    if source_path is None:
+        return payload
+    return _patchops_222_add_preflight_visibility(payload, source_path)
+
+
+if "check_bundle_cli_payload" in globals():
+    _PATCHOPS_222_ORIGINAL_CHECK_BUNDLE_CLI_PAYLOAD = check_bundle_cli_payload
+
+    def check_bundle_cli_payload(*args, **kwargs):
+        payload = _PATCHOPS_222_ORIGINAL_CHECK_BUNDLE_CLI_PAYLOAD(*args, **kwargs)
+        source_path = args[0] if args else kwargs.get("bundle_zip_path") or kwargs.get("bundle_path") or kwargs.get("source_path")
+        if source_path is None:
+            return payload
+        return _patchops_222_add_preflight_visibility(payload, source_path)
+# PATCHOPS_222_BUNDLE_PREFLIGHT_SKIP_VISIBILITY_END

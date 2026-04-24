@@ -63,3 +63,15 @@ This section locks the current bundle documentation wording without redesigning 
 - After every run, continue patch by patch from evidence.
 - Patch 12 onward the process is proven self-hosted.
 <!-- PATCHOPS_G1_BUNDLE_DOC_WORDING_CONTRACT:STANDARD:END -->
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS -->
+## Hardened zip review contract
+
+Zip bundle review now surfaces a structured `canonical_staged_authoring_preflight` payload.
+
+The payload records whether the input looks like a PatchOps bundle, whether required root artifacts are present, and whether the bundle advertises the canonical staged-authoring contract.
+
+A skipped canonical staged-authoring preflight is no longer invisible. Review output includes the warning code `canonical_staged_authoring_preflight_skipped` when a bundle looks like a PatchOps bundle but does not advertise the contract.
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS_END -->
+

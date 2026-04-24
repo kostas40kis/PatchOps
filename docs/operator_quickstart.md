@@ -262,3 +262,19 @@ Operator surfaces kept visible for current tests:
 - one canonical report remains required
 
 <!-- PATCHOPS_L1_CURRENT_FRONTIER_DOC_CONTRACT:OPERATOR:END -->
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS -->
+## Operator notes for hardened bundles
+
+When running a patch bundle, prefer the canonical zip path:
+
+1. review the bundle with `check-bundle`, `inspect-bundle`, or `plan-bundle`,
+2. confirm no `canonical_staged_authoring_preflight_skipped` warning is present unless the bundle is intentionally legacy,
+3. run the zip through `run-package`,
+4. inspect the canonical report for `CREATED`, `MISSING`, `Result`, and `ExitCode`,
+5. trust apply PASS only when the built-in post-apply double-check also passes.
+
+The old external Patch 217-style double-check remains useful during transition, but PatchOps now performs direct `files_to_write` existence verification internally.
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS_END -->
+

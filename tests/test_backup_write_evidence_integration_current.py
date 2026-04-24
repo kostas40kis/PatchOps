@@ -109,5 +109,5 @@ def test_apply_manifest_report_marks_missing_and_write_for_new_target(tmp_path: 
     assert destination.read_text(encoding="utf-8") == "created by proof"
 
     report_text = result.report_path.read_text(encoding="utf-8")
-    assert f"MISSING: {destination}" in report_text
+    assert f"CREATED: {destination}" in report_text
     assert f"WROTE : {destination}" in report_text

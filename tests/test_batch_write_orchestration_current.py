@@ -119,10 +119,13 @@ def test_apply_manifest_routes_multi_file_writes_through_batch_helper(
         captured["destination_root"] = destination_root
         captured["manifest_path"] = manifest_path
         captured["wrapper_project_root"] = wrapper_project_root
-        return [
-            WriteRecord(path=destination_root / spec.path, encoding=spec.encoding)
-            for spec in specs
-        ]
+        records = []
+        for spec in specs:
+            output_path = destination_root / spec.path
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_text(getattr(spec, "content", "") or "", encoding=spec.encoding)
+            records.append(WriteRecord(path=output_path, encoding=spec.encoding))
+        return records
 
     monkeypatch.setattr(apply_patch, "write_files", fake_write_files)
 

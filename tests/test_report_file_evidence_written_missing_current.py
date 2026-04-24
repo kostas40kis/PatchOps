@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from patchops.reporting import renderer
 
 
-def test_file_evidence_renders_missing_and_write_for_new_target_same_run():
+def test_file_evidence_renders_created_and_write_for_new_target_same_run():
     target = "C:\\dev\\trader\\src\\demo.py"
 
     result = SimpleNamespace(
@@ -26,7 +26,7 @@ def test_file_evidence_renders_missing_and_write_for_new_target_same_run():
 
     lines = renderer._patchops_c1e_build_file_evidence_lines(result)
 
-    assert f"MISSING: {target}" in lines
+    assert f"CREATED: {target}" in lines
     assert f"WROTE : {target}" in lines
 
 

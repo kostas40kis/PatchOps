@@ -259,3 +259,83 @@ def render_workflow_report(result) -> str:
 
     rendered = _patchops_d1c_ensure_compact_result_line(rendered, result)
     return rendered
+
+# PATCHOPS_220_FILE_EVIDENCE_CREATED_VS_MISSING_TRUTH
+def _patchops_220_file_evidence_key(value) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    return text.replace("\\", "/").rstrip("/").lower()
+
+
+def _patchops_220_build_file_evidence_lines(result) -> list[str]:
+    lines: list[str] = []
+
+    backup_records = list(getattr(result, "backup_records", ()) or ())
+    write_records = list(getattr(result, "write_records", ()) or ())
+
+    write_targets: set[str] = set()
+    for record in write_records:
+        target = (
+            getattr(record, "target", None)
+            or getattr(record, "target_path", None)
+            or getattr(record, "destination_path", None)
+            or getattr(record, "path", None)
+        )
+        key = _patchops_220_file_evidence_key(target)
+        if key is not None:
+            write_targets.add(key)
+
+    for record in backup_records:
+        source = (
+            getattr(record, "source", None)
+            or getattr(record, "source_path", None)
+            or getattr(record, "target_path", None)
+            or getattr(record, "path", None)
+        )
+        destination = getattr(record, "destination", None) or getattr(record, "backup_path", None)
+        existed = getattr(record, "existed", None)
+        missing = bool(
+            getattr(record, "missing", False)
+            or getattr(record, "was_missing", False)
+            or existed is False
+            or str(getattr(record, "status", "") or "").upper() == "MISSING"
+        )
+
+        source_key = _patchops_220_file_evidence_key(source)
+        if missing and source is not None:
+            if source_key is not None and source_key in write_targets:
+                lines.append(f"CREATED: {source}")
+            else:
+                lines.append(f"MISSING: {source}")
+        elif source is not None and destination is not None:
+            lines.append(f"BACKUP : {source} -> {destination}")
+
+    for record in write_records:
+        target = (
+            getattr(record, "target", None)
+            or getattr(record, "target_path", None)
+            or getattr(record, "destination_path", None)
+            or getattr(record, "path", None)
+        )
+        if target is None:
+            continue
+        origin = (
+            getattr(record, "content_source", None)
+            or getattr(record, "source_kind", None)
+            or getattr(record, "content_origin", None)
+        )
+        if origin is not None:
+            lines.append(f"WROTE : {target} ({origin})")
+        else:
+            lines.append(f"WROTE : {target}")
+
+    return lines
+
+
+# The C1E report wrapper looks up this global at render time. Rebinding it here
+# preserves the existing wrapper chain while fixing created-vs-missing evidence.
+_patchops_c1e_build_file_evidence_lines = _patchops_220_build_file_evidence_lines
+# PATCHOPS_220_FILE_EVIDENCE_CREATED_VS_MISSING_TRUTH_END

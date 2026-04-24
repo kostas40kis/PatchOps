@@ -18,8 +18,6 @@ from patchops.workflows.common import (
 from patchops.failure_categories import normalize_failure_category
 
 
-
-
 def _normalize_failure_info(failure):
     if failure is None:
         return None
@@ -34,6 +32,8 @@ def _normalize_failure_info(failure):
         message=message,
         details=details,
     )
+
+
 def _write_workflow_report(report_path: Path, report_text: str) -> None:
     report_path.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -43,7 +43,43 @@ def _write_workflow_report(report_path: Path, report_text: str) -> None:
         report_path.write_text(report_text, encoding="utf-8")
 
 
-def apply_manifest(manifest_path: str | Path, wrapper_project_root: str | Path | None = None, wrapper_root: str | Path | None = None) -> WorkflowResult:
+# PATCHOPS_223_POST_APPLY_DOUBLE_CHECK
+def _patchops_223_expected_written_paths(manifest, target_root: Path) -> list[Path]:
+    expected: list[Path] = []
+    for spec in getattr(manifest, "files_to_write", []) or []:
+        relative = getattr(spec, "path", None)
+        if relative is None:
+            continue
+        relative_text = str(relative).strip()
+        if not relative_text:
+            continue
+        expected.append(target_root / relative_text)
+    return expected
+
+
+def _patchops_223_post_apply_missing_paths(manifest, target_root: Path) -> list[Path]:
+    missing: list[Path] = []
+    for expected_path in _patchops_223_expected_written_paths(manifest, target_root):
+        if not expected_path.exists():
+            missing.append(expected_path)
+    return missing
+
+
+def _patchops_223_format_post_apply_missing_details(missing_paths: list[Path]) -> str:
+    lines = [
+        "Post-apply double-check verified files_to_write targets directly.",
+        f"MissingFileCount: {len(missing_paths)}",
+    ]
+    lines.extend(f"MISSING: {path}" for path in missing_paths)
+    return "\n".join(lines)
+# PATCHOPS_223_POST_APPLY_DOUBLE_CHECK_END
+
+
+def apply_manifest(
+    manifest_path: str | Path,
+    wrapper_project_root: str | Path | None = None,
+    wrapper_root: str | Path | None = None,
+) -> WorkflowResult:
     # PATCHOPS_D1_WRAPPER_ROOT_ALIAS
     if wrapper_project_root is None and wrapper_root is not None:
         wrapper_project_root = wrapper_root
@@ -97,6 +133,20 @@ def apply_manifest(manifest_path: str | Path, wrapper_project_root: str | Path |
                 wrapper_project_root=wrapper_root,
             )
         )
+
+        post_apply_missing_paths = _patchops_223_post_apply_missing_paths(manifest, target_root)
+        if post_apply_missing_paths:
+            failure = FailureInfo(
+                category="wrapper_failure",
+                message=(
+                    "Post-apply double-check failed: expected files_to_write "
+                    "target(s) were missing after write_files completed."
+                ),
+                details=_patchops_223_format_post_apply_missing_details(post_apply_missing_paths),
+            )
+            exit_code = 1
+            result_label = "FAIL"
+            raise RuntimeError(failure.message)
 
         for phase_name, commands, sink in [
             ("validation", manifest.validation_commands, validation_results),

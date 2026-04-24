@@ -112,5 +112,5 @@ def test_apply_manifest_missing_file_renders_missing_and_write_evidence(tmp_path
     assert "Result : PASS" in report_text
     assert "TARGET FILES" in report_text
     assert "WRITING FILES" in report_text
-    assert f"MISSING: {destination}" in report_text
+    assert f"CREATED: {destination}" in report_text
     assert "docs/new_file.txt" in report_text

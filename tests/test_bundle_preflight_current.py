@@ -52,7 +52,7 @@ def _build_bundle_zip(
     (bundle_root / "bundle_meta.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
     manifest = {
-        "manifest_version": 1,
+        "manifest_version": "1",
         "patch_name": patch_name,
         "active_profile": "generic_python",
         "target_project_root": "C:\\dev\\patchops",

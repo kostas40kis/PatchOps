@@ -28,7 +28,7 @@ def _command_args_from_dict(data: dict) -> list[str]:
 
 def _command_from_dict(data: dict) -> CommandSpec:
     return CommandSpec(
-        name=data["name"],
+        name=data.get("name") or data.get("label"),
         program=data.get("program"),
         args=_command_args_from_dict(data),
         working_directory=data.get("working_directory"),

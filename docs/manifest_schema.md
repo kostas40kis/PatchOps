@@ -75,3 +75,22 @@ For `files_to_write` entries, use wrapper-relative paths from the wrapper projec
 - For `files_to_write entries`, use wrapper-relative paths from the wrapper project root for `content_path`.
 - `examples/generic_cleanup_archive_patch.json` extends the command-group examples for cleanup/archive flows.
 - Manifest-local resolution remains a compatibility fallback rather than the primary contract.
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS -->
+## Hardened manifest contract
+
+PatchOps now fails early for the manifest mistakes that previously caused silent no-op or confusing runs.
+
+Required manifest contract:
+
+- `manifest_version` must be the string `"1"`.
+- Use `"1"`, not `"1.0"`.
+- `active_profile` must be a non-empty string.
+- target writes must use `files_to_write`.
+- Do not use `files` or `writes`; both are rejected because they can make a bundle appear to apply while no target writes are recognized.
+- every `files_to_write` entry must include `path`.
+
+This validation exists so malformed bundles fail before apply instead of reaching runtime with misleading evidence.
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS_END -->
+

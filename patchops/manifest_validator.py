@@ -89,3 +89,82 @@ def validate_manifest_data(data: dict) -> None:
                 f"Validation command {item.get('name', '<unnamed>')!r} must include "
                 "'program' or set 'use_profile_runtime' to true."
             )
+
+# PATCHOPS_221_MANIFEST_VALIDATION_ALIAS_AND_CONTRACT_HARDENING
+def validate_manifest_version(value: object) -> str:
+    if not isinstance(value, str):
+        raise ManifestError(
+            "manifest_version must be the string "
+            f"{CURRENT_MANIFEST_VERSION!r}; got {type(value).__name__}."
+        )
+
+    normalized = value.strip()
+    if normalized != value or not normalized:
+        raise ManifestError("manifest_version must be a non-empty string without surrounding whitespace.")
+
+    if normalized not in SUPPORTED_MANIFEST_VERSIONS:
+        supported = ", ".join(repr(item) for item in SUPPORTED_MANIFEST_VERSIONS)
+        raise ManifestError(
+            "Unsupported manifest_version "
+            f"{normalized!r}; supported versions: {supported}. "
+            f"Current authoring target: {CURRENT_MANIFEST_VERSION!r}. "
+            "Use '1', not '1.0'. Future versions require explicit migration/validator support."
+        )
+    return normalized
+
+
+def _patchops_221_validate_required_string_field(data: dict, field_name: str) -> None:
+    value = data.get(field_name)
+    if not isinstance(value, str) or not value.strip():
+        raise ManifestError(f"Manifest field {field_name!r} must be a non-empty string.")
+
+
+def _patchops_221_validate_write_field_aliases(data: dict) -> None:
+    alias_messages = {
+        "files": "Manifest field 'files' is not recognized by PatchOps; use 'files_to_write'.",
+        "writes": "Manifest field 'writes' is not recognized by this manifest loader; use 'files_to_write'.",
+    }
+    for alias, message in alias_messages.items():
+        if alias in data:
+            raise ManifestError(message)
+
+
+def validate_manifest_data(data: dict) -> None:
+    if not isinstance(data, dict):
+        raise ManifestError("Manifest must be a JSON object.")
+
+    required = ["manifest_version", "patch_name", "active_profile"]
+    missing = [key for key in required if key not in data or data[key] in (None, "")]
+    if missing:
+        raise ManifestError(f"Manifest is missing required field(s): {', '.join(missing)}")
+
+    validate_manifest_version(data["manifest_version"])
+    _patchops_221_validate_required_string_field(data, "patch_name")
+    _patchops_221_validate_required_string_field(data, "active_profile")
+    _patchops_221_validate_write_field_aliases(data)
+
+    list_fields = [
+        "backup_files",
+        "files_to_write",
+        "validation_commands",
+        "smoke_commands",
+        "audit_commands",
+        "cleanup_commands",
+        "archive_commands",
+        "tags",
+    ]
+    for field_name in list_fields:
+        value = data.get(field_name, [])
+        if value is None:
+            continue
+        if not isinstance(value, list):
+            raise ManifestError(f"Manifest field {field_name!r} must be a list.")
+
+    for item in data.get("files_to_write", []):
+        if not isinstance(item, dict):
+            raise ManifestError("Each files_to_write entry must be an object.")
+        if not item.get("path"):
+            raise ManifestError("Each files_to_write entry must include 'path'.")
+
+
+# PATCHOPS_221_MANIFEST_VALIDATION_ALIAS_AND_CONTRACT_HARDENING_END

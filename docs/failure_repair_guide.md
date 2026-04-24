@@ -103,3 +103,17 @@ required command evidence contradicting the rendered summary
 critical provenance fields missing after wrapper execution
 copied latest-report surface missing after a handoff export path
 report structure missing required core fields
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS -->
+## Hardened evidence and double-check behavior
+
+PatchOps now has built-in safeguards for the failure classes observed during recent bundle work.
+
+- `run-package` JSON output no longer depends on a dataclass-only `asdict(result)` shape.
+- `FILE EVIDENCE` distinguishes a newly created file from a truly missing file: a target that was missing before apply but appears in write records is rendered as `CREATED`, not `MISSING`.
+- Apply includes a post-apply double-check that directly verifies each `files_to_write` target exists after `write_files` returns.
+- If the post-apply double-check finds missing expected files, apply fails as a wrapper failure before validation commands can mask the problem.
+- This keeps the Patch 217-style direct file-existence proof inside PatchOps itself.
+
+<!-- PATCHOPS_224_HARDENED_CONTRACT_DOCS_END -->
+

@@ -39,7 +39,7 @@ def _build_bundle_zip(tmp_path: Path, *, patch_name: str = "patch_11_demo") -> P
     (bundle_root / "bundle_meta.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
     manifest = {
-        "manifest_version": 1,
+        "manifest_version": "1",
         "patch_name": patch_name,
         "active_profile": "generic_python",
         "target_project_root": str(target_root),
