@@ -357,7 +357,7 @@ param(
 function ConvertTo-PatchOpsPsArgument {{
     param([AllowNull()][string]$Value)
     if ($null -eq $Value) {{ return '""' }}
-    if ($Value -match '[\s"]') {{
+    if ($Value -match '[\\s"]') {{
         return '"' + ($Value -replace '"', '\"') + '"'
     }}
     return $Value
@@ -417,7 +417,7 @@ param(
 function ConvertTo-PatchOpsPsArgument {{
     param([AllowNull()][string]$Value)
     if ($null -eq $Value) {{ return '""' }}
-    if ($Value -match '[\s"]') {{
+    if ($Value -match '[\\s"]') {{
         return '"' + ($Value -replace '"', '\"') + '"'
     }}
     return $Value
@@ -481,7 +481,7 @@ param(
 function ConvertTo-PatchOpsPsArgument {{
     param([AllowNull()][string]$Value)
     if ($null -eq $Value) {{ return '""' }}
-    if ($Value -match '[\s"]') {{
+    if ($Value -match '[\\s"]') {{
         return '"' + ($Value -replace '"', '\"') + '"'
     }}
     return $Value

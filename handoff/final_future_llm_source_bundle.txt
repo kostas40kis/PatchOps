@@ -40,3 +40,19 @@ Reference surfaces:
 preferred history-compression artifact
 module tree
 modular package
+
+<!-- PATCHOPS_226_SOURCE_BUNDLE_MODULAR_LAYOUT_TRUTH_LOCK -->
+## Source-bundle modular layout truth
+
+Future-LLM and source-bundle materials should describe the current modular package layout.
+
+Current maintained source-bundle paths include:
+
+- `patchops/reporting/`
+- `patchops/reporting/__init__.py`
+- `patchops/reporting/sections.py`
+- `patchops/reporting/metadata.py`
+- `patchops/execution/failure_classifier.py`
+
+Old flat reporting/classifier module names are historical snapshot context only and should not be requested as current high-priority source files.
+<!-- PATCHOPS_226_SOURCE_BUNDLE_MODULAR_LAYOUT_TRUTH_LOCK_END -->

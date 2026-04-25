@@ -236,3 +236,19 @@ Keep `github_publish_helper.md` visible alongside `post_publish_snapshot.md` and
 
 Keep `Push-PatchOpsToGitHub.ps1` visible in LLM orientation because top-level post-publish docs name it as the manual GitHub publish helper.
 <!-- PATCHOPS_L1B_FINISH_TWO_DOC_PHRASES:LLM_USAGE:END -->
+
+<!-- PATCHOPS_226_SOURCE_BUNDLE_MODULAR_LAYOUT_TRUTH_LOCK -->
+## Source-bundle modular layout truth
+
+Future-LLM and source-bundle materials should describe the current modular package layout.
+
+Current maintained source-bundle paths include:
+
+- `patchops/reporting/`
+- `patchops/reporting/__init__.py`
+- `patchops/reporting/sections.py`
+- `patchops/reporting/metadata.py`
+- `patchops/execution/failure_classifier.py`
+
+Old flat reporting/classifier module names are historical snapshot context only and should not be requested as current high-priority source files.
+<!-- PATCHOPS_226_SOURCE_BUNDLE_MODULAR_LAYOUT_TRUTH_LOCK_END -->
