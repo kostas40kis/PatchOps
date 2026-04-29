@@ -40,6 +40,7 @@ EXPECTED_SUBCOMMANDS = {
     "setup-windows-env",
     "bootstrap-repair",
     "run-package",
+    "llm-browser",
 }
 
 
@@ -56,4 +57,4 @@ def test_exact_cli_subcommand_set_remains_explicit() -> None:
 
 
 def test_exact_cli_subcommand_count_remains_stable() -> None:
-    assert len(EXPECTED_SUBCOMMANDS) == 34
+    assert len(EXPECTED_SUBCOMMANDS) == 35

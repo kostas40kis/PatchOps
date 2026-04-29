@@ -1,0 +1,21 @@
+PATCHOPS RUN-PACKAGE OUTER REPORT
+---------------------------------
+Result              : PASS
+Exit Code           : 0
+ExitCode            : 0
+Failure Category    : 
+FailureCategory     : 
+Outer Report Path   : C:\dev\patchops\report.txt
+OuterReportPath     : C:\dev\patchops\report.txt
+
+NOTES
+-----
+(none)
+
+STDOUT
+------
+
+
+STDERR
+------
+

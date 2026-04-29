@@ -1421,6 +1421,69 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, indent=2))
         return 0 if bool(payload.get("ok", False)) else 1
 
+
+
+
+
+
+
+
+
+# PATCHOPS_D0_02_LLM_BROWSER_CLI_START
+# Additive optional CLI group for the Selenium LLM browser runner stream.
+# This wrapper is intentionally thin; patchops.llm_browser.commands owns behavior.
+def _patchops_d0_02_add_llm_browser_parser(parser):
+    import argparse as _patchops_d0_02_argparse
+
+    for action in getattr(parser, "_actions", ()):
+        if isinstance(action, _patchops_d0_02_argparse._SubParsersAction):
+            if "llm-browser" in action.choices:
+                return parser
+            llm_parser = action.add_parser(
+                "llm-browser",
+                help="Optional Selenium LLM browser runner helpers.",
+            )
+            llm_subparsers = llm_parser.add_subparsers(dest="llm_browser_command")
+            doctor_parser = llm_subparsers.add_parser(
+                "doctor",
+                help="Check browser-runner dependencies without opening a browser.",
+            )
+            doctor_parser.add_argument(
+                "--browser",
+                choices=("edge", "opera", "both", "none"),
+                default="edge",
+            )
+            doctor_parser.add_argument("--wrapper-root", default=None)
+            doctor_parser.add_argument("--target-root", default=None)
+            doctor_parser.add_argument("--download-dir", default=None)
+            doctor_parser.add_argument("--json", action="store_true")
+            return parser
+    return parser
+
+
+_patchops_d0_02_original_build_parser = build_parser
+
+
+def build_parser(*args, **kwargs):
+    parser = _patchops_d0_02_original_build_parser(*args, **kwargs)
+    return _patchops_d0_02_add_llm_browser_parser(parser)
+
+
+_patchops_d0_02_original_main = main
+
+
+def main(argv=None):
+    import sys as _patchops_d0_02_sys
+
+    args = list(_patchops_d0_02_sys.argv[1:] if argv is None else argv)
+    if args and args[0] == "llm-browser":
+        from patchops.llm_browser.commands import main as _patchops_d0_02_llm_browser_main
+
+        return _patchops_d0_02_llm_browser_main(args[1:])
+    return _patchops_d0_02_original_main(argv)
+# PATCHOPS_D0_02_LLM_BROWSER_CLI_END
+
+
 if __name__ == "__main__":
     import sys as _patchops_entry_sys
 
