@@ -1391,3 +1391,564 @@ Safety behavior:
 - no localhost service is created;
 - no `--auto-send`, `--allow-send`, or `--live` option exists.
 <!-- PATCHOPS_D0_31_BROAD_VALIDATION_REPORT_PARSER:END -->
+
+<!-- PATCHOPS_D0_32_BROAD_VALIDATION_ONE_COMMAND_RUNNER_DOCS:START -->
+## D0.32 broad validation one-command runner docs
+
+Current implementation status: **D0.32 broad validation one-command runner docs shipped**.
+
+The browser-runner stream now has a single operator-facing one-command validation guide:
+
+```text
+docs/llm_browser_broad_validation_one_command.md
+tests/test_llm_browser_broad_validation_one_command_docs_current.py
+```
+
+Primary command:
+
+```powershell
+cd C:\dev\patchops
+.\scripts\llm_browser_broad_validation.ps1 -RepoRoot C:\dev\patchops
+```
+
+Default outputs:
+
+```text
+%USERPROFILE%\Desktop\patchops_reports\patchops_llm_browser_broad_validation_YYYYMMDD_HHMMSS.txt
+%USERPROFILE%\Desktop\patchops_latest_llm_browser_broad_validation_report.txt
+```
+
+The guide also documents:
+
+- opening the Desktop pointer file;
+- opening the Desktop report folder;
+- copying the actual latest report content to clipboard;
+- parsing the latest report with `llm-browser broad-report --path ... --json --strict`;
+- the plan-only smoke path;
+- the intentional `-SkipFullPytest` path;
+- PASS and FAIL interpretation;
+- the safety contract.
+
+Safety behavior:
+
+- no browser starts from the docs patch;
+- no Selenium dependency is required;
+- no download click happens here;
+- no PatchOps package command is run by the docs patch;
+- no composer paste happens here;
+- no message is submitted/sent;
+- no git commit or git push is performed by the one-command runner;
+- no localhost service is created;
+- no `--auto-send`, `--allow-send`, or `--live` option exists.
+<!-- PATCHOPS_D0_32_BROAD_VALIDATION_ONE_COMMAND_RUNNER_DOCS:END -->
+
+<!-- PATCHOPS_D0_33_BROWSER_RUNNER_DRY_MODE_CLOSEOUT_STATUS_REFRESH:START -->
+## D0.33 browser-runner dry-mode closeout status refresh
+
+Current implementation status: **D0.33 browser-runner dry-mode closeout status refresh shipped**.
+
+The browser-runner dry-mode stream now has a closeout status document:
+
+```text
+docs/llm_browser_dry_mode_closeout.md
+tests/test_llm_browser_dry_mode_closeout_status_current.py
+```
+
+Closeout status:
+
+- dry-mode stream closed for operator validation;
+- passive validation only;
+- not a live browser automation release;
+- operator broad validation remains the accepted verification path;
+- reports default to `Desktop\patchops_reports`;
+- latest report pointer defaults to `Desktop\patchops_latest_llm_browser_broad_validation_report.txt`;
+- `llm-browser broad-report --path ... --json --strict` remains the parser path.
+
+Intentionally not shipped:
+
+- automatic send;
+- automatic composer submission;
+- live browser-runner loop;
+- localhost service;
+- browser extension;
+- unattended background work;
+- automatic git commit or push.
+
+Future live-adapter rule:
+
+Any future live adapter must start as a separate development stream with explicit gates for live browser startup, download click, PatchOps package execution, composer paste, and send/submit action.
+<!-- PATCHOPS_D0_33_BROWSER_RUNNER_DRY_MODE_CLOSEOUT_STATUS_REFRESH:END -->
+
+<!-- PATCHOPS_D0_34_CLOSEOUT_VALIDATION_PUSH_CHECKPOINT:START -->
+## D0.34 closeout validation and push checkpoint
+
+Current implementation status: **D0.34 closeout validation and push checkpoint shipped**.
+
+The browser-runner dry-mode stream now has a final operator checkpoint script:
+
+```text
+scripts/llm_browser_closeout_validation_push_checkpoint.ps1
+docs/llm_browser_closeout_validation_push_checkpoint.md
+tests/test_llm_browser_closeout_validation_push_checkpoint_current.py
+```
+
+Primary command:
+
+```powershell
+cd C:\dev\patchops
+.\scripts\llm_browser_closeout_validation_push_checkpoint.ps1 -RepoRoot C:\dev\patchops
+```
+
+Default outputs:
+
+```text
+Desktop\patchops_reports\patchops_llm_browser_closeout_checkpoint_YYYYMMDD_HHMMSS.txt
+Desktop\patchops_latest_llm_browser_closeout_checkpoint.txt
+```
+
+Checkpoint behavior:
+
+- runs the operator broad-validation script unless `-SkipBroadValidation` is supplied;
+- parses the latest broad-validation report using `llm-browser broad-report --json --strict`;
+- runs the dry-mode release gate;
+- runs the passive checkpoint command;
+- captures git status;
+- writes a closeout report under the same `Desktop\patchops_reports` folder;
+- writes a Desktop pointer to the latest closeout report;
+- prints manual commit and push commands.
+
+Safety behavior:
+
+- no git commit is performed automatically;
+- no git push is performed automatically;
+- no browser starts from the checkpoint;
+- no Selenium dependency is required by the checkpoint itself;
+- no download click happens here;
+- no PatchOps package command is run by the checkpoint;
+- no composer paste happens here;
+- no message is submitted/sent;
+- no localhost service is created.
+<!-- PATCHOPS_D0_34_CLOSEOUT_VALIDATION_PUSH_CHECKPOINT:END -->
+
+<!-- PATCHOPS_D0_34B_CLOSEOUT_CHECKPOINT_DOCS_LITERAL_REPAIR:START -->
+## D0.34b closeout checkpoint docs literal repair
+
+Current implementation status: **D0.34 repaired by D0.34b**.
+
+D0.34b repairs the D0.34 docs-contract failure by adding the exact literals required by the closeout checkpoint tests:
+
+- `llm-browser_broad_validation.ps1`;
+- `does not run git commit`;
+- `does not run git push`.
+
+No behavior change is introduced. The closeout checkpoint still does not commit or push automatically, and the actual broad-validation script path remains:
+
+```text
+scripts/llm_browser_broad_validation.ps1
+```
+<!-- PATCHOPS_D0_34B_CLOSEOUT_CHECKPOINT_DOCS_LITERAL_REPAIR:END -->
+
+<!-- PATCHOPS_D0_35_FUTURE_LIVE_ADAPTER_DEVELOPMENT_PLAN:START -->
+## D0.35 future live-adapter development plan
+
+Current implementation status: **D0.35 future live-adapter development plan shipped**.
+
+The dry-mode stream remains closed for operator validation. D0.35 starts the next stream only as a plan:
+
+```text
+docs/llm_browser_future_live_adapter_plan.md
+tests/test_llm_browser_future_live_adapter_plan_current.py
+```
+
+The plan requires any future live adapter to be developed as a separate stream. It must not silently expand dry-mode code into unattended browser automation.
+
+Required gates:
+
+- live browser startup gate;
+- page readiness gate;
+- latest assistant reply detection gate;
+- artifact candidate detection gate;
+- download click gate;
+- download stabilization gate;
+- PatchOps package execution gate;
+- canonical report detection gate;
+- pasteback summary construction gate;
+- composer paste gate;
+- final send/submit gate.
+
+The final send/submit gate remains unsupported until a separate explicit safety design exists.
+
+Safety invariants:
+
+- dry-run mode remains available;
+- dry-run mode performs no side effects;
+- auto-send remains unsupported;
+- live side effects are disabled by default;
+- every live side effect is opt-in;
+- every live side effect is auditable;
+- failure is fail-closed;
+- ambiguous state is fail-closed;
+- patch scripts must not run git commit or git push automatically.
+
+Report-location rule:
+
+Future live-adapter reports must use `Desktop\patchops_reports` or create a Desktop pointer file to the actual report path.
+<!-- PATCHOPS_D0_35_FUTURE_LIVE_ADAPTER_DEVELOPMENT_PLAN:END -->
+
+<!-- PATCHOPS_D0_36_FINAL_CLOSEOUT_VALIDATION_SCRIPT_DOCS:START -->
+## D0.36 final closeout validation script docs
+
+Current implementation status: **D0.36 final closeout validation script docs shipped**.
+
+The dry-mode stream now has final operator closeout validation documentation:
+
+```text
+docs/llm_browser_final_closeout_validation_script.md
+tests/test_llm_browser_final_closeout_validation_script_docs_current.py
+```
+
+Final command:
+
+```powershell
+cd C:\dev\patchops
+.\scripts\llm_browser_closeout_validation_push_checkpoint.ps1 -RepoRoot C:\dev\patchops
+```
+
+Expected closeout outputs:
+
+```text
+Desktop\patchops_reports\patchops_llm_browser_closeout_checkpoint_YYYYMMDD_HHMMSS.txt
+Desktop\patchops_latest_llm_browser_closeout_checkpoint.txt
+Desktop\patchops_latest_llm_browser_broad_validation_report.txt
+```
+
+The guide documents:
+
+- opening the latest closeout pointer;
+- opening the latest broad-validation pointer;
+- copying the latest closeout report to clipboard;
+- copying the latest broad-validation report to clipboard;
+- parsing the latest broad-validation report with `llm-browser broad-report --path ... --json --strict`;
+- PASS requirements;
+- FAIL handling;
+- manual commit and push commands;
+- plan-only mode;
+- shorter local check mode;
+- safety contract;
+- closeout interpretation.
+
+Safety behavior:
+
+- the final closeout validation script does not run git commit;
+- the final closeout validation script does not run git push;
+- it does not start a browser;
+- it does not start Selenium;
+- it does not click or download artifacts;
+- it does not run PatchOps packages;
+- it does not paste into the ChatGPT composer;
+- it does not submit or send a message;
+- it does not create a localhost service.
+<!-- PATCHOPS_D0_36_FINAL_CLOSEOUT_VALIDATION_SCRIPT_DOCS:END -->
+
+<!-- PATCHOPS_D0_37_FINAL_CLOSEOUT_CHECKLIST_HANDOFF_DOCS:START -->
+## D0.37 final closeout checklist and handoff docs
+
+Current implementation status: **D0.37 final closeout checklist and handoff docs shipped**.
+
+The dry-mode stream now has a final checklist and handoff page:
+
+```text
+docs/llm_browser_final_closeout_checklist_handoff.md
+tests/test_llm_browser_final_closeout_checklist_handoff_current.py
+```
+
+The checklist documents:
+
+- final closeout validation command;
+- PASS requirements;
+- Desktop report folder;
+- Desktop closeout pointer;
+- Desktop broad-validation pointer;
+- clipboard commands for closeout and broad-validation reports;
+- broad-report parser command;
+- manual commit and push commands;
+- shipped surfaces;
+- intentionally not shipped surfaces;
+- future live-adapter handoff gates;
+- safety reminders;
+- final operator rule.
+
+Final operator command:
+
+```powershell
+cd C:\dev\patchops
+.\scripts\llm_browser_closeout_validation_push_checkpoint.ps1 -RepoRoot C:\dev\patchops
+```
+
+Final operator rule:
+
+If the final closeout report is PASS, commit and push manually. If the final closeout report is FAIL, do not commit or push.
+<!-- PATCHOPS_D0_37_FINAL_CLOSEOUT_CHECKLIST_HANDOFF_DOCS:END -->
+
+<!-- PATCHOPS_D0_38_FINAL_OPERATOR_VALIDATION_COMMIT_CHECKPOINT:START -->
+## D0.38 final operator validation and commit checkpoint
+
+Current implementation status: **D0.38 final operator validation and commit checkpoint shipped**.
+
+The dry-mode stream now has a final operator validation and manual-commit checkpoint script:
+
+```text
+scripts/llm_browser_final_operator_validation_commit_checkpoint.ps1
+docs/llm_browser_final_operator_validation_commit_checkpoint.md
+tests/test_llm_browser_final_operator_validation_commit_checkpoint_current.py
+```
+
+Primary command:
+
+```powershell
+cd C:\dev\patchops
+.\scripts\llm_browser_final_operator_validation_commit_checkpoint.ps1 -RepoRoot C:\dev\patchops
+```
+
+Default outputs:
+
+```text
+Desktop\patchops_reports\patchops_llm_browser_final_operator_commit_checkpoint_YYYYMMDD_HHMMSS.txt
+Desktop\patchops_latest_llm_browser_final_operator_commit_checkpoint.txt
+```
+
+Checkpoint behavior:
+
+- runs the closeout validation and push checkpoint unless `-SkipCloseoutValidation` is supplied;
+- reads the closeout checkpoint pointer;
+- reads the broad-validation pointer;
+- parses the latest broad-validation report with `llm-browser broad-report --json --strict`;
+- runs the dry-mode release gate;
+- runs the passive checkpoint command;
+- captures git status;
+- writes a final operator checkpoint report under `Desktop\patchops_reports`;
+- writes a Desktop pointer to the latest final operator checkpoint report;
+- prints manual commit and push commands.
+
+Safety behavior:
+
+- no git commit is performed automatically;
+- no git push is performed automatically;
+- no browser starts from the checkpoint;
+- no Selenium dependency is required by the checkpoint itself;
+- no download click happens here;
+- no PatchOps package command is run by the checkpoint itself;
+- no composer paste happens here;
+- no message is submitted/sent;
+- no localhost service is created.
+<!-- PATCHOPS_D0_38_FINAL_OPERATOR_VALIDATION_COMMIT_CHECKPOINT:END -->
+
+<!-- PATCHOPS_D0_38B_FINAL_OPERATOR_CHECKPOINT_DOCS_LITERAL_REPAIR:START -->
+## D0.38b final operator checkpoint docs literal repair
+
+Current implementation status: **D0.38 repaired by D0.38b**.
+
+D0.38b repairs the D0.38 docs-contract failure by adding the exact literals required by the final operator checkpoint docs test:
+
+- `does not run git commit`;
+- `does not run git push`.
+
+No behavior change is introduced. The final operator checkpoint still prints manual commit and push commands only. It does not execute them.
+<!-- PATCHOPS_D0_38B_FINAL_OPERATOR_CHECKPOINT_DOCS_LITERAL_REPAIR:END -->
+
+<!-- PATCHOPS_D0_39_FINAL_CLOSEOUT_BROAD_VALIDATION_PUSH:START -->
+## D0.39 final closeout broad validation and push
+
+Current implementation status: **D0.39 final closeout broad validation and push shipped**.
+
+The dry-mode stream now has a final closeout helper script:
+
+```text
+scripts/llm_browser_final_closeout_broad_validation_push.ps1
+docs/llm_browser_final_closeout_broad_validation_push.md
+tests/test_llm_browser_final_closeout_broad_validation_push_current.py
+```
+
+Primary command:
+
+```powershell
+cd C:\dev\patchops
+.\scripts\llm_browser_final_closeout_broad_validation_push.ps1 -RepoRoot C:\dev\patchops
+```
+
+Default outputs:
+
+```text
+Desktop\patchops_reports\patchops_llm_browser_final_closeout_broad_validation_push_YYYYMMDD_HHMMSS.txt
+Desktop\patchops_latest_llm_browser_final_closeout_broad_validation_push.txt
+```
+
+Helper behavior:
+
+- runs the final operator validation and commit checkpoint unless `-SkipFinalOperatorCheckpoint` is supplied;
+- reads the final operator checkpoint pointer;
+- reads the closeout checkpoint pointer;
+- reads the broad-validation pointer;
+- parses the latest broad-validation report with `llm-browser broad-report --json --strict`;
+- runs the dry-mode release gate;
+- runs the passive checkpoint command;
+- captures git status;
+- writes one final closeout report under `Desktop\patchops_reports`;
+- writes a Desktop pointer to the latest final closeout report;
+- prints manual commit and push commands.
+
+Safety behavior:
+
+- no git commit is performed automatically;
+- no git push is performed automatically;
+- no browser starts from the helper;
+- no Selenium dependency is required by the helper itself;
+- no download click happens here;
+- no PatchOps package command is run by the helper itself;
+- no composer paste happens here;
+- no message is submitted/sent;
+- no localhost service is created.
+<!-- PATCHOPS_D0_39_FINAL_CLOSEOUT_BROAD_VALIDATION_PUSH:END -->
+
+<!-- PATCHOPS_D0_40_FINAL_GITHUB_UPLOAD_HELPER_DOCS:START -->
+## D0.40 final GitHub upload helper docs
+
+Current implementation status: **D0.40 final GitHub upload helper docs shipped**.
+
+The dry-mode stream now has final GitHub upload helper documentation:
+
+```text
+docs/llm_browser_final_github_upload_helper.md
+tests/test_llm_browser_final_github_upload_helper_docs_current.py
+```
+
+The helper docs require the final closeout helper to pass before upload:
+
+```powershell
+cd C:\dev\patchops
+.\scripts\llm_browser_final_closeout_broad_validation_push.ps1 -RepoRoot C:\dev\patchops
+```
+
+Manual GitHub upload commands are documented, but not executed automatically:
+
+```powershell
+cd C:\dev\patchops
+git status --short --branch
+git add -A
+git commit -m "Close out llm-browser dry-mode validation stream"
+git push origin main
+```
+
+Post-upload verification is documented:
+
+```powershell
+cd C:\dev\patchops
+git status --short --branch
+git log -1 --oneline
+```
+
+Safety behavior:
+
+- the docs do not run git commit;
+- the docs do not run git push;
+- no helper stages files automatically;
+- no helper creates a commit automatically;
+- no browser starts from these docs;
+- no Selenium dependency is required;
+- no download click happens here;
+- no PatchOps package command is run by these docs;
+- no composer paste happens here;
+- no message is submitted/sent;
+- no localhost service is created.
+<!-- PATCHOPS_D0_40_FINAL_GITHUB_UPLOAD_HELPER_DOCS:END -->
+
+<!-- PATCHOPS_D0_41_FINAL_POST_PUSH_VERIFICATION_DOCS:START -->
+## D0.41 final post-push verification docs
+
+Current implementation status: **D0.41 final post-push verification docs shipped**.
+
+The dry-mode stream now has final post-push verification documentation:
+
+```text
+docs/llm_browser_final_post_push_verification.md
+tests/test_llm_browser_final_post_push_verification_docs_current.py
+```
+
+Primary post-push verification commands:
+
+```powershell
+cd C:\dev\patchops
+git status --short --branch
+git log -1 --oneline
+git fetch origin main
+git rev-parse HEAD
+git rev-parse origin/main
+```
+
+Expected result:
+
+- local branch is `main`;
+- local branch is not behind `origin/main`;
+- `git status --short --branch` is clean or only shows intentional local files;
+- latest commit message is visible in `git log -1 --oneline`;
+- `git rev-parse HEAD` matches `git rev-parse origin/main`.
+
+Safety behavior:
+
+- the docs do not run git commit;
+- the docs do not run git push;
+- no helper stages files automatically;
+- no helper creates a commit automatically;
+- no browser starts from these docs;
+- no Selenium dependency is required;
+- no download click happens here;
+- no PatchOps package command is run by these docs;
+- no composer paste happens here;
+- no message is submitted/sent;
+- no localhost service is created.
+<!-- PATCHOPS_D0_41_FINAL_POST_PUSH_VERIFICATION_DOCS:END -->
+
+<!-- PATCHOPS_D0_42_FINAL_RELEASE_NOTE_SOURCE_HANDOFF:START -->
+## D0.42 final release note and source handoff
+
+Current implementation status: **D0.42 final release note and source handoff shipped**.
+
+The dry-mode stream now has a final release note and source handoff:
+
+```text
+docs/llm_browser_final_release_note_source_handoff.md
+tests/test_llm_browser_final_release_note_source_handoff_current.py
+```
+
+The release note summarizes:
+
+- release status;
+- source handoff summary;
+- new operator scripts;
+- new operator docs;
+- new validation tests;
+- final validation path;
+- manual commit and push path;
+- post-push verification path;
+- Desktop evidence pointers;
+- what did not ship;
+- safety boundary;
+- future live-adapter handoff;
+- handoff rule for the next LLM.
+
+Release boundary:
+
+The shipped work is a passive dry-mode validation and evidence layer. It is not a live browser automation loop.
+
+Safety behavior:
+
+- no git commit is performed automatically;
+- no git push is performed automatically;
+- no browser starts from the release note;
+- no Selenium dependency is required by the release note;
+- no download click happens here;
+- no PatchOps package command is run by the release note;
+- no composer paste happens here;
+- no message is submitted/sent;
+- no localhost service is created.
+<!-- PATCHOPS_D0_42_FINAL_RELEASE_NOTE_SOURCE_HANDOFF:END -->
