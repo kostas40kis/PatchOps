@@ -801,7 +801,52 @@ def _write_json_file(path_value: str | Path, payload: dict[str, Any]) -> Path:
     return output_path.resolve()
 
 
+
+# PATCHOPS_L1_02_LIVE_ADAPTER_CLI_READBACK_START
+def _patchops_l1_02_maybe_handle_live_adapter_cli(argv):
+    raw = list(argv or [])
+    if len(raw) >= 2 and raw[0] == "llm-browser" and raw[1] in {"live-adapter", "live-adapter-readback"}:
+        if any(item in {"-h", "--help"} for item in raw[2:]):
+            print("usage: patchops llm-browser live-adapter [--json] [--compact]")
+            print("")
+            print("Passive L-phase live adapter skeleton readback. No browser is started.")
+            print("")
+            print("options:")
+            print("  --json     emit JSON readback")
+            print("  --compact  compact JSON when --json is supplied")
+            return 0
+        from patchops.llm_browser.live_adapter import build_live_adapter_readback
+        import json as _patchops_l1_02_json
+        payload = build_live_adapter_readback()
+        if "--json" in raw[2:]:
+            compact = "--compact" in raw[2:]
+            print(_patchops_l1_02_json.dumps(payload, indent=None if compact else 2, sort_keys=True))
+        else:
+            print("PatchOps LLM browser live adapter skeleton readback")
+            print(f"Status     : {payload.get('status')}")
+            print(f"OK         : {payload.get('ok')}")
+            print("Browser    : not started")
+            print(f"SideEffects: {payload.get('side_effects_performed')}")
+            print("Blocked operations:")
+            for operation in payload.get("blocked_operations", []):
+                print(f"- {operation}")
+            print(f"Next patch : {payload.get('next_patch')}")
+        return 0
+    return None
+# PATCHOPS_L1_02_LIVE_ADAPTER_CLI_READBACK_END
+
 def main(argv: list[str] | None = None) -> int:
+
+    # PATCHOPS_L1_02_LIVE_ADAPTER_CLI_READBACK_CALL_START
+    import sys as _patchops_l1_02_sys
+    try:
+        _patchops_l1_02_raw_argv = list(argv if argv is not None else _patchops_l1_02_sys.argv[1:])
+    except NameError:
+        _patchops_l1_02_raw_argv = list(_patchops_l1_02_sys.argv[1:])
+    _patchops_l1_02_cli_result = _patchops_l1_02_maybe_handle_live_adapter_cli(_patchops_l1_02_raw_argv)
+    if _patchops_l1_02_cli_result is not None:
+        raise SystemExit(_patchops_l1_02_cli_result)
+    # PATCHOPS_L1_02_LIVE_ADAPTER_CLI_READBACK_CALL_END
     import sys as _patchops_sys
     argv = list(_patchops_sys.argv[1:] if argv is None else argv)
     if argv and argv[0] == "run-package":

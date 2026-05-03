@@ -18,3 +18,8 @@ data/runtime/
 
 # Python generated files
 *.py[cod]
+# PatchOps local/runtime exclusions
+patchops.egg-info/
+report.txt
+*.tmp
+*.log

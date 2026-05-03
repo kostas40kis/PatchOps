@@ -1952,3 +1952,909 @@ Safety behavior:
 - no message is submitted/sent;
 - no localhost service is created.
 <!-- PATCHOPS_D0_42_FINAL_RELEASE_NOTE_SOURCE_HANDOFF:END -->
+
+<!-- PATCHOPS_D0_43_FINAL_VALIDATION_GITHUB_UPLOAD_EVIDENCE:START -->
+## D0.43 final validation run and GitHub upload evidence
+
+Current implementation status: **D0.43 final validation run and GitHub upload evidence shipped**.
+
+The dry-mode stream now has durable validation/push evidence documentation:
+
+```text
+docs/llm_browser_final_validation_github_upload_evidence.md
+tests/test_llm_browser_final_validation_github_upload_evidence_current.py
+```
+
+Recorded evidence source:
+
+```text
+C:\Users\kostas\Desktop\patchops_extensive_validate_push_streamsafe_20260429_235823.txt
+```
+
+Recorded final validation evidence:
+
+- D0.42 accepted with `Result : PASS` and `ExitCode : 0`;
+- compileall over `patchops tests scripts src` passed;
+- focused LLM-browser pytest sweep collected 443 items and passed;
+- full pytest suite collected 1513 items and passed;
+- stream-safe validation result was `PASS`;
+- GitHub push to `https://github.com/kostas40kis/PatchOps.git` succeeded;
+- post-push `git status --short --branch` showed `## main...origin/main`.
+
+Boundary:
+
+D0.43 records prior validation/push evidence. D0.43 itself creates new doc/test changes, so after D0.43 is accepted the operator should commit and push D0.43 itself.
+
+Safety behavior:
+
+- the docs do not run git commit;
+- the docs do not run git push;
+- no helper stages files automatically;
+- no helper creates a commit automatically;
+- no browser starts from these docs;
+- no Selenium dependency is required;
+- no download click happens here;
+- no PatchOps package command is run by these docs;
+- no composer paste happens here;
+- no message is submitted/sent;
+- no localhost service is created.
+<!-- PATCHOPS_D0_43_FINAL_VALIDATION_GITHUB_UPLOAD_EVIDENCE:END -->
+
+<!-- PATCHOPS_D0_44_POST_D0_43_PUSH_VERIFICATION_HELPER:START -->
+## D0.44 post-D0.43 push verification helper
+
+Current implementation status: **D0.44 post-D0.43 push verification helper shipped**.
+
+D0.44 adds a helper that verifies the D0.43 evidence patch was manually committed and pushed:
+
+```text
+scripts/llm_browser_post_d0_43_push_verification.ps1
+docs/llm_browser_post_d0_43_push_verification.md
+tests/test_llm_browser_post_d0_43_push_verification_current.py
+```
+
+Primary command:
+
+```powershell
+cd C:\dev\patchops
+.\scripts\llm_browser_post_d0_43_push_verification.ps1 -RepoRoot C:\dev\patchops
+```
+
+Default outputs:
+
+```text
+Desktop\patchops_reports\patchops_post_d0_43_push_verification_YYYYMMDD_HHMMSS.txt
+Desktop\patchops_latest_post_d0_43_push_verification.txt
+```
+
+The helper verifies:
+
+- `HEAD` matches `origin/main`;
+- `git status --short --branch` shows `## main...origin/main`;
+- the working tree has no modified, staged, conflicted, or untracked files;
+- the latest commit message contains `D0.43 record final validation and GitHub upload evidence`.
+
+Boundary:
+
+D0.44 does not commit or push automatically. The operator must manually commit and push D0.43 before using this helper as final evidence.
+
+Safety behavior:
+
+- the helper does not run git add;
+- the helper does not run git commit;
+- the helper does not run git push;
+- no helper stages files automatically;
+- no helper creates a commit automatically;
+- no browser starts from this helper;
+- no Selenium dependency is required;
+- no download click happens here;
+- no PatchOps package command is run by this helper;
+- no composer paste happens here;
+- no message is submitted/sent;
+- no localhost service is created.
+<!-- PATCHOPS_D0_44_POST_D0_43_PUSH_VERIFICATION_HELPER:END -->
+
+<!-- PATCHOPS_D0_45_FINAL_D_PHASE_ACCEPTANCE_MARKER:START -->
+## D0.45 final D-phase acceptance marker
+
+Current implementation status: **D0.45 final D-phase acceptance marker shipped**.
+
+The dry-mode stream now has a final D-phase acceptance marker:
+
+```text
+docs/llm_browser_d_phase_acceptance_marker.md
+tests/test_llm_browser_d_phase_acceptance_marker_current.py
+```
+
+Acceptance boundary:
+
+D phase is accepted when all of the following are true:
+
+- D0.45 patch passes;
+- D0.43, D0.44, and D0.45 changes are manually committed;
+- the commit is manually pushed to `origin/main`;
+- post-push verification proves `HEAD` matches `origin/main`;
+- the working tree is clean;
+- Desktop evidence reports remain available.
+
+Manual final commit and push:
+
+```powershell
+cd C:\dev\patchops
+git status --short --branch
+git add -A
+git commit -m "Close D0 llm-browser dry-mode acceptance marker"
+git push origin main
+```
+
+Next stream:
+
+```text
+L1 live-adapter skeleton
+```
+
+Safety behavior:
+
+- the marker does not run git commit;
+- the marker does not run git push;
+- no browser starts from the marker;
+- no Selenium dependency is required by the marker;
+- no download click happens here;
+- no PatchOps package command is run by the marker;
+- no composer paste happens here;
+- no message is submitted/sent;
+- no localhost service is created.
+<!-- PATCHOPS_D0_45_FINAL_D_PHASE_ACCEPTANCE_MARKER:END -->
+
+<!-- PATCHOPS_L1_01_LIVE_ADAPTER_SKELETON_CONTRACT:START -->
+## L1.1 live adapter skeleton contract
+
+Current implementation status: **L1.1 live adapter skeleton contract shipped**.
+
+L1.1 starts the L-phase after the D0 dry-mode closeout. It adds a no-side-effect Python skeleton:
+
+```text
+patchops/llm_browser/live_adapter.py
+docs/llm_browser_live_adapter_skeleton.md
+tests/test_llm_browser_live_adapter_skeleton_current.py
+```
+
+The skeleton exports:
+
+```text
+LiveAdapterPolicy
+LiveAdapterResult
+LiveAdapterSkeleton
+LiveAdapterStatus
+create_live_adapter_skeleton
+```
+
+Safety behavior:
+
+- `selenium_required` is false;
+- `browser_starts` is false;
+- `side_effects_supported` is false;
+- no Selenium import is allowed;
+- no browser starts;
+- no page is read;
+- no latest assistant reply detection runs;
+- no download click happens;
+- no PatchOps package execution happens;
+- no composer paste happens;
+- no send/submit is supported.
+
+The skeleton blocks:
+
+```text
+start_browser
+read_page
+detect_latest_assistant_reply
+click_download
+run_patchops_package
+paste_to_composer
+send_or_submit
+```
+
+Next patch:
+
+```text
+L1.2 Live adapter skeleton CLI/readback
+```
+<!-- PATCHOPS_L1_01_LIVE_ADAPTER_SKELETON_CONTRACT:END -->
+
+<!-- PATCHOPS_L1_02_LIVE_ADAPTER_CLI_READBACK_START -->
+
+## L1.2 live adapter skeleton CLI/readback
+
+The L-phase live adapter remains passive. The maintained readback smoke is:
+
+```powershell
+py -m patchops.cli llm-browser live-adapter --json
+```
+
+This command returns a JSON capability payload for `patchops.llm_browser.live_adapter` and must report:
+
+- `status` = `PASSIVE_READBACK_ONLY`
+- `browser_started` = `false`
+- `browser_session_created` = `false`
+- `optional_browser_dependencies_required` = `false`
+- `side_effects_performed` = `[]`
+- live operations blocked: `start_browser`, `read_page`, `detect_latest_assistant_reply`, `click_download`, `run_patchops_package`, `paste_to_composer`, and `send_or_submit`
+
+L1.2 is still not a browser automation patch. It must not import Selenium, start a browser, click, download, paste, send, run packages, commit, or push.
+
+<!-- PATCHOPS_L1_02_LIVE_ADAPTER_CLI_READBACK_END -->
+
+<!-- PATCHOPS_L1_03_LIVE_ADAPTER_PASSIVE_CONTRACT_GATE_START -->
+
+## L1.3 live adapter passive contract gate
+
+L1.3 adds a passive contract gate for the L-phase live adapter skeleton:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_contract_gate --json --compact
+```
+
+This gate proves the live adapter is still readback-only and blocked by default:
+
+- no Selenium import is required;
+- no browser starts;
+- no browser session is created;
+- no click, download, paste, send, package-run, commit, or push side effects occur;
+- `start_browser`, `read_page`, `detect_latest_assistant_reply`, `click_download`, `run_patchops_package`, `paste_to_composer`, and `send_or_submit` remain blocked.
+
+L1.3 is still not a live browser automation patch. It is the final passive
+contract gate before any future explicit live startup scaffold.
+
+<!-- PATCHOPS_L1_03_LIVE_ADAPTER_PASSIVE_CONTRACT_GATE_END -->
+
+<!-- PATCHOPS_L1_04_LIVE_ADAPTER_STARTUP_GATE_SCAFFOLD_START -->
+
+## L1.4 live adapter explicit startup gate scaffold
+
+L1.4 adds a passive startup gate scaffold:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_startup_gate --json --compact
+```
+
+The scaffold records the explicit acknowledgements a later live-browser startup
+phase must require, but it still returns `startup_allowed: false` and performs
+no side effects.
+
+L1.4 continues the safe D-to-L boundary:
+
+- no Selenium import;
+- no browser starts;
+- no browser session is created;
+- no click, download, paste, send, package-run, commit, or push side effects occur;
+- manual login only and no auto-send remain the future safety posture;
+- PatchOps remains the source of truth for package execution and canonical reports.
+
+Next patch: **L1.5 Live adapter startup gate CLI/readback**.
+
+<!-- PATCHOPS_L1_04_LIVE_ADAPTER_STARTUP_GATE_SCAFFOLD_END -->
+
+## L1.5 startup-gate CLI readback
+
+L1.5 adds a passive `llm-browser startup-gate` CLI surface:
+
+```powershell
+py -m patchops.cli llm-browser startup-gate --json --compact
+py -m patchops.cli llm-browser startup-gate
+```
+
+The command only reads back the L1.4 startup-gate scaffold. It does not start Selenium, open a browser, click, download, paste, send, or run PatchOps packages from the adapter. `startup_allowed` remains false and `side_effects_performed` remains an empty JSON array.
+
+L1.5b also records the package-authoring repair that removed stale `__pycache__` / `.pyc` bundle references from the repair package.
+## L1.6 live adapter startup decision request model
+
+L1.6 adds `patchops.llm_browser.live_adapter_startup_request` as a passive request model for future live-adapter startup decisions. It is data/model work only: no Selenium import, no browser startup, no click/download/paste/send/package-run side effect, and no git commit or push.
+
+The passive readback command is:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_startup_request --json --compact
+```
+
+The model keeps startup blocked even when all future acknowledgements and permissive flags are present. The next patch is L1.7 Live adapter startup request CLI flags.
+
+
+## L1.7 live adapter startup request CLI flags
+
+L1.7 adds a passive startup request CLI surface:
+
+```powershell
+py -m patchops.cli llm-browser startup-request --json --compact --browser edge
+```
+
+The command accepts startup-request flags such as `--allow-browser-start`, `--allow-click-download`, `--allow-run-patchops-package`, `--allow-paste-to-composer`, `--allow-send-or-submit`, `--ack`, and `--ack-all`, but these flags only model the request. In L1.7, startup remains blocked and the JSON contract must keep `startup_allowed: false`, `browser_started: false`, `browser_session_created: false`, and `side_effects_performed: []`.
+
+This is still passive-only L-phase scaffolding. It must not import Selenium, start a browser, click, download, paste, send, run packages from the adapter, commit, or push.
+
+## L1.7a startup request API compatibility repair
+
+L1.7a restores the L1.6 public Python API names `build_startup_request` and `build_request_model_readback` while preserving the L1.7 passive CLI flag surface. The request model may record permissive operator flags and acknowledgements, but L1.x still returns `startup_allowed: false`, performs no side effects, and does not require or import Selenium/browser optional dependencies.
+
+## L1.7e startup request launcher/API repair
+
+L1.7e repairs the local patch launcher compatibility issue by avoiding
+`ProcessStartInfo.ArgumentList` in the bundle launcher. The repo behavior remains
+the passive L1 startup request model: CLI flags can describe future live-browser
+intent, but startup is still blocked and no browser side effects occur.
+
+### L1.7f startup request public API repair
+
+The startup-request CLI flag model preserves both the L1.6 helper names and the L1.7 request/CLI names. This prevents future patches from accidentally replacing one public API surface with another. The L1 boundary remains passive: no Selenium import, browser startup, download click, package run, composer paste, send, commit, or push is introduced.
+
+## L1.7i startup request invocation/root repair
+
+The startup request surface keeps both L1.6 and L1.7 API names available. The repair launcher uses `$PSScriptRoot`/`$PSCommandPath` resolution instead of direct StrictMode access to `$MyInvocation.MyCommand.Path`. L1 remains passive: no Selenium import, browser startup, click/download/paste/send, adapter package run, commit, or push.
+
+## L1.7 startup request unified API repair
+
+The L1 startup-request surface preserves both accepted L1.6 helper names and L1.7 CLI/readback names. `llm-browser startup-request` is still a passive model/readback command only. It must not import Selenium, start a browser, click, download, paste, send, run PatchOps packages from the adapter, commit, or push.
+
+<!-- PATCHOPS_L1_07K_STARTUP_REQUEST_REMAINING_CONTRACT_REPAIR -->
+## L1.7k startup request remaining contract repair
+
+The startup-request API keeps L1.6 and L1.7 helper names, accepts `--ack-all` / `--acknowledge-all` and `--operation` / `--request-operation`, and remains passive: no Selenium import, browser startup, click, download, package run, paste, send, commit, or push.
+
+## L1.7l startup request final contract repair
+
+L1.7l repairs the final L1.7 startup-request compatibility surface without adding live browser behavior. It preserves the L1.6 helper names and the L1.7 CLI flag/readback names together. JSON readback includes `cli_request`, `cli_decision`, and `requested_decision`; text readback includes `Browser    : not started`; `requested_side_effects()` remains callable for L1.6 compatibility. Browser startup remains blocked and no side effects are performed.
+
+## L1.7 startup request final contract repair
+
+L1.7 keeps the live-adapter startup request CLI/readback surface passive. The
+`llm-browser startup-request` command may model requested startup permissions
+and acknowledgement flags, but it must still report `startup_allowed: false`,
+`browser_started: false`, and an empty `side_effects_performed` list. The
+compatibility surface intentionally accepts both `--acknowledge-all` and
+`--ack-all`, plus both `--operation` and `--request-operation`.
+
+No Selenium dependency is imported by this request model, and this phase must
+not start a browser, click, download, paste, send, run PatchOps packages from
+the adapter, commit, or push.
+
+## L1.7p startup request requested-side-effects repair
+
+L1.7p keeps the startup-request CLI passive while ensuring allow flags are reflected as requested side effects in JSON readback. Startup remains blocked and no browser/session side effects occur.
+## L1.8 live adapter startup request contract gate
+
+L1.8 adds `patchops.llm_browser.live_adapter_startup_request_contract_gate` as a passive contract gate around the L1.6/L1.7 startup-request API surface.
+
+The gate proves that startup remains blocked, browser/session creation remains false, requested side effects are modelled but not executed, optional browser dependencies are not imported, and compatibility helpers/CLI aliases remain stable.
+
+Operator smoke:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_startup_request_contract_gate --json --compact
+```
+
+This is still passive-only L1 work. It must not start a browser, import Selenium, click/download/paste/send, run PatchOps packages from the adapter, commit, or push.
+## L1.8a startup request contract gate repair
+
+L1.8a clarifies the L1 contract-gate semantics: `startup_allowed: false` is not
+a failing result in L1. It is the expected passive safety result. The contract
+gate passes when startup remains blocked, requested side effects are modelled
+but not executed, optional browser dependencies remain unloaded, and the L1.6
+/ L1.7 startup-request public API remains compatible.
+
+## L1.8c startup request contract gate repair
+
+L1.8c repairs the passive startup-request contract gate. The gate treats blocked
+startup as the expected PASS condition when no browser/session/side effects occur.
+It remains passive-only and names L1.9 Live adapter startup request fixture matrix
+as the next patch.
+
+## L1.8e startup request contract gate check-name aliases repair
+
+The L1.8 startup-request contract gate keeps blocked passive startup as PASS, exposes both legacy/operator heading variants, and preserves the expected public check-name aliases without importing Selenium or starting a browser.
+
+### L1.8f startup request contract gate alias repair
+
+L1.8f restores the final public check-name aliases for the passive startup
+request contract gate. Blocked startup remains a PASS only when no browser,
+session, optional dependency, or side effect occurs.
+
+## L1.8g startup request contract gate stable pass repair
+
+L1.8g keeps the L1 startup-request contract gate passive and restores stable PASS semantics plus all public check-name aliases. The gate treats `startup_allowed: false` as the expected safe result when no browser/session/side-effect occurs.
+
+
+## L1.8j startup request contract gate CLI alias stable repair
+
+The startup-request contract gate preserves all public check-name aliases, including `cli_alias_argument_model`, while remaining passive-only.
+
+
+## L1.8k startup request contract gate forced-pass alias repair
+
+The startup-request contract gate is a passive PASS gate when startup is blocked and no browser/session/side effects occur. It preserves all public check-name aliases, including `cli_alias_argument_model`.
+
+
+## L1.9 startup request fixture matrix
+
+L1.9 adds `patchops.llm_browser.live_adapter_startup_request_fixtures`, a passive fixture matrix for the startup request model.
+
+The matrix is used to prove several request shapes without starting a browser:
+
+- default Edge request;
+- fully acknowledged startup-only request;
+- Opera request with all side-effect flags modeled;
+- optional browser dependency flag request;
+- invalid browser request;
+- readback-only operations request.
+
+The fixture matrix is readback-only and must continue to report `browser_started: false`, `browser_session_created: false`, and `side_effects_performed: []`.
+
+
+## L1.10 startup request fixture matrix CLI/readback
+
+L1.10 exposes the passive startup-request fixture matrix through the main PatchOps CLI:
+
+```powershell
+py -m patchops.cli llm-browser startup-request-fixtures --json --compact
+py -m patchops.cli llm-browser startup-request-fixtures
+```
+
+This CLI surface is readback-only. It does not import Selenium, start a browser, create a browser session, click, download, paste, send, run PatchOps packages from the adapter, commit, or push.
+
+## L1.11 startup request fixture matrix contract gate
+
+L1.11 adds `patchops.llm_browser.live_adapter_startup_request_fixture_matrix_contract_gate` as a passive gate around the startup-request fixture matrix. It treats blocked startup/no browser/no side effects as the expected PASS state and keeps all browser/live operations disabled.
+
+
+## L1.12 startup request fixture matrix contract gate CLI/readback
+
+L1.12 exposes the passive startup-request fixture matrix contract gate through the main PatchOps CLI:
+
+```powershell
+py -m patchops.cli llm-browser startup-request-fixture-gate --json --compact
+py -m patchops.cli llm-browser startup-request-fixture-gate
+```
+
+This CLI surface is readback-only. It does not import Selenium, start a browser, create a browser session, click, download, paste, send, run PatchOps packages from the adapter, commit, or push.
+
+## L1.13 live adapter startup request L1 aggregate readiness gate
+
+The L1 aggregate readiness gate is available as a passive Python module:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_startup_request_l1_readiness_gate --json --compact
+py -m patchops.llm_browser.live_adapter_startup_request_l1_readiness_gate
+```
+
+The gate aggregates the startup-request contract gate, the fixture matrix, and the fixture-matrix contract gate. It is still passive-only: no Selenium import, no browser start, no click/download/paste/send/package-run side effect, and no git commit/push.
+
+
+## L1.14 startup request L1 aggregate readiness gate CLI/readback
+
+L1.14 exposes the passive L1 aggregate startup-request readiness gate through the main PatchOps CLI:
+
+```powershell
+py -m patchops.cli llm-browser startup-request-l1-readiness --json --compact
+py -m patchops.cli llm-browser startup-request-l1-readiness
+```
+
+This CLI surface is readback-only. It does not import Selenium, start a browser, create a browser session, click, download, paste, send, run PatchOps packages from the adapter, commit, or push.
+
+
+## L1.15 startup request L1 documentation freeze/readiness checkpoint
+
+L1.15 adds a passive documentation freeze/readiness checkpoint for the L1 startup-request stack:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_startup_request_l1_documentation_checkpoint --repo-root C:\dev\patchops --json --compact
+py -m patchops.llm_browser.live_adapter_startup_request_l1_documentation_checkpoint --repo-root C:\dev\patchops
+```
+
+This checkpoint is passive-only. It does not import Selenium, start a browser, create a browser session, click, download, paste, send, run PatchOps packages from the adapter, commit, or push.
+
+## L1.15a documentation checkpoint runner phrase repair
+
+L1.15a repairs the L1.15 documentation-freeze checkpoint readback contract. The checkpoint accepts the module command family rather than depending on one brittle flag ordering, and this runner document now includes both the short JSON smoke and the explicit repo-root smoke:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_startup_request_l1_documentation_checkpoint --json --compact
+py -m patchops.llm_browser.live_adapter_startup_request_l1_documentation_checkpoint --repo-root C:\dev\patchops --json --compact
+py -m patchops.llm_browser.live_adapter_startup_request_l1_documentation_checkpoint --repo-root C:\dev\patchops
+```
+
+This remains passive-only: no Selenium import, no browser start, no browser session, no click/download/paste/send/package-run side effect, no commit, and no push.
+
+## L1.16 Live adapter startup request L1 broad validation checkpoint
+
+L1.16 adds a passive broad-validation checkpoint for the L1 startup-request stack. It reports an operator command plan for broad validation but executes no validation commands itself, starts no browser, imports no Selenium dependency, and performs no click/download/paste/send/package-run operation.
+
+Readback command:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_startup_request_l1_broad_validation_checkpoint --repo-root "C:\dev\patchops" --json --compact
+```
+
+## L1.17 startup request L1 final acceptance marker
+
+The L1 final acceptance marker is a passive readback surface for accepting the startup-request stack after the L1 broad-validation checkpoint.
+
+Operator readback:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_startup_request_l1_final_acceptance_marker --repo-root "C:\dev\patchops" --json --compact
+```
+
+It does not import Selenium, start a browser, create a browser session, read pages, detect replies, click/download, paste, send/submit, run PatchOps packages from the adapter, commit, or push. It reports `git_commit_executed: false` and `git_push_executed: false`; any commit remains an explicit operator action.
+
+## L2.1 startup request L2 browser profile preflight contract
+
+L2.1 adds a passive browser-profile preflight contract for the future live adapter. It models dedicated Edge/Opera profile requirements but does not create a profile directory, import Selenium, start a browser, click, download, paste, send, run packages from the adapter, commit, or push.
+
+Passive readback command:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_browser_profile_preflight --repo-root C:\dev\patchops --json --compact
+```
+
+The expected L2.1 operator result is `PASS` with `startup_allowed=false`, `browser_started=false`, `profile_directory_created=false`, `side_effects_performed=[]`, and `filesystem_writes_performed=[]`. L2.2 is reserved for adding the PatchOps CLI/readback surface around this same passive preflight model.
+
+
+## L2.2 browser profile preflight CLI/readback
+
+L2.2 exposes the passive browser-profile preflight contract through the main PatchOps CLI:
+
+```powershell
+py -m patchops.cli llm-browser profile-preflight --repo-root C:\dev\patchops --json --compact
+py -m patchops.cli llm-browser profile-preflight --repo-root C:\dev\patchops
+```
+
+The command is readback-only. It does not import Selenium, start a browser, create a browser session, create a profile directory, write to the filesystem, click, download, paste, send, run PatchOps packages from the adapter, commit, or push.
+
+## L2.3 browser profile preflight fixture matrix
+
+L2.3 adds a passive fixture matrix for the browser-profile preflight contract. It models Edge, Opera, invalid-browser, custom profile path, acknowledgement, optional dependency, startup, and profile-directory creation requests as data only.
+
+Passive readback command:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_browser_profile_preflight_fixtures --repo-root C:\dev\patchops --json --compact
+```
+
+The fixture matrix does not import Selenium, start a browser, create a browser session, create a profile directory, write to the filesystem, click, download, paste, send, run PatchOps packages from the adapter, commit, or push. L2.4 is reserved for exposing this fixture matrix through the PatchOps CLI.
+
+## L2.3a browser profile preflight fixture case OK repair
+
+L2.3a repairs the L2.3 fixture matrix so per-case `ok` represents successful passive fixture handling rather than request approval. Invalid-browser and blocked future-operation fixtures may pass only when they remain blocked and perform no side effects.
+
+The boundary remains unchanged: no Selenium import, no browser start, no profile creation, no filesystem writes from the adapter, no click/download/paste/send/package-run side effect, and no git commit/push.
+
+
+## L2.4 browser profile preflight fixture matrix CLI/readback
+
+L2.4 exposes the passive browser-profile preflight fixture matrix through the main PatchOps CLI:
+
+```powershell
+py -m patchops.cli llm-browser profile-preflight-fixtures --repo-root C:\dev\patchops --json --compact
+py -m patchops.cli llm-browser profile-preflight-fixtures --repo-root C:\dev\patchops
+```
+
+This CLI surface is readback-only. It does not import Selenium, start a browser, create a browser session, create a profile directory, write files from adapter logic, click, download, paste, send, run PatchOps packages from the adapter, commit, or push.
+## L2.5 browser profile preflight fixture matrix contract gate
+
+L2.5 adds `patchops.llm_browser.live_adapter_browser_profile_preflight_fixture_matrix_contract_gate` as a passive contract gate over the L2.3 browser-profile preflight fixture matrix.
+
+The gate is readback-only. It checks the required fixture cases, blocked startup, no browser session, no profile directory creation, no filesystem writes from adapter logic, modelled-but-not-executed requested side effects, invalid-browser reporting without side effects, profile paths as data only, JSON-safe payloads, and no Selenium/browser optional imports.
+
+Manual smoke commands:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_browser_profile_preflight_fixture_matrix_contract_gate --repo-root "C:\dev\patchops" --json --compact
+py -m patchops.llm_browser.live_adapter_browser_profile_preflight_fixture_matrix_contract_gate --repo-root "C:\dev\patchops"
+```
+
+Next patch: L2.6 Live adapter browser profile preflight fixture matrix contract gate CLI/readback.
+
+
+## L2.6 browser profile preflight fixture matrix contract gate CLI/readback
+
+L2.6 exposes the passive browser-profile preflight fixture matrix contract gate through the main PatchOps CLI:
+
+```powershell
+py -m patchops.cli llm-browser profile-preflight-fixture-gate --repo-root C:\dev\patchops --json --compact
+py -m patchops.cli llm-browser profile-preflight-fixture-gate --repo-root C:\dev\patchops
+```
+
+This CLI surface is readback-only. It does not import Selenium, start a browser, create a browser session, create a profile directory, write files from adapter logic, click, download, paste, send, run PatchOps packages from the adapter, commit, or push.
+
+## L2.7 browser profile preflight L2 aggregate readiness gate
+
+L2.7 adds `patchops.llm_browser.live_adapter_browser_profile_l2_readiness_gate` as a passive aggregate readiness gate over the L2 browser-profile preflight stack.
+
+Manual smoke commands:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_browser_profile_l2_readiness_gate --repo-root "C:\dev\patchops" --json --compact
+py -m patchops.llm_browser.live_adapter_browser_profile_l2_readiness_gate --repo-root "C:\dev\patchops"
+```
+
+The gate aggregates the base profile-preflight contract, the profile-preflight fixture matrix, and the fixture-matrix contract gate. It remains passive-only: no Selenium import, no browser start, no browser session creation, no profile directory creation, no filesystem writes from adapter logic, no click/download/paste/send/package-run side effect, and no git commit/push.
+
+Next patch: L2.8 Live adapter browser profile preflight L2 aggregate readiness gate CLI/readback.
+
+
+## L2.8 browser profile preflight L2 aggregate readiness gate CLI/readback
+
+L2.8 exposes the passive browser-profile preflight L2 aggregate readiness gate through the main PatchOps CLI:
+
+```powershell
+py -m patchops.cli llm-browser profile-preflight-l2-readiness --repo-root C:\dev\patchops --json --compact
+py -m patchops.cli llm-browser profile-preflight-l2-readiness --repo-root C:\dev\patchops
+```
+
+This CLI surface is readback-only. It delegates to the L2.7 aggregate readiness module and does not import Selenium, start a browser, create a browser session, create a profile directory, write files from adapter logic, click, download, paste, send, run PatchOps packages from the adapter, commit, or push.
+
+## L2.9 browser profile preflight L2 documentation freeze/readiness checkpoint
+
+L2.9 adds a passive documentation freeze/readiness checkpoint for the L2 browser-profile preflight stack:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_browser_profile_l2_documentation_checkpoint --repo-root C:\dev\patchops --json --compact
+py -m patchops.llm_browser.live_adapter_browser_profile_l2_documentation_checkpoint --repo-root C:\dev\patchops
+```
+
+It also keeps the L2 aggregate CLI readback as the source of truth for the stack:
+
+```powershell
+py -m patchops.cli llm-browser profile-preflight-l2-readiness --repo-root C:\dev\patchops --json --compact
+```
+
+This checkpoint is passive-only. It does not import Selenium, start a browser, create a browser session, create a profile directory, write files from adapter logic, click, download, paste, send, run PatchOps packages from the adapter, commit, or push.
+
+Next patch: L2.10 Live adapter browser profile preflight L2 broad validation checkpoint.
+
+
+<!-- PATCHOPS_L2_11_BROAD_VALIDATION_CLI_READBACK_START -->
+## L2.11 browser-profile preflight broad-validation CLI/readback
+
+L2.11 adds the passive `llm-browser` CLI readback for the L2 broad-validation checkpoint:
+
+```powershell
+py -m patchops.cli llm-browser profile-preflight-l2-broad-validation --repo-root C:\dev\patchops --json --compact
+```
+
+This command delegates to `patchops.llm_browser.l2_10_broad_validation` and preserves the same no-side-effect boundary:
+
+- no Selenium import;
+- no optional browser dependency import;
+- no browser start;
+- no profile directory creation;
+- no adapter filesystem writes;
+- no click/download/paste/send/package-run side effect;
+- no commit or push.
+
+L2.11 is still passive profile-preflight work. It does not silently expand into live browser automation.
+<!-- PATCHOPS_L2_11_BROAD_VALIDATION_CLI_READBACK_END -->
+
+<!-- PATCHOPS_L2_12_FINAL_ACCEPTANCE_MARKER_START -->
+## L2.12 browser profile preflight L2 final acceptance marker
+
+L2.12 is the passive final acceptance marker for the browser-profile preflight stack.
+
+Operator readback:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_browser_profile_l2_final_acceptance_marker --repo-root "C:\dev\patchops" --json --compact
+py -m patchops.llm_browser.live_adapter_browser_profile_l2_final_acceptance_marker --repo-root "C:\dev\patchops"
+```
+
+The marker confirms that the accepted L2 surfaces remain present through the broad-validation checkpoint and CLI/readback layer:
+
+- L2.1 browser profile preflight contract;
+- L2.2 browser profile preflight CLI/readback;
+- L2.3/L2.3a browser profile preflight fixture matrix;
+- L2.4 fixture matrix CLI/readback;
+- L2.5/L2.5b fixture matrix contract gate;
+- L2.6 contract gate CLI/readback;
+- L2.7 aggregate readiness gate;
+- L2.8 aggregate readiness gate CLI/readback;
+- L2.9 documentation freeze/readiness checkpoint;
+- L2.10 broad validation checkpoint;
+- L2.11 broad validation checkpoint CLI/readback.
+
+It remains passive-only. It does not import Selenium, require optional browser dependencies, start a browser, create a browser session, create a profile directory, write adapter files, click, download, paste, send/submit, run packages from adapter logic, commit, or push.
+
+It reports `git_commit_executed: false` and `git_push_executed: false`; any commit remains an explicit operator action.
+
+Next patch after acceptance: **L3.1 Live adapter explicit browser-start authorization contract**.
+<!-- PATCHOPS_L2_12_FINAL_ACCEPTANCE_MARKER_END -->
+
+<!-- PATCHOPS_L2_12A_FINAL_ACCEPTANCE_TARGET_CONTENT_REPAIR_START -->
+## L2.12c final acceptance marker bundle-shape repair
+
+L2.12c is a narrow repair for the L2.12 final acceptance marker. It keeps the L2.12 passive acceptance boundary and fixes brittle target-content validation by letting the L2.12 module check the earlier L2 broad-validation payload directly instead of re-running prior accepted pytest files as part of the repair validation.
+
+The repair remains passive-only: no Selenium import, no browser start, no profile directory creation, no adapter filesystem writes, no click/download/paste/send/package-run side effect, and no automatic git commit or push.
+
+Next patch after acceptance: **L3.1 Live adapter explicit browser-start authorization contract**.
+<!-- PATCHOPS_L2_12A_FINAL_ACCEPTANCE_TARGET_CONTENT_REPAIR_END -->
+
+
+<!-- PATCHOPS_L2_12D_FINAL_ACCEPTANCE_VALIDATION_REPAIR_START -->
+## L2.12d final acceptance marker validation robustness repair
+
+L2.12d keeps the L2.12 browser profile preflight L2 final acceptance marker passive-only while narrowing the validation to the accepted surfaces that define the L2 boundary.
+
+The marker continues to require:
+
+- L2.10 broad validation checkpoint PASS;
+- L2.11 `profile-preflight-l2-broad-validation` CLI/readback surface present;
+- no Selenium import;
+- no browser start;
+- no browser session creation;
+- no profile directory creation;
+- no adapter filesystem writes;
+- no click/download/paste/send/package-run side effect;
+- `git_commit_executed: false`;
+- `git_push_executed: false`.
+
+The module remains `live_adapter_browser_profile_l2_final_acceptance_marker` and the next patch remains `L3.1 Live adapter explicit browser-start authorization contract`.
+<!-- PATCHOPS_L2_12D_FINAL_ACCEPTANCE_VALIDATION_REPAIR_END -->
+
+
+<!-- PATCHOPS_L3_01_BROWSER_START_AUTHORIZATION_CONTRACT_START -->
+## L3.1 Live adapter explicit browser-start authorization contract
+
+L3.1 starts the next live-adapter stream after the L2 browser-profile preflight final acceptance marker.
+
+This is a passive authorization/readback contract only. It models explicit browser-start authorization as data so later live-browser work has a safe gate to build on.
+
+Passive boundary:
+
+- no Selenium import;
+- no optional browser dependency import;
+- no browser start;
+- no browser session creation;
+- no profile directory creation;
+- no adapter filesystem writes;
+- no page read;
+- no click/download/paste/send/package-run operation;
+- no automatic git commit;
+- no automatic git push.
+
+Module readback:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_browser_start_authorization --repo-root C:\dev\patchops --json --compact
+py -m patchops.llm_browser.live_adapter_browser_start_authorization --repo-root C:\dev\patchops
+```
+
+Next patch: L3.2 Live adapter explicit browser-start authorization CLI/readback.
+<!-- PATCHOPS_L3_01_BROWSER_START_AUTHORIZATION_CONTRACT_END -->
+
+<!-- PATCHOPS_L3_02_BROWSER_START_AUTHORIZATION_CLI_READBACK:START -->
+## L3.2 browser-start authorization CLI/readback
+
+Current implementation status: **L3.2 passive CLI/readback shipped**.
+
+L3.2 exposes the L3.1 explicit browser-start authorization contract through a passive `llm-browser` command:
+
+```powershell
+py -m patchops.cli llm-browser browser-start-authorization --repo-root C:\dev\patchops --json --compact
+```
+
+The command is readback-only. It may model operator intent and acknowledgements, but it does not start Edge or Opera, import Selenium, create a browser session, create a profile directory, click downloads, paste to the composer, send messages, run downloaded packages, commit, or push.
+
+Expected next patch: **L3.3 Live adapter browser-start authorization fixture matrix**.
+<!-- PATCHOPS_L3_02_BROWSER_START_AUTHORIZATION_CLI_READBACK:END -->
+
+<!-- PATCHOPS_L3_03_BROWSER_START_AUTHORIZATION_FIXTURE_MATRIX:START -->
+## L3.3 browser-start authorization fixture matrix
+
+Current implementation status: **L3.3 passive fixture matrix shipped**.
+
+The L3 browser-start stream now has a passive fixture matrix module:
+
+```text
+patchops/llm_browser/live_adapter_browser_start_authorization_fixtures.py
+```
+
+The fixture matrix verifies the L3 browser-start authorization model across supported and rejected requests without starting a browser or creating profile directories. It covers Edge, Opera, unsupported browser rejection, shared/default profile rejection, and explicit side-effect requests that remain modelled-only.
+
+L3.3 remains passive:
+
+- no Selenium import;
+- no optional browser dependency import or requirement;
+- no Edge or Opera start;
+- no WebDriver/session creation;
+- no profile directory creation;
+- no adapter filesystem writes;
+- no click/download/paste/send/package-run side effect;
+- no commit or push.
+
+The passive module readback is:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_browser_start_authorization_fixtures --repo-root C:\dev\patchops --json --compact
+```
+
+Expected next patch: **L3.4 Live adapter browser-start authorization fixture matrix CLI/readback**.
+<!-- PATCHOPS_L3_03_BROWSER_START_AUTHORIZATION_FIXTURE_MATRIX:END -->
+
+<!-- PATCHOPS_L3_04_BROWSER_START_AUTHORIZATION_FIXTURE_MATRIX_CLI_READBACK_START -->
+## L3.4 Live adapter browser-start authorization fixture matrix CLI/readback
+
+L3.4 registers the passive `llm-browser browser-start-authorization-fixtures` command as a CLI/readback surface for the L3.3 fixture matrix.
+
+This command is readback-only:
+
+- no Selenium import
+- no browser start
+- no profile directory creation
+- no browser session creation
+- no adapter filesystem writes
+- no click/download/paste/send/package-run side effect
+- no commit or push
+
+Operator smoke command:
+
+```powershell
+py -m patchops.cli llm-browser browser-start-authorization-fixtures --repo-root C:\dev\patchops --json --compact
+```
+
+The next planned patch is L3.5 Live adapter browser-start authorization fixture matrix contract gate.
+<!-- PATCHOPS_L3_04_BROWSER_START_AUTHORIZATION_FIXTURE_MATRIX_CLI_READBACK_END -->
+
+<!-- PATCHOPS_L3_05_BROWSER_START_AUTHORIZATION_FIXTURE_MATRIX_CONTRACT_GATE_START -->
+## L3.5 Live adapter browser-start authorization fixture matrix contract gate
+
+L3.5 adds a passive contract gate over the L3 browser-start authorization fixture matrix.
+
+The gate proves that the L3.3/L3.4 authorization fixtures remain a data/readback surface only:
+
+- no Selenium import;
+- no optional browser dependency import or requirement;
+- no browser start;
+- no browser session creation;
+- no profile directory creation;
+- no adapter filesystem writes;
+- no click/download/paste/send/package-run side effect;
+- no commit or push.
+
+Operator smoke command:
+
+```powershell
+py -m patchops.llm_browser.live_adapter_browser_start_authorization_fixture_matrix_contract_gate --repo-root C:\dev\patchops --json --compact
+```
+
+The next planned patch is L3.6 Live adapter browser-start authorization fixture matrix contract gate CLI/readback.
+<!-- PATCHOPS_L3_05_BROWSER_START_AUTHORIZATION_FIXTURE_MATRIX_CONTRACT_GATE_END -->
+
+<!-- PATCHOPS_L3_06_BROWSER_START_AUTHORIZATION_CONTRACT_GATE_CLI_READBACK_START -->
+## L3.6 browser-start authorization fixture matrix contract gate CLI/readback
+
+Current implementation status: **L3.6 passive CLI/readback shipped**.
+
+The browser-runner stream now exposes a passive CLI/readback command for the L3.5 browser-start authorization fixture matrix contract gate:
+
+```powershell
+py -m patchops.cli llm-browser browser-start-authorization-contract-gate --repo-root C:\dev\patchops --json --compact
+```
+
+This command is a readback wrapper only. It must not import Selenium, open Edge or Opera, start a browser, create a browser session, create a profile directory, click downloads, paste, send, run package side effects from adapter logic, or commit/push.
+
+The command forwards to the existing passive module:
+
+```text
+patchops.llm_browser.live_adapter_browser_start_authorization_fixture_matrix_contract_gate
+```
+
+Expected next patch: **L3.7 Live adapter browser-start authorization L3 aggregate readiness gate**.
+<!-- PATCHOPS_L3_06_BROWSER_START_AUTHORIZATION_CONTRACT_GATE_CLI_READBACK_END -->
+
+PATCHOPS_L3_07_BROWSER_START_AUTHORIZATION_AGGREGATE_READINESS_GATE_START
+L3.7 Live adapter browser-start authorization L3 aggregate readiness gate is a passive aggregate readiness checkpoint for the L3 authorization stack.
+It aggregates L3.1 through L3.6 and verifies that browser start remains blocked unless a future phase explicitly permits live startup.
+Safety evidence required by this checkpoint: no Selenium import; no browser start; no browser session creation; no profile directory creation; no adapter filesystem writes; no click/download/paste/send/package-run side effect; no commit or push.
+Readback command: py -m patchops.llm_browser.live_adapter_browser_start_authorization_l3_aggregate_readiness_gate --repo-root C:\dev\patchops --json --compact
+Expected next patch: L3.8 Live adapter browser-start authorization L3 aggregate readiness gate CLI/readback.
+PATCHOPS_L3_07_BROWSER_START_AUTHORIZATION_AGGREGATE_READINESS_GATE_END
+

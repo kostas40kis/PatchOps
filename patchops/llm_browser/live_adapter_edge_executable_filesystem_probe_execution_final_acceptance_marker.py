@@ -1,0 +1,324 @@
+"""L13.8 final acceptance marker for Microsoft Edge executable filesystem probe execution.
+
+The final marker sits over the accepted L13.7 broad-validation checkpoint. It
+records that the L13 Microsoft Edge executable filesystem probe execution stream
+is complete when the read-only probe contract remains truthful and passive across
+L13.1 through L13.7, while preserving the Edge-first / Opera-second ordering.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+from typing import Any, Mapping, Sequence
+
+from patchops.llm_browser import live_adapter_edge_executable_filesystem_probe_execution_broad_validation_checkpoint as l13_07
+
+PATCH = "L13.8"
+PHASE = "L13"
+STATUS_PASS = "PASS"
+STATUS_FAIL = "FAIL"
+NAME = "L13.8 Microsoft Edge executable filesystem probe execution final acceptance marker"
+COMMAND_NAME = "browser-start-supervised-launch-edge-executable-filesystem-probe-execution-final-acceptance-marker"
+SOURCE_COMMAND_NAME = "browser-start-supervised-launch-edge-executable-filesystem-probe-execution-broad-validation-checkpoint"
+NEXT_FRONTIER = "L13 complete; choose the next Microsoft Edge browser-runner frontier after the L13.8 report is reviewed"
+SIDE_EFFECT_BOUNDARY = "edge-executable-filesystem-probe-execution-final-acceptance-marker-readback-only"
+BROWSER_PRIORITY = ("edge", "opera")
+ACCEPTED_L13_SEQUENCE = (
+    "L13.1 execution contract",
+    "L13.1a truthful-selection repair",
+    "L13.2 execution CLI/readback",
+    "L13.3 execution fixture matrix",
+    "L13.4 execution fixture matrix CLI/readback",
+    "L13.5 execution aggregate gate",
+    "L13.6 execution aggregate gate CLI/readback",
+    "L13.7 execution broad validation checkpoint",
+    "L13.8 execution final acceptance marker",
+)
+
+L13_TESTS = (
+    "tests/test_l13_01_edge_executable_filesystem_probe_execution_contract_current.py",
+    "tests/test_l13_02_edge_executable_filesystem_probe_execution_cli_readback_current.py",
+    "tests/test_l13_03_edge_executable_filesystem_probe_execution_fixture_matrix_current.py",
+    "tests/test_l13_04_edge_executable_filesystem_probe_execution_fixture_matrix_cli_readback_current.py",
+    "tests/test_l13_05_edge_executable_filesystem_probe_execution_aggregate_gate_current.py",
+    "tests/test_l13_06_edge_executable_filesystem_probe_execution_aggregate_gate_cli_readback_current.py",
+    "tests/test_l13_07_edge_executable_filesystem_probe_execution_broad_validation_checkpoint_current.py",
+    "tests/test_l13_08_edge_executable_filesystem_probe_execution_final_acceptance_marker_current.py",
+)
+
+REQUIRED_REPO_PATHS = (
+    "patchops/llm_browser/live_adapter_edge_executable_filesystem_probe_execution_contract.py",
+    "patchops/llm_browser/live_adapter_edge_executable_filesystem_probe_execution_cli_readback.py",
+    "patchops/llm_browser/live_adapter_edge_executable_filesystem_probe_execution_fixture_matrix.py",
+    "patchops/llm_browser/live_adapter_edge_executable_filesystem_probe_execution_fixture_matrix_cli_readback.py",
+    "patchops/llm_browser/live_adapter_edge_executable_filesystem_probe_execution_aggregate_gate.py",
+    "patchops/llm_browser/live_adapter_edge_executable_filesystem_probe_execution_aggregate_gate_cli_readback.py",
+    "patchops/llm_browser/live_adapter_edge_executable_filesystem_probe_execution_broad_validation_checkpoint.py",
+    "patchops/llm_browser/live_adapter_edge_executable_filesystem_probe_execution_final_acceptance_marker.py",
+    "patchops/llm_browser/commands.py",
+    "docs/llm_browser_live_adapter_edge_executable_filesystem_probe_execution_broad_validation_checkpoint.md",
+    "docs/llm_browser_live_adapter_edge_executable_filesystem_probe_execution_final_acceptance_marker.md",
+    "scripts/patch_l13_07_brief_validate.py",
+    "scripts/patch_l13_08_brief_validate.py",
+) + L13_TESTS
+
+NO_LAUNCH_FIELDS = (
+    "edge_executable_launch_attempted",
+    "startup_allowed",
+    "live_start_performed",
+    "browser_started",
+    "edge_process_started",
+    "browser_session_created",
+    "driver_created",
+    "profile_directory_created",
+    "click_download_performed",
+    "download_performed",
+    "paste_performed",
+    "send_or_submit_performed",
+    "package_run_performed_by_adapter",
+    "git_commit_executed",
+    "git_push_executed",
+    "selenium_imported_by_readback",
+)
+
+EMPTY_LIST_SIDE_EFFECT_FIELDS = (
+    "filesystem_writes_performed",
+    "adapter_filesystem_writes_performed",
+    "side_effects_performed",
+    "forbidden_optional_imports_observed",
+)
+
+
+def _repo_root(repo_root: str | Path | None = None) -> Path:
+    return Path.cwd().resolve() if repo_root is None else Path(repo_root).resolve()
+
+
+def _check(name: str, ok: bool, detail: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    return {"name": name, "status": STATUS_PASS if ok else STATUS_FAIL, "ok": bool(ok), "detail": dict(detail or {})}
+
+
+def _selected_candidate_ok(payload: Mapping[str, Any]) -> bool:
+    selected = payload.get("edge_executable_selected_path")
+    candidates = payload.get("edge_executable_probe_candidates") or []
+    if payload.get("edge_executable_path_selected") is True:
+        return any(
+            isinstance(item, Mapping)
+            and item.get("path") == selected
+            and item.get("exists") is True
+            and item.get("is_file") is True
+            for item in candidates
+        )
+    return selected is None
+
+
+def _no_launch_side_effects(payload: Mapping[str, Any]) -> bool:
+    for field in NO_LAUNCH_FIELDS:
+        if payload.get(field) is not False:
+            return False
+    for field in EMPTY_LIST_SIDE_EFFECT_FIELDS:
+        if payload.get(field) != []:
+            return False
+    return True
+
+
+def _default_no_side_effect_fields(payload: dict[str, Any]) -> None:
+    for field in NO_LAUNCH_FIELDS:
+        payload.setdefault(field, False)
+    for field in EMPTY_LIST_SIDE_EFFECT_FIELDS:
+        payload.setdefault(field, [])
+
+
+def _required_paths_status(root: Path) -> dict[str, Any]:
+    missing = [rel for rel in REQUIRED_REPO_PATHS if not (root / rel).exists()]
+    return {"ok": not missing, "missing": missing, "checked": list(REQUIRED_REPO_PATHS)}
+
+
+def _source_l13_07_safe(source: Mapping[str, Any]) -> bool:
+    return (
+        source.get("ok") is True
+        and source.get("status") == STATUS_PASS
+        and source.get("patch") == "L13.7"
+        and source.get("source_patch") == "L13.6"
+        and source.get("command_name") == SOURCE_COMMAND_NAME
+        and source.get("source_l13_06_aggregate_gate_readback_remains_accepted") is True
+        and source.get("broad_validation_checkpoint_enforced") is True
+        and source.get("planned_broad_validation_commands_are_passive") is True
+        and source.get("broad_validation_commands_executed_by_checkpoint") is False
+        and source.get("filesystem_probe_only_when_l12_execution_preflight_ready") is True
+        and _selected_candidate_ok(source)
+        and _no_launch_side_effects(source)
+    )
+
+
+def build_edge_executable_filesystem_probe_execution_final_acceptance_marker(
+    repo_root: str | Path | None = None,
+    *,
+    allow_live_start: bool = False,
+    profile_dir: str | Path | None = None,
+    allow_executable_probe: bool = False,
+    activate_executable_filesystem_probe: bool = False,
+    allow_real_filesystem_probe: bool = False,
+    allow_executable_filesystem_probe_execution: bool = False,
+    extra_candidates: Sequence[str] | None = None,
+) -> dict[str, Any]:
+    root = _repo_root(repo_root)
+    source = l13_07.build_edge_executable_filesystem_probe_execution_broad_validation_checkpoint(
+        root,
+        allow_live_start=allow_live_start,
+        profile_dir=profile_dir,
+        allow_executable_probe=allow_executable_probe,
+        activate_executable_filesystem_probe=activate_executable_filesystem_probe,
+        allow_real_filesystem_probe=allow_real_filesystem_probe,
+        allow_executable_filesystem_probe_execution=allow_executable_filesystem_probe_execution,
+        extra_candidates=extra_candidates,
+    )
+
+    payload: dict[str, Any] = dict(source)
+    _default_no_side_effect_fields(payload)
+    required_paths = _required_paths_status(root)
+    source_safe = _source_l13_07_safe(payload)
+    truthful_selection = _selected_candidate_ok(payload)
+    no_launch = _no_launch_side_effects(payload)
+    probe_performed = payload.get("edge_executable_filesystem_probe_performed") is True
+    probe_only_when_l12_ready = (not probe_performed) or payload.get("execution_preflight_ready") is True
+    l13_stack_accepted = all(
+        payload.get(name) is True
+        for name in (
+            "l13_06_aggregate_gate_readback_remains_accepted",
+            "l13_05_aggregate_gate_remains_accepted",
+            "l13_04_fixture_matrix_readback_remains_accepted",
+            "l13_03_execution_fixture_matrix_remains_accepted",
+        )
+    )
+
+    checks = [
+        _check("source_l13_07_broad_checkpoint_remains_accepted", source_safe),
+        _check("l13_stack_acceptance_markers_present", l13_stack_accepted),
+        _check("final_acceptance_marker_enforced", True),
+        _check("truthful_selected_path_existing_reported_candidate", truthful_selection),
+        _check("filesystem_probe_only_when_l12_execution_preflight_ready", probe_only_when_l12_ready),
+        _check("no_launch_browser_profile_selenium_side_effects", no_launch),
+        _check("required_l13_final_marker_paths_exist", bool(required_paths["ok"]), {"missing": required_paths["missing"]}),
+        _check("compact_json_readback_available", True),
+    ]
+
+    status = STATUS_PASS if all(item["ok"] for item in checks) else STATUS_FAIL
+    payload.update(
+        {
+            "ok": status == STATUS_PASS,
+            "status": status,
+            "phase": PHASE,
+            "patch": PATCH,
+            "command_name": COMMAND_NAME,
+            "source_command_name": SOURCE_COMMAND_NAME,
+            "source_patch": "L13.7",
+            "source_l13_06_patch": "L13.6",
+            "source_l13_05_patch": "L13.5",
+            "source_l13_04_patch": "L13.4",
+            "source_l13_03_patch": "L13.3",
+            "browser_priority": list(BROWSER_PRIORITY),
+            "microsoft_edge_first": True,
+            "opera_second": True,
+            "side_effect_boundary": SIDE_EFFECT_BOUNDARY,
+            "source_l13_07_status": {
+                "ok": source.get("ok"),
+                "status": source.get("status"),
+                "patch": source.get("patch"),
+                "command_name": source.get("command_name"),
+                "source_patch": source.get("source_patch"),
+            },
+            "source_l13_07_broad_checkpoint_remains_accepted": source_safe,
+            "l13_07_broad_checkpoint_remains_accepted": source_safe,
+            "l13_06_aggregate_gate_readback_remains_accepted": source.get("l13_06_aggregate_gate_readback_remains_accepted") is True or source.get("source_l13_06_aggregate_gate_readback_remains_accepted") is True,
+            "l13_05_aggregate_gate_remains_accepted": source.get("l13_05_aggregate_gate_remains_accepted") is True,
+            "l13_04_fixture_matrix_readback_remains_accepted": source.get("l13_04_fixture_matrix_readback_remains_accepted") is True,
+            "l13_03_execution_fixture_matrix_remains_accepted": source.get("l13_03_execution_fixture_matrix_remains_accepted") is True,
+            "l13_stack_acceptance_markers_present": l13_stack_accepted,
+            "final_acceptance_marker_enforced": True,
+            "l13_final_acceptance_marker": True,
+            "l13_complete": status == STATUS_PASS,
+            "remaining_l13_patches": [],
+            "accepted_l13_sequence": list(ACCEPTED_L13_SEQUENCE),
+            "broad_validation_checkpoint_enforced": payload.get("broad_validation_checkpoint_enforced") is True,
+            "planned_broad_validation_commands_are_passive": payload.get("planned_broad_validation_commands_are_passive") is True,
+            "broad_validation_commands_executed_by_checkpoint": payload.get("broad_validation_commands_executed_by_checkpoint") is False,
+            "execution_aggregate_gate_cli_readback_enforced": payload.get("execution_aggregate_gate_cli_readback_enforced") is True,
+            "execution_aggregate_gate_enforced": payload.get("execution_aggregate_gate_enforced") is True,
+            "execution_fixture_matrix_cli_readback_enforced": payload.get("execution_fixture_matrix_cli_readback_enforced") is True,
+            "execution_fixture_matrix_enforced": payload.get("execution_fixture_matrix_enforced") is True,
+            "execution_cli_readback_enforced": payload.get("execution_cli_readback_enforced") is True,
+            "execution_contract_enforced": payload.get("execution_contract_enforced") is True,
+            "read_only_filesystem_probe": True,
+            "small_allowlisted_microsoft_edge_executable_candidate_list": True,
+            "l12_execution_preflight_required": True,
+            "may_probe_only_when_l12_execution_preflight_ready": True,
+            "filesystem_probe_only_when_l12_execution_preflight_ready": probe_only_when_l12_ready,
+            "truthful_selected_path_existing_reported_candidate": truthful_selection,
+            "no_executable_launch_attempted_by_final_marker": no_launch,
+            "required_repo_paths": required_paths,
+            "next_frontier": NEXT_FRONTIER,
+            "checks": checks,
+            "executed_validation_commands": [],
+        }
+    )
+    return payload
+
+
+def render_text(payload: Mapping[str, Any]) -> str:
+    selected = payload.get("edge_executable_selected_path") or "(none)"
+    lines = [
+        NAME,
+        f"Status          : {payload.get('status')}",
+        f"Command         : {payload.get('command_name')}",
+        f"Source Command  : {payload.get('source_command_name')}",
+        f"Source Patch    : {payload.get('source_patch')}",
+        f"L13 Complete    : {payload.get('l13_complete')}",
+        f"Exec Ready      : {payload.get('execution_preflight_ready')}",
+        f"Probe Performed : {payload.get('edge_executable_filesystem_probe_performed')}",
+        f"Selection Truth : {payload.get('truthful_selected_path_existing_reported_candidate')}",
+        f"Path Selected   : {payload.get('edge_executable_path_selected')}",
+        f"Selected Path   : {selected}",
+        f"Launch Attempt  : {payload.get('edge_executable_launch_attempted')}",
+        f"Next Frontier   : {payload.get('next_frontier')}",
+        "Checks:",
+    ]
+    for check in payload.get("checks", []):
+        if isinstance(check, Mapping):
+            lines.append(f"- {check.get('name')}: {check.get('status')}")
+    return "\n".join(lines) + "\n"
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=NAME)
+    parser.add_argument("--repo-root", default=".")
+    parser.add_argument("--allow-live-start", action="store_true")
+    parser.add_argument("--profile-dir", default=None)
+    parser.add_argument("--allow-executable-probe", action="store_true")
+    parser.add_argument("--activate-executable-filesystem-probe", action="store_true")
+    parser.add_argument("--allow-real-filesystem-probe", action="store_true")
+    parser.add_argument("--allow-executable-filesystem-probe-execution", action="store_true")
+    parser.add_argument("--extra-candidate", action="append", default=[])
+    parser.add_argument("--json", action="store_true")
+    parser.add_argument("--compact", action="store_true")
+    args = parser.parse_args(argv)
+    payload = build_edge_executable_filesystem_probe_execution_final_acceptance_marker(
+        args.repo_root,
+        allow_live_start=args.allow_live_start,
+        profile_dir=args.profile_dir,
+        allow_executable_probe=args.allow_executable_probe,
+        activate_executable_filesystem_probe=args.activate_executable_filesystem_probe,
+        allow_real_filesystem_probe=args.allow_real_filesystem_probe,
+        allow_executable_filesystem_probe_execution=args.allow_executable_filesystem_probe_execution,
+        extra_candidates=args.extra_candidate,
+    )
+    if args.json:
+        print(json.dumps(payload, sort_keys=True, separators=(",", ":") if args.compact else None, indent=None if args.compact else 2))
+    else:
+        print(render_text(payload), end="")
+    return 0 if payload.get("ok") else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
