@@ -1,0 +1,31 @@
+from __future__ import annotations
+import argparse, json
+from pathlib import Path
+from patchops.edge_rpa.edge_l26_12w_actionable_artifact_candidate_inventory import assert_acceptance, run_actionable_artifact_inventory
+
+def main() -> int:
+    p = argparse.ArgumentParser()
+    p.add_argument("--output-dir", required=True)
+    p.add_argument("--inner-patchops-report-path", required=True)
+    p.add_argument("--operator-report-path", required=True)
+    p.add_argument("--short-upload-dir", required=True)
+    p.add_argument("--allow-report-upload", action="store_true")
+    p.add_argument("--allow-chatgpt-submit", action="store_true")
+    p.add_argument("--observe-seconds", type=int, default=45)
+    p.add_argument("--probe-seconds", type=int, default=20)
+    a = p.parse_args()
+    result = run_actionable_artifact_inventory(
+        Path(a.output_dir), Path(a.inner_patchops_report_path), Path(a.operator_report_path), Path(a.short_upload_dir),
+        a.allow_report_upload, a.allow_chatgpt_submit, a.observe_seconds, a.probe_seconds,
+    )
+    print("L26_12W_ACTIONABLE_ARTIFACT_CANDIDATE_INVENTORY_JSON_START")
+    print(json.dumps(result.to_payload(), indent=2, sort_keys=True))
+    print("L26_12W_ACTIONABLE_ARTIFACT_CANDIDATE_INVENTORY_JSON_END")
+    assert_acceptance(result)
+    print("L26_12W_ACCEPTANCE: PASS")
+    print("inventory_completed:true")
+    print("candidate_click_performed:false")
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())

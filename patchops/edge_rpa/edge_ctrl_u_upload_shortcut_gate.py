@@ -1,0 +1,273 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import sys
+import time
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
+from pathlib import Path
+
+from pywinauto import keyboard  # type: ignore
+
+from patchops.edge_rpa.edge_soft_composer_edge_upload_gate import _hash_file
+from patchops.edge_rpa.edge_upload_safe_report_copy_gate import (
+    REQUESTED_CHAT_URL,
+    _canonical_url,
+    _click_control,
+    _ensure_target_loaded,
+    _find_file_dialog,
+    _find_plus_control,
+    _hash_text,
+    _is_onedrive_path,
+    _make_upload_safe_copy,
+    _observe_staged_file,
+    _select_source_report,
+    _set_file_picker_path,
+    _verify_direct_composer_focus,
+)
+
+PATCH_NAME = "l26_12h_plus_menu_ctrl_u_upload_shortcut_repair"
+
+
+@dataclass(frozen=True)
+class CtrlUUploadShortcutResult:
+    patch_name: str = PATCH_NAME
+    observed_at_utc: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    python_executable: str = sys.executable
+    target_url_is_requested_chat: bool = False
+    current_url_matches_target: bool = False
+    navigation_skipped_existing_target: bool = False
+    navigation_attempted: bool = False
+    target_page_ready: bool = False
+    composer_candidate_found: bool = False
+    composer_focus_verified: bool = False
+    source_report_found: bool = False
+    source_report_hash: str = ""
+    source_report_size_bytes: int = 0
+    source_report_is_text: bool = False
+    upload_safe_copy_created: bool = False
+    upload_safe_copy_name: str = ""
+    upload_safe_copy_hash: str = ""
+    upload_safe_copy_size_bytes: int = 0
+    upload_safe_copy_closed: bool = False
+    safe_copy_outside_onedrive: bool = False
+    allow_report_upload_requested: bool = False
+    plus_button_found: bool = False
+    plus_button_clicked: bool = False
+    ctrl_u_shortcut_sent: bool = False
+    file_picker_opened: bool = False
+    file_picker_path_entered: bool = False
+    file_picker_confirmed: bool = False
+    file_picker_enter_sent: bool = False
+    upload_staging_observed: bool = False
+    staged_file_name_hash: str = ""
+    staging_observation_method: str = ""
+    report_upload_attempted: bool = False
+    file_attach_attempted: bool = False
+    live_report_path: str = ""
+    json_path: str = ""
+    chatgpt_submit_enter_sent: bool = False
+    send_submit_performed: bool = False
+    chatgpt_prompt_submitted: bool = False
+    download_click_performed: bool = False
+    run_package_invoked: bool = False
+    pasteback_or_send_performed: bool = False
+    conversation_text_logged: bool = False
+    full_conversation_text_logged: bool = False
+    prompt_text_logged: bool = False
+    file_content_logged: bool = False
+    webdriver_used: bool = False
+    selenium_imported: bool = False
+    cloudflare_bypass_attempted: bool = False
+    browser_dom_automation_used: bool = False
+    result: str = "FAIL"
+    failure_layer: str = ""
+    error: str = ""
+
+    def to_payload(self) -> dict[str, object]:
+        return asdict(self)
+
+
+def _write_report(path: Path, result: CtrlUUploadShortcutResult) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lines = [
+        "L26.12H plus-menu Ctrl+U upload shortcut repair",
+        f"current_url_matches_target: {result.current_url_matches_target}",
+        f"navigation_skipped_existing_target: {result.navigation_skipped_existing_target}",
+        f"composer_candidate_found: {result.composer_candidate_found}",
+        f"composer_focus_verified: {result.composer_focus_verified}",
+        f"upload_safe_copy_created: {result.upload_safe_copy_created}",
+        f"upload_safe_copy_closed: {result.upload_safe_copy_closed}",
+        f"safe_copy_outside_onedrive: {result.safe_copy_outside_onedrive}",
+        f"plus_button_clicked: {result.plus_button_clicked}",
+        f"ctrl_u_shortcut_sent: {result.ctrl_u_shortcut_sent}",
+        f"file_picker_opened: {result.file_picker_opened}",
+        f"file_picker_path_entered: {result.file_picker_path_entered}",
+        f"file_picker_confirmed: {result.file_picker_confirmed}",
+        f"upload_staging_observed: {result.upload_staging_observed}",
+        "chatgpt_submit_enter_sent:false",
+        "send_submit_performed:false",
+        "chatgpt_prompt_submitted:false",
+        "conversation_text_logged:false",
+        "prompt_text_logged:false",
+        "file_content_logged:false",
+        f"failure_layer: {result.failure_layer}",
+        f"error: {result.error}",
+    ]
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_json(path: Path, result: CtrlUUploadShortcutResult) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(result.to_payload(), indent=2, sort_keys=True), encoding="utf-8")
+
+
+def _send_ctrl_u_and_wait_for_picker(timeout_seconds: float = 10.0) -> object:
+    keyboard.send_keys("^u")
+    deadline = time.time() + timeout_seconds
+    while time.time() < deadline:
+        try:
+            return _find_file_dialog(timeout_seconds=0.7)
+        except Exception:
+            time.sleep(0.25)
+    raise RuntimeError("Ctrl+U shortcut did not open the Windows file picker.")
+
+
+def run_l26_12h_ctrl_u_upload_shortcut_gate(*, output_dir: str | Path, target_url: str, start_if_missing: bool = True, settle_seconds: float = 10.0, allow_report_upload: bool = False) -> CtrlUUploadShortcutResult:
+    out_dir = Path(output_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    json_path = out_dir / "normal_edge_l26_12h_ctrl_u_upload_shortcut_result.json"
+    report_path = out_dir / "normal_edge_l26_12h_ctrl_u_upload_shortcut_report.txt"
+    target_ok = _canonical_url(target_url) == _canonical_url(REQUESTED_CHAT_URL)
+    state: dict[str, object] = {
+        "target_url_is_requested_chat": target_ok,
+        "allow_report_upload_requested": allow_report_upload,
+        "live_report_path": str(report_path),
+        "json_path": str(json_path),
+    }
+    try:
+        if not allow_report_upload:
+            raise RuntimeError("L26.12H requires explicit --allow-report-upload.")
+        current_observed, page_ready, skipped_nav, attempted_nav, current_url = _ensure_target_loaded(out_dir, target_url, start_if_missing, settle_seconds)
+        state.update({
+            "current_url_matches_target": _canonical_url(current_url) == _canonical_url(target_url),
+            "navigation_skipped_existing_target": skipped_nav,
+            "navigation_attempted": attempted_nav,
+            "target_page_ready": page_ready,
+        })
+        if not (target_ok and page_ready):
+            raise RuntimeError("Target chat page is not ready.")
+
+        source = _select_source_report()
+        safe_copy = _make_upload_safe_copy(source, out_dir)
+        source_hash = _hash_file(source)
+        copy_hash = _hash_file(safe_copy)
+        source_size = source.stat().st_size
+        copy_size = safe_copy.stat().st_size
+        state.update({
+            "source_report_found": True,
+            "source_report_hash": source_hash,
+            "source_report_size_bytes": int(source_size),
+            "source_report_is_text": source.suffix.lower() == ".txt",
+            "upload_safe_copy_created": True,
+            "upload_safe_copy_name": safe_copy.name,
+            "upload_safe_copy_hash": copy_hash,
+            "upload_safe_copy_size_bytes": int(copy_size),
+            "upload_safe_copy_closed": True,
+            "safe_copy_outside_onedrive": not _is_onedrive_path(safe_copy),
+        })
+        if source_hash != copy_hash or source_size != copy_size:
+            raise RuntimeError("Upload-safe copy hash/size mismatch.")
+
+        composer_found, focus_verified = _verify_direct_composer_focus()
+        state.update({"composer_candidate_found": composer_found, "composer_focus_verified": focus_verified})
+        if not composer_found:
+            raise RuntimeError("No safe composer candidate found; refusing upload shortcut.")
+
+        plus, plus_control = _find_plus_control()
+        state.update({"plus_button_found": True})
+        _click_control(plus_control)
+        state.update({"plus_button_clicked": True})
+        time.sleep(0.8)
+        dialog = _send_ctrl_u_and_wait_for_picker()
+        state.update({
+            "ctrl_u_shortcut_sent": True,
+            "file_picker_opened": True,
+            "report_upload_attempted": True,
+            "file_attach_attempted": True,
+        })
+        _set_file_picker_path(dialog, safe_copy)
+        state.update({"file_picker_path_entered": True, "file_picker_confirmed": True, "file_picker_enter_sent": True})
+        staged, method = _observe_staged_file(safe_copy.name, timeout_seconds=45.0)
+        state.update({
+            "upload_staging_observed": staged,
+            "staged_file_name_hash": _hash_text(safe_copy.name),
+            "staging_observation_method": method,
+            "result": "PASS" if staged else "FAIL",
+            "failure_layer": "" if staged else "ctrl_u_upload_staging_observation",
+            "error": "" if staged else "Ctrl+U file picker selected the safe copy, but staged attachment was not observed.",
+        })
+    except Exception as exc:
+        state.update({
+            "result": "FAIL",
+            "failure_layer": "plus_menu_ctrl_u_upload_shortcut_repair",
+            "error": f"{type(exc).__name__}: {exc}",
+        })
+    result = CtrlUUploadShortcutResult(**state)
+    _write_report(report_path, result)
+    _write_json(json_path, result)
+    return result
+
+
+def assert_l26_12h_acceptance(result: CtrlUUploadShortcutResult) -> None:
+    payload = result.to_payload()
+    required_true = [
+        "target_url_is_requested_chat",
+        "current_url_matches_target",
+        "navigation_skipped_existing_target",
+        "target_page_ready",
+        "composer_candidate_found",
+        "source_report_found",
+        "source_report_is_text",
+        "upload_safe_copy_created",
+        "upload_safe_copy_closed",
+        "safe_copy_outside_onedrive",
+        "allow_report_upload_requested",
+        "plus_button_found",
+        "plus_button_clicked",
+        "ctrl_u_shortcut_sent",
+        "file_picker_opened",
+        "file_picker_path_entered",
+        "file_picker_confirmed",
+        "file_picker_enter_sent",
+        "upload_staging_observed",
+        "report_upload_attempted",
+        "file_attach_attempted",
+    ]
+    required_false = [
+        "navigation_attempted",
+        "chatgpt_submit_enter_sent",
+        "send_submit_performed",
+        "chatgpt_prompt_submitted",
+        "download_click_performed",
+        "run_package_invoked",
+        "pasteback_or_send_performed",
+        "conversation_text_logged",
+        "full_conversation_text_logged",
+        "prompt_text_logged",
+        "file_content_logged",
+        "webdriver_used",
+        "selenium_imported",
+        "cloudflare_bypass_attempted",
+        "browser_dom_automation_used",
+    ]
+    missing_true = [key for key in required_true if not payload.get(key)]
+    unexpected_true = [key for key in required_false if payload.get(key)]
+    for key in ("source_report_hash", "upload_safe_copy_hash", "staged_file_name_hash"):
+        if not payload.get(key):
+            missing_true.append(key + "_nonempty")
+    if payload.get("result") != "PASS":
+        missing_true.append("result_PASS")
+    if missing_true or unexpected_true:
+        raise AssertionError(f"L26.12H acceptance failed; missing_true={missing_true}; unexpected_true={unexpected_true}; failure_layer={result.failure_layer}; error={result.error}")
