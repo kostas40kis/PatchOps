@@ -1,4 +1,4 @@
-"""L22.1 passive preflight gate for downloaded-archive manifest validation.
+﻿"""L22.1 passive preflight gate for downloaded-archive manifest validation.
 
 L22.1 starts the Microsoft Edge downloaded-archive manifest validation stream
 after the accepted L21.7a archive final marker repair. It is readback-only: no
@@ -298,10 +298,7 @@ def render_text(payload: Mapping[str, Any]) -> str:
     for check in payload.get('checks', []):
         state = 'PASS' if check.get('ok') else 'FAIL'
         lines.append(f"- {state}: {check.get('name')}")
-    return '
-'.join(lines) + '
-'
-
+    return "\n".join(lines) + "\n"
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=NAME)
     parser.add_argument('--repo-root', default='.')
@@ -325,3 +322,4 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == '__main__':
     raise SystemExit(main())
+
