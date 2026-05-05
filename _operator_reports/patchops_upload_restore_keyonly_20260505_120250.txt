@@ -1,0 +1,38 @@
+﻿PATCHOPS UPLOAD RESTORE KEYONLY REPORT - STARTED 2026-05-05T12:02:51.0682649+03:00
+PATCHOPS UPLOAD RESTORE KEYONLY
+===============================
+Started        : 2026-05-05T12:02:51.1926835+03:00
+RepoRoot       : C:\dev\patchops
+PreferredReport: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+UploadInbox    : C:\Temp\patchops_upload_bridge
+Boundary       : no Python, no pywinauto, no random clicks, no ChatGPT submit
+
+[1/8] Loading Win32 helpers...
+Win32 helpers loaded.
+
+[2/8] Resolving actual report to upload...
+Resolved report: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+Short upload copy: C:\Temp\patchops_upload_bridge\patchops_report_to_upload_20260505_120250.txt
+
+[3/8] Finding normal Microsoft Edge window...
+
+ERROR
+=====
+System.Management.Automation.RuntimeException: Could not find an Edge window. Open Edge on this ChatGPT chat first.
+
+WHAT THIS MEANS
+===============
+If it failed before '[7/8] File dialog found', the shortcut did not reach ChatGPT.
+Click once inside the ChatGPT composer, then rerun this same script.
+If it found the dialog but did not upload, the file dialog key path needs a targeted repair.
+
+RESULT
+======
+FAIL
+
+REPORT COPIES
+=============
+C:\Temp\patchops_upload_restore_keyonly_20260505_120250.txt
+C:\dev\patchops\_operator_reports\patchops_upload_restore_keyonly_20260505_120250.txt
+C:\Users\ksarantak\OneDrive - OTE\Desktop\patchops_upload_restore_keyonly_20260505_120250.txt
+C:\Users\ksarantak\Desktop\patchops_upload_restore_keyonly_20260505_120250.txt

@@ -1,0 +1,61 @@
+﻿PATCHOPS UPLOAD RESTORE V5 DIALOG FALLBACK - STARTED 2026-05-05T12:09:14.5406643+03:00
+PATCHOPS UPLOAD RESTORE V5 DIALOG FALLBACK
+==========================================
+Started        : 2026-05-05T12:09:14.6313076+03:00
+RepoRoot       : C:\dev\patchops
+PreferredReport: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+UploadInbox    : C:\Temp\patchops_upload_bridge
+Boundary       : no Python, no pywinauto, no WebDriver, no random clicks, no ChatGPT submit
+
+[1/9] Loading Win32 helpers...
+Win32 helpers ready.
+
+[2/9] Resolving report file...
+Resolved report: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+
+[3/9] Copying report to short upload path...
+Short upload copy: C:\Temp\patchops_upload_bridge\patchops_report_to_upload_20260505_120914.txt
+
+[4/9] Setting clipboard to exact upload file path...
+Clipboard verified.
+Foreground before countdown: HWND=133106 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+
+[5/9] Manual focus countdown...
+Click inside the ChatGPT message box/composer NOW.
+Do not touch mouse/keyboard after clicking.
+Automatic shortcut attempt in 5...
+Automatic shortcut attempt in 4...
+Automatic shortcut attempt in 3...
+Automatic shortcut attempt in 2...
+Automatic shortcut attempt in 1...
+Foreground before shortcut: HWND=133106 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+
+[6/9] Automatic shortcut attempt: / then Ctrl+U...
+Automatic shortcut sent.
+Foreground after shortcut: HWND=133106 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+Waiting 8 seconds for dialog...
+
+[7/9] Automatic shortcut opened file dialog.
+File dialog found:
+  HWND : 197550
+  Class: Chrome_WidgetWin_1
+  Title: wrapper - PS1 GitHub Upload Script and 16 more pages - Work - Microsoft? Edge
+
+[8/9] Filling File name with exact report path and pressing Open...
+Open command sent.
+
+[9/9] Done.
+Expected: report appears as an attachment in ChatGPT.
+No ChatGPT submit/send was performed.
+Uploaded file path: C:\Temp\patchops_upload_bridge\patchops_report_to_upload_20260505_120914.txt
+
+RESULT
+======
+PASS
+
+REPORT COPIES
+=============
+C:\Temp\patchops_upload_restore_v5_dialog_fallback_20260505_120914.txt
+C:\dev\patchops\_operator_reports\patchops_upload_restore_v5_dialog_fallback_20260505_120914.txt
+C:\Users\ksarantak\OneDrive - OTE\Desktop\patchops_upload_restore_v5_dialog_fallback_20260505_120914.txt
+C:\Users\ksarantak\Desktop\patchops_upload_restore_v5_dialog_fallback_20260505_120914.txt

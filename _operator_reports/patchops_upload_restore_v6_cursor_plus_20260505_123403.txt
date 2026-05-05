@@ -1,0 +1,58 @@
+﻿PATCHOPS UPLOAD RESTORE V6 CURSOR PLUS - STARTED 2026-05-05T12:34:03.0412293+03:00
+PATCHOPS UPLOAD RESTORE V6 CURSOR PLUS
+======================================
+Started        : 2026-05-05T12:34:03.1868642+03:00
+RepoRoot       : C:\dev\patchops
+PreferredReport: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+UploadInbox    : C:\Temp\patchops_upload_bridge
+Boundary       : one operator-positioned click only; no random clicks; no ChatGPT submit
+
+[1/9] Loading Win32 helpers...
+Win32 helpers ready.
+
+[2/9] Resolving report file...
+Resolved report: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+
+[3/9] Copying report to short upload path...
+Short upload copy: C:\Temp\patchops_upload_bridge\patchops_report_to_upload_20260505_123403.txt
+
+[4/9] Setting clipboard to exact upload file path...
+Clipboard verified.
+Foreground now: HWND=133106 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+
+[5/9] Cursor-positioned upload button click countdown...
+Put your mouse cursor ON the ChatGPT + upload button now.
+Do NOT click it yourself.
+Do NOT move the mouse after positioning it.
+Clicking current cursor position in 5... cursor=(582,555)
+Clicking current cursor position in 4... cursor=(582,555)
+Clicking current cursor position in 3... cursor=(582,555)
+Clicking current cursor position in 2... cursor=(582,555)
+Clicking current cursor position in 1... cursor=(582,555)
+Final cursor position before click: (582,555)
+
+[6/9] Performing exactly one operator-positioned left click...
+One cursor-positioned click performed.
+Foreground after click: HWND=133106 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+
+[7/9] Waiting for real Windows file dialog class #32770...
+
+ERROR
+=====
+System.Management.Automation.RuntimeException: No real Windows file dialog appeared after clicking the operator-positioned + button.
+
+WHAT THIS MEANS
+===============
+If no dialog appeared, the cursor was not on the real ChatGPT + upload button or ChatGPT did not accept the click.
+If dialog appeared but no attachment appears, the File name/Open sequence needs repair.
+
+RESULT
+======
+FAIL
+
+REPORT COPIES
+=============
+C:\Temp\patchops_upload_restore_v6_cursor_plus_20260505_123403.txt
+C:\dev\patchops\_operator_reports\patchops_upload_restore_v6_cursor_plus_20260505_123403.txt
+C:\Users\ksarantak\OneDrive - OTE\Desktop\patchops_upload_restore_v6_cursor_plus_20260505_123403.txt
+C:\Users\ksarantak\Desktop\patchops_upload_restore_v6_cursor_plus_20260505_123403.txt

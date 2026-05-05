@@ -1,0 +1,94 @@
+﻿PATCHOPS UPLOAD RESTORE V7 MINIMIZE THEN CLICK - STARTED 2026-05-05T12:38:25.5915001+03:00
+PATCHOPS UPLOAD RESTORE V7 MINIMIZE THEN CLICK
+==============================================
+Started        : 2026-05-05T12:38:25.6782143+03:00
+RepoRoot       : C:\dev\patchops
+PreferredReport: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+UploadInbox    : C:\Temp\patchops_upload_bridge
+Boundary       : minimize PowerShell, one operator-positioned click, no random clicks, no ChatGPT submit
+
+[1/10] Loading Win32 helpers...
+Win32 helpers ready.
+
+[2/10] Resolving report file...
+Resolved report: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+
+[3/10] Copying report to short upload path...
+Short upload copy: C:\Temp\patchops_upload_bridge\patchops_report_to_upload_20260505_123825.txt
+
+[4/10] Setting clipboard to exact upload file path...
+Clipboard verified.
+Foreground before minimize: HWND=1116110 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+
+[5/10] Operator action required.
+After you press Enter here:
+1. PowerShell will minimize.
+2. You will have 8 seconds.
+3. Move the mouse cursor onto the ChatGPT + upload button.
+4. Do NOT click it yourself.
+5. If the automatic click only opens a menu, manually click 'Upload from computer' within 45 seconds.
+6. The script will fill the file dialog automatically.
+
+[6/10] Minimizing current foreground window...
+Window to minimize: HWND=1116110 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+Click delay: 8 seconds remaining. Cursor=(605,613)
+Click delay: 7 seconds remaining. Cursor=(605,613)
+Click delay: 6 seconds remaining. Cursor=(605,613)
+Click delay: 5 seconds remaining. Cursor=(605,613)
+Click delay: 4 seconds remaining. Cursor=(605,613)
+Click delay: 3 seconds remaining. Cursor=(605,613)
+Click delay: 2 seconds remaining. Cursor=(605,613)
+Click delay: 1 seconds remaining. Cursor=(605,613)
+Final cursor before click: (605,613)
+
+[7/10] Performing exactly one cursor-positioned click...
+Click performed.
+Foreground after click: HWND=197550 Class='Chrome_WidgetWin_1' Title='wrapper - PS1 GitHub Upload Script and 16 more pages - Work - Microsoft? Edge'
+
+[8/10] Waiting for real Windows file dialog after automatic click...
+
+Automatic click did not open a real file dialog.
+Manual fallback active for 45 seconds.
+If a menu opened, manually click 'Upload from computer' now.
+Do not select a file manually. Just open the file dialog.
+Waiting for manual file dialog... remaining 45s
+Waiting for manual file dialog... remaining 43s
+Waiting for manual file dialog... remaining 40s
+Waiting for manual file dialog... remaining 38s
+Waiting for manual file dialog... remaining 36s
+Waiting for manual file dialog... remaining 34s
+Waiting for manual file dialog... remaining 32s
+Waiting for manual file dialog... remaining 30s
+Waiting for manual file dialog... remaining 28s
+Waiting for manual file dialog... remaining 26s
+Waiting for manual file dialog... remaining 23s
+Waiting for manual file dialog... remaining 21s
+Waiting for manual file dialog... remaining 19s
+Waiting for manual file dialog... remaining 17s
+Waiting for manual file dialog... remaining 15s
+Waiting for manual file dialog... remaining 13s
+Waiting for manual file dialog... remaining 10s
+Waiting for manual file dialog... remaining 8s
+Waiting for manual file dialog... remaining 6s
+Waiting for manual file dialog... remaining 4s
+Waiting for manual file dialog... remaining 1s
+
+ERROR
+=====
+System.Management.Automation.RuntimeException: No real Windows file dialog appeared after automatic click or manual menu fallback.
+
+WHAT THIS MEANS
+===============
+If no dialog appeared, either the cursor was not on the real upload control, or the first click only opened a menu and the menu item was not clicked.
+If dialog appeared but no attachment appears, the File name/Open sequence needs repair.
+
+RESULT
+======
+FAIL
+
+REPORT COPIES
+=============
+C:\Temp\patchops_upload_restore_v7_minimize_then_click_20260505_123825.txt
+C:\dev\patchops\_operator_reports\patchops_upload_restore_v7_minimize_then_click_20260505_123825.txt
+C:\Users\ksarantak\OneDrive - OTE\Desktop\patchops_upload_restore_v7_minimize_then_click_20260505_123825.txt
+C:\Users\ksarantak\Desktop\patchops_upload_restore_v7_minimize_then_click_20260505_123825.txt

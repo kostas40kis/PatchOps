@@ -1,0 +1,54 @@
+﻿PATCHOPS MANUAL-FOCUS UPLOAD RESTORE V4 - STARTED 2026-05-05T12:05:52.6715070+03:00
+PATCHOPS MANUAL-FOCUS UPLOAD RESTORE V4
+=======================================
+Started        : 2026-05-05T12:05:52.7593327+03:00
+RepoRoot       : C:\dev\patchops
+PreferredReport: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+UploadInbox    : C:\Temp\patchops_upload_bridge
+Boundary       : no Edge detection, no Python, no pywinauto, no WebDriver, no random clicks, no submit
+
+[1/8] Loading/reusing Win32 dialog helpers...
+Win32 helpers ready.
+
+[2/8] Resolving report file...
+Resolved report: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+
+[3/8] Copying report to short upload path...
+Short upload copy: C:\Temp\patchops_upload_bridge\patchops_report_to_upload_20260505_120552.txt
+
+[4/8] Setting clipboard to exact upload path...
+Clipboard verified.
+
+[5/8] Manual focus countdown...
+Click inside the ChatGPT message box/composer NOW.
+Do not touch the mouse/keyboard after clicking.
+Sending upload shortcut in 5...
+Sending upload shortcut in 4...
+Sending upload shortcut in 3...
+Sending upload shortcut in 2...
+Sending upload shortcut in 1...
+
+[6/8] Sending upload shortcut to currently focused window: / then Ctrl+U...
+Shortcut sent.
+
+[7/8] Waiting for real Windows file dialog...
+
+ERROR
+=====
+System.Management.Automation.RuntimeException: No Windows file dialog appeared. The shortcut did not reach ChatGPT composer.
+
+WHAT THIS MEANS
+===============
+If it failed before File dialog found, focus was not inside ChatGPT composer or the shortcut no longer opens upload.
+If it found the dialog but no attachment appears, the dialog Open step needs repair.
+
+RESULT
+======
+FAIL
+
+REPORT COPIES
+=============
+C:\Temp\patchops_upload_restore_manual_focus_v4_20260505_120552.txt
+C:\dev\patchops\_operator_reports\patchops_upload_restore_manual_focus_v4_20260505_120552.txt
+C:\Users\ksarantak\OneDrive - OTE\Desktop\patchops_upload_restore_manual_focus_v4_20260505_120552.txt
+C:\Users\ksarantak\Desktop\patchops_upload_restore_manual_focus_v4_20260505_120552.txt

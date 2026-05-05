@@ -1,0 +1,61 @@
+﻿PATCHOPS UPLOAD RESTORE V9 FILE CLIPBOARD PASTE - STARTED 2026-05-05T12:57:15.1575926+03:00
+PATCHOPS UPLOAD RESTORE V9 FILE CLIPBOARD PASTE
+===============================================
+Started        : 2026-05-05T12:57:15.1575926+03:00
+RepoRoot       : C:\dev\patchops
+PreferredReport: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+UploadInbox    : C:\Temp\patchops_upload_bridge
+Boundary       : no file picker, no random clicks, one operator-positioned click, Ctrl+V only, no ChatGPT submit
+
+[1/8] Loading Win32 helpers...
+Win32 helpers ready.
+
+[2/8] Resolving report file...
+Resolved report: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+
+[3/8] Copying report to short upload path...
+Short upload copy: C:\Temp\patchops_upload_bridge\patchops_report_to_upload_20260505_125715.txt
+
+[4/8] Putting the FILE itself on the Windows clipboard...
+Clipboard file-drop verified: C:\Temp\patchops_upload_bridge\patchops_report_to_upload_20260505_125715.txt
+
+[5/8] Operator action required.
+After pressing Enter:
+1. PowerShell will minimize.
+2. You will have 8 seconds.
+3. Put your mouse cursor inside the ChatGPT composer / drop area.
+4. Do NOT click yourself.
+5. The script will click once and press Ctrl+V.
+6. It will NOT submit/send.
+
+[6/8] Minimizing PowerShell...
+Window to minimize: HWND=460780 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+Paste delay: 8 seconds remaining. Cursor=(1070,628)
+Paste delay: 7 seconds remaining. Cursor=(1070,628)
+Paste delay: 6 seconds remaining. Cursor=(1070,628)
+Paste delay: 5 seconds remaining. Cursor=(1070,628)
+Paste delay: 4 seconds remaining. Cursor=(1070,628)
+Paste delay: 3 seconds remaining. Cursor=(1070,628)
+Paste delay: 2 seconds remaining. Cursor=(1070,628)
+Paste delay: 1 seconds remaining. Cursor=(1070,628)
+Final cursor before composer click: (1070,628)
+
+[7/8] Clicking composer/drop area and pressing Ctrl+V...
+Ctrl+V sent.
+Foreground after paste: HWND=722632 Class='CabinetWClass' Title='Desktop - File Explorer'
+
+[8/8] Restoring PowerShell and finishing...
+Expected: ChatGPT shows the report as an attachment.
+No ChatGPT submit/send was performed.
+Uploaded/pasted file path: C:\Temp\patchops_upload_bridge\patchops_report_to_upload_20260505_125715.txt
+
+RESULT
+======
+PASS
+
+REPORT COPIES
+=============
+C:\Temp\patchops_upload_restore_v9_file_clipboard_paste_20260505_125715.txt
+C:\dev\patchops\_operator_reports\patchops_upload_restore_v9_file_clipboard_paste_20260505_125715.txt
+C:\Users\ksarantak\OneDrive - OTE\Desktop\patchops_upload_restore_v9_file_clipboard_paste_20260505_125715.txt
+C:\Users\ksarantak\Desktop\patchops_upload_restore_v9_file_clipboard_paste_20260505_125715.txt

@@ -1,0 +1,87 @@
+﻿PATCHOPS UPLOAD RESTORE V8 MANUAL DIALOG FILL - STARTED 2026-05-05T12:45:40.5294958+03:00
+PATCHOPS UPLOAD RESTORE V8 MANUAL DIALOG FILL
+=============================================
+Started        : 2026-05-05T12:45:40.6893321+03:00
+RepoRoot       : C:\dev\patchops
+PreferredReport: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+UploadInbox    : C:\Temp\patchops_upload_bridge
+Boundary       : user opens dialog; script fills exact report path; no browser clicks; no ChatGPT submit
+
+[1/8] Loading Win32 helpers...
+Win32 helpers ready.
+
+[2/8] Resolving report file...
+Resolved report: C:\Users\ksarantak\Desktop\patchops_latest_canonical_browser_evidence_report_canonical.txt
+
+[3/8] Copying report to short upload path...
+Short upload copy: C:\Temp\patchops_upload_bridge\patchops_report_to_upload_20260505_124540.txt
+
+[4/8] Setting clipboard to exact upload file path...
+Clipboard verified.
+
+[5/8] Operator action required.
+After you press Enter here:
+1. PowerShell will minimize.
+2. In ChatGPT, click the + button.
+3. Click Upload from computer / Upload file.
+4. STOP when the Windows file picker opens.
+5. The script will automatically paste the exact report path and press Open.
+
+Do NOT manually choose a file. Just open the Windows file dialog.
+
+[6/8] Minimizing PowerShell...
+Window to minimize: HWND=1181506 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+
+[7/8] Waiting for real Windows file dialog class #32770...
+Waiting for real file dialog... remaining 90s
+Waiting for real file dialog... remaining 85s
+Waiting for real file dialog... remaining 85s
+Waiting for real file dialog... remaining 80s
+Waiting for real file dialog... remaining 75s
+Waiting for real file dialog... remaining 75s
+Waiting for real file dialog... remaining 70s
+Waiting for real file dialog... remaining 70s
+Waiting for real file dialog... remaining 65s
+Waiting for real file dialog... remaining 65s
+Waiting for real file dialog... remaining 60s
+Waiting for real file dialog... remaining 60s
+Waiting for real file dialog... remaining 55s
+Waiting for real file dialog... remaining 50s
+Waiting for real file dialog... remaining 50s
+Waiting for real file dialog... remaining 45s
+Waiting for real file dialog... remaining 45s
+Waiting for real file dialog... remaining 40s
+Waiting for real file dialog... remaining 35s
+Waiting for real file dialog... remaining 35s
+Waiting for real file dialog... remaining 30s
+Waiting for real file dialog... remaining 25s
+Waiting for real file dialog... remaining 25s
+Waiting for real file dialog... remaining 20s
+Waiting for real file dialog... remaining 20s
+Waiting for real file dialog... remaining 15s
+Waiting for real file dialog... remaining 15s
+Waiting for real file dialog... remaining 10s
+Waiting for real file dialog... remaining 10s
+Waiting for real file dialog... remaining 5s
+Waiting for real file dialog... remaining 5s
+Waiting for real file dialog... remaining 0s
+
+ERROR
+=====
+System.Management.Automation.RuntimeException: No real Windows file dialog appeared within 90 seconds.
+
+WHAT THIS MEANS
+===============
+If this failed, the Windows file dialog never opened. The browser upload-trigger layer is still the broken layer.
+If it passed but no attachment appeared, then the File name/Open step needs repair.
+
+RESULT
+======
+FAIL
+
+REPORT COPIES
+=============
+C:\Temp\patchops_upload_restore_v8_manual_dialog_fill_20260505_124540.txt
+C:\dev\patchops\_operator_reports\patchops_upload_restore_v8_manual_dialog_fill_20260505_124540.txt
+C:\Users\ksarantak\OneDrive - OTE\Desktop\patchops_upload_restore_v8_manual_dialog_fill_20260505_124540.txt
+C:\Users\ksarantak\Desktop\patchops_upload_restore_v8_manual_dialog_fill_20260505_124540.txt

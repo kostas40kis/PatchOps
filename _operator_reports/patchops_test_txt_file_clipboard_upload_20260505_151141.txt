@@ -1,0 +1,86 @@
+﻿PATCHOPS TXT FILE CLIPBOARD UPLOAD TEST - STARTED 2026-05-05T15:11:41.1563544+03:00
+PATCHOPS TXT FILE CLIPBOARD UPLOAD TEST
+=======================================
+Started        : 2026-05-05T15:11:41.1563544+03:00
+RepoRoot       : C:\dev\patchops
+UploadInbox    : C:\Temp\patchops_upload_bridge
+Mode           : synthetic_test
+Boundary       : file-drop clipboard + one operator-positioned click + Ctrl+V; no submit
+
+[1/10] Loading Win32 helpers...
+Win32 helpers ready.
+Foreground now: HWND=460780 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+
+[2/10] Preparing TXT file to upload...
+Created synthetic test TXT: C:\Temp\patchops_upload_bridge\patchops_txt_upload_probe_20260505_151141.txt
+Upload file path : C:\Temp\patchops_upload_bridge\patchops_txt_upload_probe_20260505_151141.txt
+Upload filename  : patchops_txt_upload_probe_20260505_151141.txt
+Upload size bytes: 313
+
+[3/10] Putting the TXT FILE itself on the Windows clipboard...
+PowerShell apartment state: STA
+Clipboard file-drop verified: C:\Temp\patchops_upload_bridge\patchops_txt_upload_probe_20260505_151141.txt
+
+[4/10] Operator action required.
+Open/keep Edge visible on this ChatGPT chat.
+After pressing Enter here:
+1. PowerShell will minimize.
+2. You will have 8 seconds.
+3. Put your mouse cursor inside the ChatGPT composer/drop area.
+4. Do NOT click yourself.
+5. The script will click once and press Ctrl+V.
+6. It will NOT submit/send.
+
+Expected attachment filename: patchops_txt_upload_probe_20260505_151141.txt
+
+[5/10] Minimizing PowerShell...
+Window to minimize: HWND=460780 Class='CASCADIA_HOSTING_WINDOW_CLASS' Title='Windows PowerShell'
+
+[6/10] Waiting for cursor positioning...
+Paste delay: 8 seconds remaining. Cursor=(1073,630)
+Paste delay: 7 seconds remaining. Cursor=(1073,630)
+Paste delay: 6 seconds remaining. Cursor=(1073,630)
+Paste delay: 5 seconds remaining. Cursor=(1073,630)
+Paste delay: 4 seconds remaining. Cursor=(1073,630)
+Paste delay: 3 seconds remaining. Cursor=(1073,630)
+Paste delay: 2 seconds remaining. Cursor=(1073,630)
+Paste delay: 1 seconds remaining. Cursor=(1073,630)
+Final cursor before click: (1073,630)
+
+[7/10] Clicking composer/drop area and pressing Ctrl+V...
+Ctrl+V sent.
+Foreground after paste: HWND=197550 Class='Chrome_WidgetWin_1' Title='wrapper - PS1 GitHub Upload Script and 16 more pages - Work - Microsoft? Edge'
+
+[8/10] Restoring PowerShell...
+
+[9/10] Attachment confirmation required.
+Look at ChatGPT now.
+Do you see this exact TXT file attached?
+Expected filename: patchops_txt_upload_probe_20260505_151141.txt
+
+Type Y only if the attachment chip/card is visible in ChatGPT.
+Type N if nothing attached or it pasted into the wrong app/window.
+Operator confirmation: N
+
+[10/10] Final classification...
+Selected source file      : C:\Temp\patchops_upload_bridge\patchops_txt_upload_probe_20260505_151141.txt
+Short upload file         : C:\Temp\patchops_upload_bridge\patchops_txt_upload_probe_20260505_151141.txt
+Expected attachment name  : patchops_txt_upload_probe_20260505_151141.txt
+Clipboard file-drop set   : true
+Clipboard verified        : true
+One positioned click      : true
+Ctrl+V sent               : true
+ChatGPT submit performed  : false
+Foreground after paste    : HWND=197550 Class='Chrome_WidgetWin_1' Title='wrapper - PS1 GitHub Upload Script and 16 more pages - Work - Microsoft? Edge'
+Attachment confirmed      : false
+
+RESULT
+======
+BLOCKED_ATTACHMENT_NOT_CONFIRMED
+
+REPORT COPIES
+=============
+C:\Temp\patchops_test_txt_file_clipboard_upload_20260505_151141.txt
+C:\dev\patchops\_operator_reports\patchops_test_txt_file_clipboard_upload_20260505_151141.txt
+C:\Users\ksarantak\OneDrive - OTE\Desktop\patchops_test_txt_file_clipboard_upload_20260505_151141.txt
+C:\Users\ksarantak\Desktop\patchops_test_txt_file_clipboard_upload_20260505_151141.txt
