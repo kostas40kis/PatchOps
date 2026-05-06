@@ -1,0 +1,12 @@
+{
+  "allow_real_edge_default": true,
+  "allow_send_default": false,
+  "allow_upload_default": false,
+  "browser": "msedge",
+  "created_at": "2026-05-06T12:05:24.631923+00:00",
+  "mode": "operator_set",
+  "schema_version": "1",
+  "source_patch": "u2_00_chatgpt_uploader_target_config_live_harness_base",
+  "target_url": "https://chatgpt.com/g/g-p-69c28e6fc27881919f542bcccbe34314-wrapper/c/69f8530a-cc98-83eb-8a76-b34eaa36070d",
+  "target_url_sha256": "fc27e9557d1cc54ec83284f53cf03268c2ea98629fe0f0c817aa3a6062e9b18d"
+}
