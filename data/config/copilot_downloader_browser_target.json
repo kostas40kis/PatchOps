@@ -1,0 +1,23 @@
+{
+  "description": "D1.1 browser target config. Stores the target URL locally, but evidence emits only a redacted display and URL sha256.",
+  "paths": {
+    "evidence_dir": "data/runtime/copilot_downloader/browser_target_config"
+  },
+  "policy": {
+    "allow_browser_start": false,
+    "allow_clipboard_read": false,
+    "allow_conversation_text_logging": false,
+    "allow_dom_automation": false,
+    "allow_submit_or_send": false,
+    "allow_window_scan": false
+  },
+  "producer": "patchops.copilot_downloader",
+  "schema_version": 1,
+  "target": {
+    "allowed_hosts": [
+      "chat.openai.com",
+      "chatgpt.com"
+    ],
+    "target_url": "https://chatgpt.com/"
+  }
+}

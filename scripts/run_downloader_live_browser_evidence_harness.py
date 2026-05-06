@@ -1,0 +1,7 @@
+from __future__ import annotations
+
+from patchops.copilot_downloader.live_browser_evidence import main
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

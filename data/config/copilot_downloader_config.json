@@ -1,0 +1,18 @@
+{
+  "description": "Local-only downloader config. D0.3 allows local artifact detection only; browser observation, clipboard, and execution remain disabled.",
+  "paths": {
+    "browser_downloads_dir": "data/runtime/copilot_downloader/browser_downloads",
+    "duplicate_ledger_path": "data/runtime/copilot_downloader/ledger/artifact_ledger.jsonl",
+    "evidence_dir": "data/runtime/copilot_downloader/evidence",
+    "inbox_dir": "data/runtime/copilot_downloader/inbox",
+    "staging_dir": "data/runtime/copilot_downloader/staged"
+  },
+  "policy": {
+    "allow_artifact_detection": true,
+    "allow_artifact_execution": false,
+    "allow_browser_observation": false,
+    "allow_clipboard_read": false
+  },
+  "producer": "patchops.copilot_downloader",
+  "schema_version": 1
+}

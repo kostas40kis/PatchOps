@@ -1,103 +1,126 @@
 from __future__ import annotations
 
-import os
-import time
+import json
 from pathlib import Path
 
 from patchops.copilot_downloader.artifact_detector import (
-    DownloaderSafetyFlags,
-    classify_artifact,
-    detect_artifacts,
-    is_excluded,
-    write_detection_result,
+    SUPPORTED_EXTENSIONS,
+    run_artifact_scan,
+    scan_local_artifacts,
 )
+from patchops.copilot_downloader.config import default_config_payload, write_default_config
 
 
-def _write_old_file(path: Path, content: bytes = b"artifact") -> Path:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(content)
-    old = time.time() - 30
-    os.utime(path, (old, old))
-    return path
+def _make_repo_with_config(tmp_path: Path) -> tuple[Path, Path]:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    config_path = repo_root / "data" / "config" / "copilot_downloader_config.json"
+    write_default_config(config_path)
+    return repo_root, config_path
 
 
-def test_classifies_patchops_zip_bundle() -> None:
-    assert classify_artifact(Path("d0_patchops_bundle.zip")) == "patchops_zip_bundle"
-    assert classify_artifact(Path("apply_patch.ps1")) == "powershell_script"
-    assert classify_artifact(Path("patchops_report.txt")) == "patchops_text_report_or_handoff"
+def test_supported_extensions_are_downloader_intake_shapes():
+    assert {".ps1", ".zip", ".json", ".txt", ".md"}.issubset(SUPPORTED_EXTENSIONS)
 
 
-def test_detects_stable_artifact_without_running_it(tmp_path: Path) -> None:
-    artifact = _write_old_file(tmp_path / "u_next_patchops_bundle.zip", b"zip bytes")
-
-    result = detect_artifacts([tmp_path], min_stable_age_seconds=2.0)
-
-    assert result.ok is True
-    assert result.status == "PASS_ARTIFACT_DETECTED"
-    assert result.selected is not None
-    assert result.selected.path == str(artifact.resolve())
-    assert result.selected.stable is True
-    assert result.safety_flags.patchops_invoked is False
-    assert result.safety_flags.artifact_executed is False
-    assert result.safety_flags.browser_used is False
-    assert result.safety_flags.selenium_used is False
+def test_scan_returns_blocked_no_artifact_for_empty_configured_folders(tmp_path: Path):
+    repo_root, config_path = _make_repo_with_config(tmp_path)
+    result = run_artifact_scan(repo_root=repo_root, config_path=config_path, evidence_root=repo_root / "evidence")
+    assert result["ok"] is True
+    assert result["result_label"] == "BLOCKED_NO_ARTIFACT"
+    assert result["candidate_count"] == 0
+    assert result["safety"]["browser_used"] is False
+    assert result["safety"]["clipboard_read"] is False
+    assert result["safety"]["artifact_executed"] is False
+    assert Path(result["evidence_files"]["json"]).is_file()
+    assert Path(result["evidence_files"]["text"]).is_file()
 
 
-def test_blocks_when_artifact_is_too_new(tmp_path: Path) -> None:
-    path = tmp_path / "fresh_patchops_bundle.zip"
-    path.write_bytes(b"fresh")
+def test_scan_detects_single_local_ps1_without_reading_or_running_it(tmp_path: Path):
+    inbox = tmp_path / "inbox"
+    downloads = tmp_path / "downloads"
+    inbox.mkdir()
+    downloads.mkdir()
+    artifact = inbox / "example.ps1"
+    artifact.write_text("& { Set-StrictMode -Version Latest }\n", encoding="utf-8")
 
-    result = detect_artifacts([tmp_path], min_stable_age_seconds=3600.0)
+    result = scan_local_artifacts(inbox_dir=inbox, browser_downloads_dir=downloads)
 
-    assert result.ok is False
-    assert result.status == "BLOCKED_NO_STABLE_ARTIFACT"
-    assert result.candidate_count == 1
-    assert result.stable_candidate_count == 0
-
-
-def test_ignores_runtime_and_pycache_paths(tmp_path: Path) -> None:
-    _write_old_file(tmp_path / "data" / "runtime" / "bad_patchops_bundle.zip")
-    _write_old_file(tmp_path / "__pycache__" / "bad_patchops_bundle.zip")
-    good = _write_old_file(tmp_path / "good_patchops_bundle.zip")
-
-    result = detect_artifacts([tmp_path], recursive=True, min_stable_age_seconds=2.0)
-
-    assert result.ok is True
-    assert result.candidate_count == 1
-    assert result.selected is not None
-    assert result.selected.path == str(good.resolve())
+    assert result.result_label == "PASS_ARTIFACT_DETECTED"
+    assert len(result.candidates) == 1
+    candidate = result.candidates[0]
+    assert candidate.path == artifact.resolve(strict=False)
+    assert candidate.source == "inbox_dir"
+    assert candidate.extension == ".ps1"
+    assert candidate.size_bytes > 0
 
 
-def test_missing_root_blocks_cleanly(tmp_path: Path) -> None:
-    result = detect_artifacts([tmp_path / "missing"], min_stable_age_seconds=0)
+def test_scan_blocks_ambiguous_artifacts_when_more_than_one_candidate_exists(tmp_path: Path):
+    inbox = tmp_path / "inbox"
+    downloads = tmp_path / "downloads"
+    inbox.mkdir()
+    downloads.mkdir()
+    (inbox / "a.ps1").write_text("a", encoding="utf-8")
+    (downloads / "b.zip").write_text("b", encoding="utf-8")
 
-    assert result.ok is False
-    assert result.status == "BLOCKED_NO_ARTIFACTS"
-    assert result.candidate_count == 0
+    result = scan_local_artifacts(inbox_dir=inbox, browser_downloads_dir=downloads)
 
-
-def test_write_detection_result_creates_json_and_text(tmp_path: Path) -> None:
-    _write_old_file(tmp_path / "candidate.ps1", b"Write-Host hi")
-    result = detect_artifacts([tmp_path], min_stable_age_seconds=2.0)
-    result = write_detection_result(result, tmp_path / "out")
-
-    assert result.output_paths["json_path"].endswith("artifact_detection_result.json")
-    assert result.output_paths["txt_path"].endswith("artifact_detection_result.txt")
-    assert Path(result.output_paths["json_path"]).exists()
-    assert Path(result.output_paths["txt_path"]).exists()
-    txt = Path(result.output_paths["txt_path"]).read_text(encoding="utf-8")
-    assert "PATCHOPS_COPILOT_DOWNLOADER_ARTIFACT_DETECTION" in txt
-    assert "artifact_executed:false" in txt
-    assert "patchops_invoked:false" in txt
+    assert result.result_label == "BLOCKED_AMBIGUOUS_ARTIFACTS"
+    assert len(result.candidates) == 2
 
 
-def test_exclusion_detects_runtime_path(tmp_path: Path) -> None:
-    assert is_excluded(tmp_path / "data" / "runtime" / "x.zip") is True
+def test_scan_ignores_partial_temp_empty_unsupported_and_runtime_internal_files(tmp_path: Path):
+    inbox = tmp_path / "inbox"
+    downloads = tmp_path / "downloads"
+    inbox.mkdir()
+    downloads.mkdir()
+    (inbox / "empty.ps1").write_text("", encoding="utf-8")
+    (inbox / "partial.zip.crdownload").write_text("not ready", encoding="utf-8")
+    (inbox / "temp.tmp").write_text("temp", encoding="utf-8")
+    (inbox / "unsupported.exe").write_text("no", encoding="utf-8")
+    hidden_dir = inbox / ".hidden"
+    hidden_dir.mkdir()
+    (hidden_dir / "hidden.ps1").write_text("hidden", encoding="utf-8")
+    staged_dir = inbox / "staged"
+    staged_dir.mkdir()
+    (staged_dir / "already.ps1").write_text("already", encoding="utf-8")
+
+    result = scan_local_artifacts(inbox_dir=inbox, browser_downloads_dir=downloads)
+
+    assert result.result_label == "BLOCKED_NO_ARTIFACT"
+    assert len(result.candidates) == 0
+    reasons = {item["reason"] for item in result.ignored}
+    assert "empty_file" in reasons
+    assert "partial_or_temporary_extension" in reasons
+    assert "unsupported_extension" in reasons
+    assert "hidden_or_runtime_internal" in reasons
 
 
-def test_safety_flags_default_all_false() -> None:
-    flags = DownloaderSafetyFlags()
-    assert flags.patchops_invoked is False
-    assert flags.artifact_executed is False
-    assert flags.file_upload_attempted is False
-    assert flags.chatgpt_submit_performed is False
+def test_run_artifact_scan_respects_config_detection_gate(tmp_path: Path):
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir()
+    config_path = repo_root / "data" / "config" / "copilot_downloader_config.json"
+    payload = default_config_payload()
+    payload["policy"]["allow_artifact_detection"] = False
+    config_path.parent.mkdir(parents=True)
+    config_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    result = run_artifact_scan(repo_root=repo_root, config_path=config_path, evidence_root=repo_root / "evidence")
+
+    assert result["ok"] is False
+    assert result["result_label"] == "BLOCKED_INVALID_ARTIFACT"
+    assert result["ignored"][0]["reason"] == "local_artifact_detection_disabled_by_config"
+
+
+def test_run_artifact_scan_detects_checked_config_fixture(tmp_path: Path):
+    repo_root, config_path = _make_repo_with_config(tmp_path)
+    inbox = repo_root / "data" / "runtime" / "copilot_downloader" / "inbox"
+    inbox.mkdir(parents=True)
+    (inbox / "payload.md").write_text("PATCHOPS_SCRIPT_PAYLOAD_BEGIN\n", encoding="utf-8")
+
+    result = run_artifact_scan(repo_root=repo_root, config_path=config_path, evidence_root=repo_root / "evidence")
+
+    assert result["ok"] is True
+    assert result["result_label"] == "PASS_ARTIFACT_DETECTED"
+    assert result["candidate_count"] == 1
+    assert result["candidates"][0]["extension"] == ".md"
