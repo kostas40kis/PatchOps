@@ -1,0 +1,8 @@
+{
+  "status_chat": {
+    "browser_lane": "chrome",
+    "enabled": true,
+    "target_url": "https://chatgpt.com/c/example",
+    "target_url_sha256": "33fb5c2caa646f0aa904aa7e7f64d8678cbafacddaf6a1f90e148e3138f5f66d"
+  }
+}

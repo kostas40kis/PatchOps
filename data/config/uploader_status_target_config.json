@@ -1,0 +1,8 @@
+{
+    "status_chat":  {
+                        "target_url":  "https://chatgpt.com/g/g-p-69fb24e234b08191b691f750f5405732-patchops/c/69fc5f46-6e88-83eb-82b8-58a779a43ddd",
+                        "target_url_sha256":  "ffc9dabd16f479a6cae0899920247b498cbd0138eb3a8c4a6567d5a9434a39fc",
+                        "browser_lane":  "chrome",
+                        "enabled":  true
+                    }
+}

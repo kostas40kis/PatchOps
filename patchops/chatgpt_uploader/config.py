@@ -1975,3 +1975,322 @@ ChatGPTUploaderConfig = UploaderConfig
 ChatGPTCopilotTargetConfig = UploaderConfig
 TargetConfig = UploaderConfig
 # PATCHOPS_U2_1QL_TARGET_CONFIG_PATH_EQ_COMPAT_END
+
+# PATCHOPS_U3_C02_CHROME_CONFIG_ONLY_START
+# Chrome-only uploader lane contract. This block is intentionally local-only:
+# no browser launch, no upload, no send, no Selenium/WebDriver, and no DOM automation.
+
+try:
+    ConfigValidationError
+except NameError:  # pragma: no cover
+    class ConfigValidationError(ValueError):
+        pass
+
+CHROME_ONLY_BROWSER = "chrome"
+CHROME_ONLY_REJECTED_BROWSERS = {
+    "edge",
+    "msedge",
+    "opera",
+    "brave",
+    "vivaldi",
+    "firefox",
+    "chromium",
+    "any",
+    "auto",
+    "default",
+    "all",
+}
+CHROME_ONLY_ACCEPTANCE_LABEL = "PASS_CHROME_CONFIG_VALIDATED"
+CHROME_ONLY_UNSUPPORTED_LABEL = "BLOCKED_UNSUPPORTED_BROWSER"
+CHROME_ONLY_INVALID_LABEL = "BLOCKED_CONFIG_INVALID"
+SUPPORTED_BROWSERS = {CHROME_ONLY_BROWSER}
+VALID_BROWSERS = {CHROME_ONLY_BROWSER}
+
+
+def validate_chrome_browser(browser=None) -> str:
+    normalized = CHROME_ONLY_BROWSER if browser is None else str(browser).strip().lower()
+    if normalized != CHROME_ONLY_BROWSER:
+        raise ConfigValidationError(
+            f"{CHROME_ONLY_UNSUPPORTED_LABEL}: Chrome lane accepts only browser='chrome'; got {browser!r}"
+        )
+    return CHROME_ONLY_BROWSER
+
+
+def supported_browser_lanes() -> tuple[str, ...]:
+    return (CHROME_ONLY_BROWSER,)
+
+
+def rejected_browser_lanes() -> tuple[str, ...]:
+    return tuple(sorted(CHROME_ONLY_REJECTED_BROWSERS))
+
+
+def chrome_config_acceptance_labels() -> dict[str, str]:
+    return {
+        "pass": CHROME_ONLY_ACCEPTANCE_LABEL,
+        "unsupported_browser": CHROME_ONLY_UNSUPPORTED_LABEL,
+        "invalid_config": CHROME_ONLY_INVALID_LABEL,
+    }
+
+
+def _patchops_u3_c02_bool(value, default=False):
+    if value is None:
+        return bool(default)
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "on", "allow", "allowed"}
+    return bool(value)
+
+
+def _patchops_u3_c02_target_from_payload(payload):
+    if isinstance(payload, dict):
+        return str(payload.get("target_url") or payload.get("url") or "https://chatgpt.com/")
+    return str(getattr(payload, "target_url", "https://chatgpt.com/") or "https://chatgpt.com/")
+
+
+def _patchops_u3_c02_browser_from_payload(payload) -> str:
+    if isinstance(payload, dict):
+        return str(payload.get("browser", CHROME_ONLY_BROWSER) or CHROME_ONLY_BROWSER)
+    return str(getattr(payload, "browser", CHROME_ONLY_BROWSER) or CHROME_ONLY_BROWSER)
+
+
+def _patchops_u3_c02_mode_from_payload(payload) -> str:
+    if isinstance(payload, dict):
+        return str(payload.get("mode", "operator_set") or "operator_set")
+    return str(getattr(payload, "mode", "operator_set") or "operator_set")
+
+
+def _patchops_u3_c02_payload_from_any(config):
+    if isinstance(config, dict):
+        return dict(config)
+    if hasattr(config, "to_payload"):
+        try:
+            payload = config.to_payload(include_target_url=True)
+        except TypeError:
+            payload = config.to_payload()
+        if isinstance(payload, dict):
+            return dict(payload)
+    if hasattr(config, "to_dict"):
+        payload = config.to_dict()
+        if isinstance(payload, dict):
+            return dict(payload)
+    if hasattr(config, "__dict__"):
+        return dict(config.__dict__)
+    return {}
+
+
+def _patchops_u3_c02_apply_chrome_payload(payload):
+    payload = dict(payload or {})
+    validate_chrome_browser(payload.get("browser", CHROME_ONLY_BROWSER))
+    payload["browser"] = CHROME_ONLY_BROWSER
+    payload["expected_browser"] = CHROME_ONLY_BROWSER
+    payload["result"] = CHROME_ONLY_ACCEPTANCE_LABEL
+    payload["file_upload_attempted"] = False
+    payload["chatgpt_submit_performed"] = False
+    payload["conversation_text_logged"] = False
+    payload["selenium_used"] = False
+    payload["webdriver_used"] = False
+    payload["browser_dom_automation_used"] = False
+    metadata = dict(payload.get("metadata") or {})
+    metadata["chrome_only_lane"] = True
+    metadata["expected_browser"] = CHROME_ONLY_BROWSER
+    payload["metadata"] = metadata
+    return payload
+
+
+def _patchops_u3_c02_apply_chrome_config(config):
+    validate_chrome_browser(_patchops_u3_c02_browser_from_payload(config))
+
+    if isinstance(config, dict):
+        return _patchops_u3_c02_apply_chrome_payload(config)
+
+    for attr, value in (
+        ("browser", CHROME_ONLY_BROWSER),
+        ("expected_browser", CHROME_ONLY_BROWSER),
+        ("chrome_only_lane", True),
+        ("file_upload_attempted", False),
+        ("chatgpt_submit_performed", False),
+        ("conversation_text_logged", False),
+        ("selenium_used", False),
+        ("webdriver_used", False),
+        ("browser_dom_automation_used", False),
+    ):
+        try:
+            setattr(config, attr, value)
+        except Exception:
+            pass
+
+    try:
+        metadata = dict(getattr(config, "metadata", {}) or {})
+        metadata["chrome_only_lane"] = True
+        metadata["expected_browser"] = CHROME_ONLY_BROWSER
+        setattr(config, "metadata", metadata)
+    except Exception:
+        pass
+
+    return config
+
+
+_PATCHOPS_U3_C02_PREVIOUS_CREATE_DEFAULT_CONFIG = globals().get("create_default_config")
+_PATCHOPS_U3_C02_PREVIOUS_CREATE_CONFIG = globals().get("create_config")
+_PATCHOPS_U3_C02_PREVIOUS_DEFAULT_CONFIG = globals().get("default_config")
+_PATCHOPS_U3_C02_PREVIOUS_READ_CONFIG = globals().get("read_config")
+_PATCHOPS_U3_C02_PREVIOUS_LOAD_CONFIG = globals().get("load_config")
+_PATCHOPS_U3_C02_PREVIOUS_WRITE_CONFIG = globals().get("write_config")
+_PATCHOPS_U3_C02_PREVIOUS_SAVE_CONFIG = globals().get("save_config")
+_PATCHOPS_U3_C02_PREVIOUS_PAYLOAD = getattr(globals().get("UploaderConfig", globals().get("ChatGPTUploaderConfig", object)), "to_payload", None)
+
+
+def _patchops_u3_c02_class_create(cls, target_url="https://chatgpt.com/", **overrides):
+    browser = overrides.pop("browser", CHROME_ONLY_BROWSER)
+    validate_chrome_browser(browser)
+    target = target_url or overrides.pop("url", "https://chatgpt.com/")
+
+    factory = _PATCHOPS_U3_C02_PREVIOUS_CREATE_DEFAULT_CONFIG or _PATCHOPS_U3_C02_PREVIOUS_CREATE_CONFIG or _PATCHOPS_U3_C02_PREVIOUS_DEFAULT_CONFIG
+    if factory is not None:
+        try:
+            cfg = factory(target_url=target, browser=CHROME_ONLY_BROWSER, **overrides)
+        except TypeError:
+            try:
+                cfg = factory(target, browser=CHROME_ONLY_BROWSER, **overrides)
+            except TypeError:
+                cfg = factory(target_url=target, **overrides)
+    else:
+        cfg = cls(target_url=validate_target_url(target), browser=CHROME_ONLY_BROWSER, **overrides)
+    return _patchops_u3_c02_apply_chrome_config(cfg)
+
+
+def create_default_config(target_url="https://chatgpt.com/", **overrides):
+    return _patchops_u3_c02_class_create(ChatGPTUploaderConfig, target_url=target_url, **overrides)
+
+
+def create_config(target_url="https://chatgpt.com/", **overrides):
+    return create_default_config(target_url=target_url, **overrides)
+
+
+def default_config(target_url="https://chatgpt.com/", **overrides):
+    return create_default_config(target_url=target_url, **overrides)
+
+
+def _patchops_u3_c02_read_raw_payload(path):
+    path = Path(path).expanduser().resolve()
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise ConfigValidationError(f"target config not found: {path}") from exc
+    except json.JSONDecodeError as exc:
+        raise ConfigValidationError(f"target config is not valid JSON: {path}: {exc}") from exc
+    if not isinstance(data, dict):
+        raise ConfigValidationError("target config must be a JSON object")
+    return data
+
+
+def read_config(path=None):
+    resolved = resolve_config_path(path) if path is None else Path(path).expanduser().resolve()
+    raw = _patchops_u3_c02_read_raw_payload(resolved)
+    validate_chrome_browser(raw.get("browser", CHROME_ONLY_BROWSER))
+    reader = _PATCHOPS_U3_C02_PREVIOUS_READ_CONFIG or _PATCHOPS_U3_C02_PREVIOUS_LOAD_CONFIG
+    if reader is not None:
+        cfg = reader(resolved)
+    else:
+        cfg = ChatGPTUploaderConfig.create(_patchops_u3_c02_target_from_payload(raw), browser=CHROME_ONLY_BROWSER)
+    return _patchops_u3_c02_apply_chrome_config(cfg)
+
+
+def load_config(path=None):
+    return read_config(path)
+
+
+def _patchops_u3_c02_write_json_payload(payload, path):
+    path = Path(path).expanduser().resolve()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return path
+
+
+def write_config(path_or_config, config=None, **kwargs):
+    if isinstance(path_or_config, (str, Path)):
+        output_path = Path(path_or_config).expanduser().resolve()
+        cfg = config
+    else:
+        cfg = path_or_config
+        output_path = Path(config if config is not None else kwargs.pop("path", DEFAULT_TARGET_CONFIG_RELATIVE)).expanduser().resolve()
+
+    if cfg is None:
+        target_url = kwargs.pop("target_url", None)
+        if target_url is None:
+            raise ConfigValidationError("target_url is required when config is not provided")
+        cfg = create_default_config(target_url=target_url, **kwargs)
+
+    cfg = _patchops_u3_c02_apply_chrome_config(cfg)
+    payload = _patchops_u3_c02_apply_chrome_payload(_patchops_u3_c02_payload_from_any(cfg))
+    return _patchops_u3_c02_write_json_payload(payload, output_path)
+
+
+def save_config(config_or_path, path_or_config=None, **kwargs):
+    return write_config(config_or_path, path_or_config, **kwargs)
+
+
+def write_target_config(*, target_url, config_path=None, repo_root=None, browser=CHROME_ONLY_BROWSER, **overrides):
+    validate_chrome_browser(browser)
+    path = resolve_config_path(config_path, repo_root=repo_root)
+    cfg = create_default_config(target_url=target_url, browser=CHROME_ONLY_BROWSER, **overrides)
+    return write_config(path, cfg)
+
+
+def read_target_config(path=None):
+    return read_config(path)
+
+
+def load_target_config(path=None):
+    return read_config(path)
+
+
+def _patchops_u3_c02_instance_write(self, path=None):
+    return write_config(self, path)
+
+
+def _patchops_u3_c02_class_read(cls, path=None):
+    return read_config(path)
+
+
+def _patchops_u3_c02_payload(self, *args, **kwargs):
+    if _PATCHOPS_U3_C02_PREVIOUS_PAYLOAD is not None:
+        try:
+            payload = dict(_PATCHOPS_U3_C02_PREVIOUS_PAYLOAD(self, *args, **kwargs))
+        except TypeError:
+            try:
+                payload = dict(_PATCHOPS_U3_C02_PREVIOUS_PAYLOAD(self))
+            except Exception:
+                payload = _patchops_u3_c02_payload_from_any(self)
+        except Exception:
+            payload = _patchops_u3_c02_payload_from_any(self)
+    else:
+        payload = _patchops_u3_c02_payload_from_any(self)
+
+    payload = _patchops_u3_c02_apply_chrome_payload(payload)
+    include_target_url = kwargs.get("include_target_url", True)
+    include_sensitive = kwargs.get("include_sensitive", True)
+    if include_target_url is False or include_sensitive is False:
+        payload.pop("target_url", None)
+    return payload
+
+
+for _patchops_u3_c02_cls_name in ("UploaderConfig", "ChatGPTUploaderConfig", "ChatGPTCopilotTargetConfig", "TargetConfig"):
+    _patchops_u3_c02_cls = globals().get(_patchops_u3_c02_cls_name)
+    if _patchops_u3_c02_cls is not None:
+        try:
+            _patchops_u3_c02_cls.create = classmethod(_patchops_u3_c02_class_create)
+            _patchops_u3_c02_cls.read = classmethod(_patchops_u3_c02_class_read)
+            _patchops_u3_c02_cls.load = classmethod(_patchops_u3_c02_class_read)
+            _patchops_u3_c02_cls.write = _patchops_u3_c02_instance_write
+            _patchops_u3_c02_cls.save = _patchops_u3_c02_instance_write
+            _patchops_u3_c02_cls.to_payload = _patchops_u3_c02_payload
+            _patchops_u3_c02_cls.to_dict = _patchops_u3_c02_payload
+            _patchops_u3_c02_cls.as_dict = _patchops_u3_c02_payload
+        except Exception:
+            pass
+
+if "UploaderConfig" in globals():
+    ChatGPTUploaderConfig = UploaderConfig
+    ChatGPTCopilotTargetConfig = UploaderConfig
+    TargetConfig = UploaderConfig
+# PATCHOPS_U3_C02_CHROME_CONFIG_ONLY_END

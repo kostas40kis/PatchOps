@@ -23,3 +23,10 @@ patchops.egg-info/
 report.txt
 *.tmp
 *.log
+data/runtime/browser_profiles/
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12

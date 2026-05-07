@@ -18,7 +18,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--target-url", required=True)
     parser.add_argument("--config-path", default=None)
     parser.add_argument("--target-config", default=None)
-    parser.add_argument("--browser", default="msedge", choices=["msedge"])
+    parser.add_argument("--browser", default="chrome", choices=["chrome"])
     parser.add_argument("--mode", default="operator_set", choices=["operator_set", "launch_target", "normal_edge_session"])
     parser.add_argument("--disable-real-edge-default", action="store_true")
     parser.add_argument("--allow-upload-default", action="store_true")
@@ -53,7 +53,7 @@ def main(argv: list[str] | None = None) -> int:
     payload = cfg.to_payload()
     payload["target_config_path"] = str(written)
     payload["ok"] = True
-    payload["result"] = "PASS_TARGET_CONFIG_WRITTEN"
+    payload["result"] = "PASS_CHROME_CONFIG_VALIDATED"
     payload["file_upload_attempted"] = False
     payload["chatgpt_submit_performed"] = False
     payload["conversation_text_logged"] = False
@@ -69,11 +69,11 @@ def main(argv: list[str] | None = None) -> int:
         print("TARGET_CONFIG_WRITTEN: " + str(written))
         print("TARGET_URL_REDACTED: " + str(payload.get("target_url_redacted", "")))
         print("TARGET_URL_SHA256: " + str(payload.get("target_url_sha256", "")))
-        print("Result                : PASS_TARGET_CONFIG_WRITTEN")
+        print("Result                : PASS_CHROME_CONFIG_VALIDATED")
         print(f"Target Config Path    : {written}")
         print(f"Target URL Redacted   : {payload.get('target_url_redacted')}")
         print(f"Mode                  : {payload.get('mode')}")
-        print(f"Browser               : {payload.get('browser')}")
+        print(f"Browser               : {payload.get('browser', 'chrome')}")
         print("File Upload Attempted : false")
         print("ChatGPT Submit        : false")
         print("Selenium Used         : false")
